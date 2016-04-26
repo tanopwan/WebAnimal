@@ -6,7 +6,6 @@ class AddNewCase extends React.Component {
         return (
             <div>
                 เ พิ่ ม เ ค ส ใ ห ม่
-                <InputText name="John" display_name="Name" />
                 
             </div>
             

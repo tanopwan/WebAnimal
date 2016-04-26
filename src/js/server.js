@@ -8,7 +8,6 @@ import ReactDOMServer from 'react-dom/server';
 import App from './components/App.jsx';
 
 import bodyParser from 'body-parser';
-import mongodb from 'mongodb';
 
 import router from './router.jsx';
 import user_router from './controllers/users.js'
@@ -16,6 +15,7 @@ import user_router from './controllers/users.js'
 var app = express();
 
 app.use(express.static('public'));
+app.use(bodyParser.json())
 app.use('/api', user_router);
 app.use('/', router);
  
@@ -29,14 +29,4 @@ var server = app.listen(3000, function() {
     console.log('listening at http://%s:%s', host, port);
 });
 
-var url = 'mongodb://localhost:27017/webanimal';
-var db;
-var MongoClient = mongodb.MongoClient;
-MongoClient.connect(url, function(err, database) {
-	if (err) {
-		console.log('Unable to connect to the mongoDB server. Error:', err);
-	} else {
-		console.log('Connection established to ', url);
-		db = database;
-	}
-})
+
