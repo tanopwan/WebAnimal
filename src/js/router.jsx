@@ -6,7 +6,7 @@ import { RouterContext, match } from 'react-router'
 import routes from './routes.jsx';
  
 export default function(req, res) {
-    console.log('routes:' + req.url);
+    console.log('[router.js] routes:' + req.url);
 
     match({ routes, location:req.url }, (error, redirectLocation, renderProps) => {
     	if (error) {
@@ -18,7 +18,7 @@ export default function(req, res) {
             	markup: ReactDOM.renderToString(<RouterContext {...renderProps} />)
         	});
     	} else {
-      		res.status(404).send('Not found')
+      		res.status(404).send('[router.js] Not found');
     	}
     });
 }

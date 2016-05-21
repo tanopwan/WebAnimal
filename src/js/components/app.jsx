@@ -11,39 +11,58 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            fb: {
+            userObject: {
                 fbId: "",
                 username: ""
-            }
+            },
+            errorObject: null
         };
     }
 
     _onLogin(object) {
         console.log("_onLogin: " + JSON.stringify(object));
-        
-        this.setState({
-            fb: object
-        });
-        console.log(this.state.fb.username);
+        if (object.code == 200) {
+            this.setState({
+                userObject: object
+            });
+        }
+        else {
+            this.setState({
+                errorObject: object
+            });
+        }
     }
 
-    // ใส่ link ไปยังหน้า Home และ About
     render() {
         return (
             <div>
+                <div className="pull-right">
+                    <FacebookButton onLogin={this._onLogin.bind(this)}/>
+                </div>
                 <ul className="nav nav-pills">
                     <li><Link to='/'>Home</Link></li>
     				<li><Link to='/about'>About</Link></li>
     				<li><Link to='/add_new_case'>A D D</Link></li>
     				<li><Link to='/account'>A C C O U N T</Link></li>
+                    <li><Link to='/mycases'>M Y C A S E S</Link></li>
                 </ul>
-                <div className="pull-right">
-                    <FacebookButton onLogin={this._onLogin.bind(this)}/>
-                </div>
-                {React.cloneElement(this.props.children, { value: this.state.fb.username })}
+                {React.cloneElement(this.props.children, { userObject: this.state.userObject.object, errorObject: this.state.errorObject})}
             </div>
         );
    }
+}
+
+App.propTypes = {
+    userObject: React.PropTypes.object
+}
+
+App.defaultProps = {
+    userObject: {
+        object: {
+            fbId: "",
+            username: ""
+        }
+    }
 }
  
 export default App;

@@ -1,0 +1,49 @@
+@font-face {
+    font-family: "TH Sarabun New";
+    src: url(fonts/THSarabunNew.ttf) format("truetype");
+}
+
+.cropthumbnail {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+.cropthumbnail img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100%;
+  height: auto;
+  -webkit-transform: translate(-50%,-50%);
+      -ms-transform: translate(-50%,-50%);
+          transform: translate(-50%,-50%);
+}
+.cropthumbnail img.portrait {
+  width: 100%;
+  height: auto;
+}
+
+div.card {
+  /*background-color: #e6e6e6;*/
+  margin: 10px 10px 10px 10px;
+  display: inline-block;
+  width: 250px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  text-align: center;
+  color: #4d4d4d;
+  font-family: "TH Sarabun New", Verdana, Tahoma;
+  font-size: 25px;
+}
+
+div.container {
+  width: 100%;
+  padding: 10px;
+}
+
+body {
+  /*background-color: #f9d616;*/
+
+}
+
+

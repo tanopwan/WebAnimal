@@ -1,5 +1,5 @@
 import React from 'react';
-import userServices from '../services/userServices.js';
+import userServices from '../services/user-services.js';
 
 
 export default class FacebookButton extends React.Component {
@@ -12,9 +12,12 @@ export default class FacebookButton extends React.Component {
     }
 
     componentDidMount() {
+        console.log("componentDidMount{FacebookButton}");
         window.fbAsyncInit = function() {
             FB.init({
                 appId      : '1669516483298849',
+                status     : true,
+                cookie     : true,
                 xfbml      : true,
                 version    : 'v2.6'
             });
@@ -28,33 +31,45 @@ export default class FacebookButton extends React.Component {
             fjs.parentNode.insertBefore(js, fjs);
         }(document, 'script', 'facebook-jssdk'));
 
-        this.FB = FB;
-        this.FB.Event.subscribe('auth.logout', this.onLogout.bind(this));
-        this.FB.Event.subscribe('auth.statusChange', this.onStatusChange.bind(this));
+        try {
+            this.FB = FB;
+            this.FB.Event.subscribe('auth.logout', this.onLogout.bind(this));
+            this.FB.Event.subscribe('auth.statusChange', this.onStatusChange.bind(this));
+        }
+        catch(err) {
+            console.log("Could not connect to Facebook Server");
+        }
+
     }
 
     onStatusChange(response) {
-        var self = this;
-        if( response.status === "connected" ) {
-            this.FB.api('/me', function(response) {
-                console.log( "Component{FacebookButton} [onStatusChange] " + JSON.stringify(response) );
-                var message = "Welcome " + response.name;
-                self.setState({
-                    message: message
-                });
-                userServices.addUser(response).then(function(res) {
-                    console.log(res);
-                    self.props.onLogin(res);
-
-                })
-            })
-        }
+        this.getUserProfile(response);
     }
 
     onLogout(response) {
         this.setState({
             message: ""
         });
+    }
+
+    getUserProfile(res) {
+        var self = this;
+        if( res.status === "connected" ) {
+            this.FB.api('/me', function(response) {
+                console.log( "getUserProfile{FacebookButton}: " + JSON.stringify(response) );
+                var message = "Welcome " + response.name;
+                self.setState({
+                    message: message
+                });
+                var userObject = {
+                    fbId: response.id,
+                    username: response.name
+                }
+                userServices.userLogin(userObject).then(function(res) {
+                    self.props.onLogin(res);
+                })
+            })
+        }
     }
 
     render() {

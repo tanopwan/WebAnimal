@@ -11,7 +11,7 @@ class SaveButton extends React.Component {
     render() {
         return (
         	<div className="form-group">
-				<input type="submit" className="btn btn-success" value="Save"/>
+				<button type="submit" className="btn btn-success">Save</button>
 			</div>
         );
     }

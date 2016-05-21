@@ -3,7 +3,6 @@ import React from 'react';
 class InputText extends React.Component {
     constructor(props) {
         super(props);
-        console.log("InputText contructor");
         this.state = {
             value : ""
         };
@@ -15,12 +14,12 @@ class InputText extends React.Component {
     }
 
     componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps: " + JSON.stringify(props));
+        console.log("componentWillReceiveProps{InputText}: props" + JSON.stringify(props));
         this.setState({value: props.value});
     }
 
     componentDidMount() {
-        console.log("componentDidMount: " + JSON.stringify(this.props));
+        console.log("componentDidMount{InputText}: this.props" + JSON.stringify(this.props));
         this.setState({value: this.props.value});
     }
 

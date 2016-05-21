@@ -11,22 +11,25 @@ import bodyParser from 'body-parser';
 
 import router from './router.jsx';
 import user_router from './controllers/users.js'
+import case_router from './controllers/cases.js'
  
 var app = express();
 
 app.use(express.static('public'));
-app.use(bodyParser.json())
-app.use('/api', user_router);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use('/api/user', user_router);
+app.use('/api/case', case_router);
 app.use('/', router);
  
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, '../templates'));
- 
+
 var server = app.listen(3000, function() {
     var host = server.address().address;
     var port = server.address().port;
     console.log('listening at http://%s:%s', host, port);
 });
-
 
