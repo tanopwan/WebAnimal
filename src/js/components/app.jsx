@@ -11,12 +11,14 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            userObject: {
-                fbId: "",
-                username: ""
-            },
+            userObject: {},
+            err: false,
             errorObject: null
         };
+    }
+
+    componentDidMount() {
+        console.log("componentDidMount{App}");
     }
 
     _onLogin(object) {
@@ -33,7 +35,30 @@ class App extends React.Component {
         }
     }
 
+    setAppErrorState(errorObject) {
+        this.setState({
+            err: true,
+            errorObject: errorObject
+        }, function() {
+            console.log("setAppErrorState: " + JSON.stringify(errorObject));
+        });
+    }
+
+    resetAppErrorState() {
+        this.setState({
+            err: false,
+            errorObject: null
+        })
+    }
+
     render() {
+        const childrenWithProps = React.Children.map(this.props.children,
+            (child) => React.cloneElement(child, {
+                callbacks: [{setError: this.setAppErrorState.bind(this), resetError: this.resetAppErrorState.bind(this)}],
+                setError: "!111",
+                userObject: this.state.userObject.object
+            })
+        );
         return (
             <div>
                 <div className="pull-right">
@@ -46,23 +71,18 @@ class App extends React.Component {
     				<li><Link to='/account'>A C C O U N T</Link></li>
                     <li><Link to='/mycases'>M Y C A S E S</Link></li>
                 </ul>
-                {React.cloneElement(this.props.children, { userObject: this.state.userObject.object, errorObject: this.state.errorObject})}
+
+                {(function(error, self) {
+                    if (error == 1) {
+                        return (<div className="alert alert-danger">
+                                    {JSON.stringify(self.props.errorObject)}
+                                </div>);
+                    }
+                })(this.state.err, this)}
+                {childrenWithProps}
             </div>
         );
    }
-}
-
-App.propTypes = {
-    userObject: React.PropTypes.object
-}
-
-App.defaultProps = {
-    userObject: {
-        object: {
-            fbId: "",
-            username: ""
-        }
-    }
 }
  
 export default App;

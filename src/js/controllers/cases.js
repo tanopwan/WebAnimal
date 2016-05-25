@@ -14,7 +14,45 @@ var case_router = express.Router();
 case_router.route("/").get(getCases).post(saveCase);
 case_router.route("/:id").get(getCase);
 
-case_router.post("/addNewCase", [upload.single('profile_picture'), function (req, res) {
+case_router.post("/addNewCase", [upload.single('profile_picture'), addNewCase]);
+case_router.post("/updateCase", [upload.single('profile_picture'), updateCase]);
+
+function getCases(req, res) {
+	console.log("getCases: " + JSON.stringify(req.query));
+	var query = {};
+	if (req.query.animal_types) {
+		query.animalType = { $in:  req.query.animal_types };
+	}
+	Case.find(query)
+  	.limit(20)
+  	.populate('user')
+  	.sort({ caseDate: -1 })
+  	.exec(function(err, results) {
+		response_template.object = results;
+		response_template.action = "getCases";
+		res.send(response_template);
+	});
+}
+
+function getCase(req, res) {
+	console.log("getCase: " + JSON.stringify(req.params));
+	Case.findById(req.params.id)
+  	.populate('user')
+  	.exec(function(err, results) {
+		response_template.object = results;
+		response_template.action = "getCase";
+		res.send(response_template);
+	});
+}
+
+function saveCase(req, res) {
+	console.log("saveCase: " + JSON.stringify(req.body));
+	response_template.object = "not implemented";
+	response_template.action = "saveCase";
+	res.send(response_template);
+}
+
+function addNewCase(req, res) {
 	response_template.action = "addNewCase";
 	if (req.body) {
 		req.body.user = req.body.userId;
@@ -50,8 +88,6 @@ case_router.post("/addNewCase", [upload.single('profile_picture'), function (req
 	    }
 	}
 
-    
-
 	/*image.metadata()
 		.then(function(metadata) {
 			console.log(metadata);
@@ -64,40 +100,10 @@ case_router.post("/addNewCase", [upload.single('profile_picture'), function (req
 			        }
 			    });
 	    });*/
-}]);
-
-function getCases(req, res) {
-	console.log("getCases: " + JSON.stringify(req.query));
-	var query = {};
-	if (req.query.animal_types) {
-		query.animalType = { $in:  req.query.animal_types };
-	}
-	Case.find(query)
-  	.limit(20)
-  	.populate('user')
-  	.sort({ caseDate: -1 })
-  	.exec(function(err, results) {
-		response_template.object = results;
-		response_template.action = "getCases";
-		res.send(response_template);
-	});
 }
 
-function getCase(req, res) {
-	console.log("getCase: " + JSON.stringify(req.params));
-	Case.findById(req.params.id)
-  	.populate('user')
-  	.exec(function(err, results) {
-		response_template.object = results;
-		response_template.action = "getCase";
-		res.send(response_template);
-	});
-}
-
-function saveCase(req, res) {
-	console.log("saveCase: " + JSON.stringify(req.body));
-	response_template.object = "not implemented";
-	response_template.action = "saveCase";
+function updateCase(req, res) {
+	response_template.action = "updateCase";
 	res.send(response_template);
 }
 

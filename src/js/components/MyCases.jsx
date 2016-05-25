@@ -12,11 +12,12 @@ class MyCases extends React.Component {
 
     componentDidMount() {
     }
-
+    /*<CaseDetail case_id="573d85c369981eaa77f5a620"/>*/
     render() {
         return (
             <div>
-                <CaseDetail case_id="573d85c369981eaa77f5a620"/>
+                
+                {this.props.children}
             </div>
         );
     }

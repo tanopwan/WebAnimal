@@ -25444,7 +25444,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 
 	var _react = __webpack_require__(1);
@@ -25465,43 +25465,58 @@
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _AddNewCase = __webpack_require__(505);
+	var _AddNewCase = __webpack_require__(506);
 
 	var _AddNewCase2 = _interopRequireDefault(_AddNewCase);
 
-	var _Account = __webpack_require__(507);
+	var _Account = __webpack_require__(509);
 
 	var _Account2 = _interopRequireDefault(_Account);
 
-	var _MyCases = __webpack_require__(511);
+	var _MyCases = __webpack_require__(513);
 
 	var _MyCases2 = _interopRequireDefault(_MyCases);
+
+	var _CasePage = __webpack_require__(515);
+
+	var _CasePage2 = _interopRequireDefault(_CasePage);
 
 	var _CaseContainer = __webpack_require__(503);
 
 	var _CaseContainer2 = _interopRequireDefault(_CaseContainer);
 
+	var _CaseDetail = __webpack_require__(514);
+
+	var _CaseDetail2 = _interopRequireDefault(_CaseDetail);
+
+	var _FormEditCase = __webpack_require__(516);
+
+	var _FormEditCase2 = _interopRequireDefault(_FormEditCase);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	//
 	// ระบุว่า path นี้จะถูก handle ด้วย component ไหน
 
 
-	// โหลดความสามารถของ react-router มาใช้งาน
+	// โหลด component ต่างๆ
 	exports.default = _react2.default.createElement(
-	  _reactRouter.Route,
-	  { path: '/', component: _App2.default },
-	  _react2.default.createElement(_reactRouter.IndexRoute, { component: _Home2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: 'add_new_case', component: _AddNewCase2.default }),
-	  _react2.default.createElement(_reactRouter.Route, { path: 'account', component: _Account2.default }),
-	  _react2.default.createElement(
 	    _reactRouter.Route,
-	    { path: 'mycases', component: _MyCases2.default },
-	    _react2.default.createElement(_reactRouter.IndexRoute, { component: _CaseContainer2.default })
-	  )
+	    { path: '/', component: _App2.default },
+	    _react2.default.createElement(_reactRouter.IndexRoute, { component: _Home2.default }),
+	    _react2.default.createElement(_reactRouter.Route, { path: 'about', component: _About2.default }),
+	    _react2.default.createElement(_reactRouter.Route, { path: 'add_new_case', component: _AddNewCase2.default }),
+	    _react2.default.createElement(_reactRouter.Route, { path: 'account', component: _Account2.default }),
+	    _react2.default.createElement(_reactRouter.Route, { path: 'mycases', component: _MyCases2.default }),
+	    _react2.default.createElement(
+	        _reactRouter.Route,
+	        { path: 'case', component: _CasePage2.default },
+	        _react2.default.createElement(_reactRouter.Route, { path: 'view/:id', component: _CaseDetail2.default }),
+	        _react2.default.createElement(_reactRouter.Route, { path: 'edit/:id', component: _FormEditCase2.default })
+	    )
 	);
 
-	// โหลด component ต่างๆ
+	// โหลดความสามารถของ react-router มาใช้งาน
 
 /***/ },
 /* 226 */
@@ -25545,16 +25560,19 @@
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
 
 	        _this.state = {
-	            userObject: {
-	                fbId: "",
-	                username: ""
-	            },
+	            userObject: {},
+	            err: false,
 	            errorObject: null
 	        };
 	        return _this;
 	    }
 
 	    _createClass(App, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            console.log("componentDidMount{App}");
+	        }
+	    }, {
 	        key: '_onLogin',
 	        value: function _onLogin(object) {
 	            console.log("_onLogin: " + JSON.stringify(object));
@@ -25569,8 +25587,35 @@
 	            }
 	        }
 	    }, {
+	        key: 'setAppErrorState',
+	        value: function setAppErrorState(errorObject) {
+	            this.setState({
+	                err: true,
+	                errorObject: errorObject
+	            }, function () {
+	                console.log("setAppErrorState: " + JSON.stringify(errorObject));
+	            });
+	        }
+	    }, {
+	        key: 'resetAppErrorState',
+	        value: function resetAppErrorState() {
+	            this.setState({
+	                err: false,
+	                errorObject: null
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+
+	            var childrenWithProps = _react2.default.Children.map(this.props.children, function (child) {
+	                return _react2.default.cloneElement(child, {
+	                    callbacks: [{ setError: _this2.setAppErrorState.bind(_this2), resetError: _this2.resetAppErrorState.bind(_this2) }],
+	                    setError: "!111",
+	                    userObject: _this2.state.userObject.object
+	                });
+	            });
 	            return _react2.default.createElement(
 	                'div',
 	                null,
@@ -25628,26 +25673,22 @@
 	                        )
 	                    )
 	                ),
-	                _react2.default.cloneElement(this.props.children, { userObject: this.state.userObject.object, errorObject: this.state.errorObject })
+	                function (error, self) {
+	                    if (error == 1) {
+	                        return _react2.default.createElement(
+	                            'div',
+	                            { className: 'alert alert-danger' },
+	                            JSON.stringify(self.props.errorObject)
+	                        );
+	                    }
+	                }(this.state.err, this),
+	                childrenWithProps
 	            );
 	        }
 	    }]);
 
 	    return App;
 	}(_react2.default.Component);
-
-	App.propTypes = {
-	    userObject: _react2.default.PropTypes.object
-	};
-
-	App.defaultProps = {
-	    userObject: {
-	        object: {
-	            fbId: "",
-	            username: ""
-	        }
-	    }
-	};
 
 	exports.default = App;
 
@@ -36720,39 +36761,19 @@
 	  _createClass(Home, [{
 	    key: 'componentWillReceiveProps',
 	    value: function componentWillReceiveProps(props) {
-	      console.log("componentWillReceiveProps{Home}: props.errorObject" + JSON.stringify(props.errorObject));
-	      console.log("componentWillReceiveProps{Home}: props" + JSON.stringify(props));
-	      if (props.errorObject != null) {
-	        this.setState({ err: 1 });
-	      } else {
-	        this.setState({ err: 0 });
-	      }
+	      //console.log("componentWillReceiveProps{Home}: props.errorObject: " + JSON.stringify(props.errorObject));
+	      console.log("componentWillReceiveProps{Home}: props: " + JSON.stringify(props));
 	    }
 	  }, {
 	    key: 'componentDidMount',
-	    value: function componentDidMount() {
-	      if (this.props.errorObject != null) {
-	        this.setState({ err: 1 });
-	      } else {
-	        this.setState({ err: 0 });
-	      }
-	    }
+	    value: function componentDidMount() {}
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        function (error, self) {
-	          if (error == 1) {
-	            return _react2.default.createElement(
-	              'div',
-	              { className: 'alert alert-danger' },
-	              JSON.stringify(self.props.errorObject)
-	            );
-	          }
-	        }(this.state.err, this),
-	        _react2.default.createElement(_ViewCaseContainer2.default, null)
+	        _react2.default.createElement(_ViewCaseContainer2.default, this.props)
 	      );
 	    }
 	  }]);
@@ -36824,9 +36845,7 @@
 	            var self = this;
 	            this.setState({ filters: {
 	                    animalTypes: animalTypes
-	                } }, function () {
-	                console.log("already setState");
-	            });
+	                } });
 	        }
 	    }, {
 	        key: 'render',
@@ -36914,13 +36933,12 @@
 	    _createClass(CaseCard, [{
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(props) {
-	            console.log("componentWillReceiveProps{CaseCard}: props" + JSON.stringify(props));
+	            //console.log("componentWillReceiveProps{CaseCard} with props: " + JSON.stringify(props));
 	            this.setState({ value: props.value });
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            console.log("componentDidMount{CaseCard}: this.props" + JSON.stringify(this.props));
 	            this.setState({ value: this.props.value });
 	        }
 	    }, {
@@ -56184,19 +56202,71 @@
 	var resourceUrl = "http://localhost:3000/api/case/";
 	var Promise = _es6Promise2.default.Promise;
 
+	function postAjaxUrl(url, formData) {
+	    return new Promise(function (resolve, reject) {
+	        _jquery2.default.ajax({
+	            url: url,
+	            data: formData,
+	            contentType: false,
+	            processData: false,
+	            type: "POST",
+	            dataType: "json",
+	            success: function success(data, textStatus, jqXHR) {
+	                //console.log(data);
+	                //console.log(jqXHR);
+	            },
+	            error: function error(data, textStatus, jqXHR) {
+	                console.log(data);
+	                console.log(jqXHR);
+	            }
+	        });
+	    });
+	}
+
+	function postCase(formTarget, userId) {
+	    var formData = new FormData();
+	    formData.append('userId', userId);
+	    formData.append('createdDate', new Date());
+	    for (var i = 0; i < formTarget.length; i++) {
+	        var element = formTarget[i];
+	        if (element.type != "submit") {
+	            if (element.type == "file") {
+	                //console.log("Append " + element.name + "=" + element.value);
+	                if (element.files && element.files.length == 1) {
+	                    formData.append(element.name, element.files[0]);
+	                    console.log("value: " + element.value);
+	                    console.log(element.files[0]);
+	                }
+	            } else if (element.type == "text" || element.type == "select-one" || element.type == "textarea") {
+	                //console.log("Append " + element.name + "=" + element.value);
+	                formData.append(element.name, element.value);
+	                if (element.name == "caseName" && element.value == "") {
+	                    var response_template = { code: 400, message: "caseName cannot be empty", action: "case-services", object: {} };
+	                    return Promise.resolve(response_template);
+	                }
+	            } else {
+	                console.log("Warning: case-services.js[saveNewCase] unhandle element type! [" + element.type + "]");
+	            }
+	        }
+	    }
+	    return { formData: formData };
+	}
+
 	module.exports = {
 	    getCases: function getCases(filters) {
-	        var animalTypes = filters.animalTypes;
-	        var animalTypesParam = "?";
 	        var urlParams = resourceUrl;
-	        if (animalTypes) {
-	            animalTypes.map(function (animalType) {
-	                if (animalTypesParam != "?") {
-	                    animalTypesParam = animalTypesParam + "&";
-	                }
-	                animalTypesParam = animalTypesParam + "animal_types=" + animalType;
-	            });
-	            urlParams = urlParams + animalTypesParam;
+	        if (filters) {
+	            var animalTypes = filters.animalTypes;
+	            if (animalTypes) {
+	                var animalTypesParam = "?";
+	                animalTypes.map(function (animalType) {
+	                    if (animalTypesParam != "?") {
+	                        animalTypesParam = animalTypesParam + "&";
+	                    }
+	                    animalTypesParam = animalTypesParam + "animal_types=" + animalType;
+	                });
+	                urlParams = urlParams + animalTypesParam;
+	            }
 	        }
 
 	        return new Promise(function (resolve, reject) {
@@ -56209,6 +56279,7 @@
 	            });
 	        });
 	    },
+
 	    getCase: function getCase(case_id) {
 	        var urlParams = resourceUrl + case_id;
 
@@ -56221,6 +56292,21 @@
 	                error: reject
 	            });
 	        });
+	    },
+
+	    saveNewCase: function saveNewCase(formTarget, userId) {
+	        var result = postCase(formTarget, userId);
+	        if (result.formData) {
+	            console.log("result.formData");
+	            return postAjaxUrl('/api/case/addNewCase', result.formData);
+	        }
+	        return result;
+	    },
+
+	    updateCase: function updateCase(formTarget, userId, case_id) {
+	        var result = postCase(formTarget, userId);
+	        result.formData.append('case_id', case_id);
+	        return postAjaxUrl('/api/case/updateCase', result.formData);
 	    }
 	};
 
@@ -56247,6 +56333,8 @@
 	var _caseServices = __webpack_require__(502);
 
 	var _caseServices2 = _interopRequireDefault(_caseServices);
+
+	var _reactRouter = __webpack_require__(166);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56287,7 +56375,11 @@
 	                'div',
 	                { className: 'col-xs-12' },
 	                this.state.objects.map(function (item) {
-	                    return _react2.default.createElement(_CaseCard2.default, { key: item._id, item: item });
+	                    return _react2.default.createElement(
+	                        _reactRouter.Link,
+	                        { to: '/case/edit/' + item._id, key: item._id },
+	                        _react2.default.createElement(_CaseCard2.default, { key: item._id, item: item })
+	                    );
 	                })
 	            );
 	        }
@@ -56314,6 +56406,14 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _CasePanel = __webpack_require__(505);
+
+	var _CasePanel2 = _interopRequireDefault(_CasePanel);
+
+	var _caseServices = __webpack_require__(502);
+
+	var _caseServices2 = _interopRequireDefault(_caseServices);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -56325,19 +56425,40 @@
 	var About = function (_React$Component) {
 	    _inherits(About, _React$Component);
 
-	    function About() {
+	    function About(props) {
 	        _classCallCheck(this, About);
 
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(About).apply(this, arguments));
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(About).call(this, props));
+
+	        _this.state = {
+	            items: []
+	        };
+	        return _this;
 	    }
 
 	    _createClass(About, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var self = this;
+	            _caseServices2.default.getCases().then(function (res) {
+	                if (res.code == 200) {
+	                    self.setState({ items: res.object });
+	                }
+	            });
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                'About ---- !'
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'col-xs-12' },
+	                    this.state.items.map(function (item) {
+	                        return _react2.default.createElement(_CasePanel2.default, { key: item._id, item: item });
+	                    })
+	                )
 	            );
 	        }
 	    }]);
@@ -56349,6 +56470,89 @@
 
 /***/ },
 /* 505 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CasePanel = function (_React$Component) {
+	    _inherits(CasePanel, _React$Component);
+
+	    function CasePanel(props) {
+	        _classCallCheck(this, CasePanel);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CasePanel).call(this, props));
+
+	        _this.state = {
+	            item: {
+	                user: {},
+	                caseName: ""
+	            }
+	        };
+	        return _this;
+	    }
+
+	    _createClass(CasePanel, [{
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(props) {}
+	    }, {
+	        key: "componentDidMount",
+	        value: function componentDidMount() {}
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "panel panel-default" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "panel-heading" },
+	                    this.props.item.caseName
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "panel-body" },
+	                    "Panel Content"
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "panel-footer" },
+	                    "Panel Footer"
+	                )
+	            );
+	        }
+	    }]);
+
+	    return CasePanel;
+	}(_react2.default.Component);
+
+	CasePanel.defaultProps = {
+	    item: {
+	        caseName: ""
+	    }
+	};
+
+	exports.default = CasePanel;
+
+/***/ },
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56363,13 +56567,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _FormAddNewCase = __webpack_require__(506);
+	var _FormAddNewCase = __webpack_require__(507);
 
 	var _FormAddNewCase2 = _interopRequireDefault(_FormAddNewCase);
-
-	var _CaseCard = __webpack_require__(236);
-
-	var _CaseCard2 = _interopRequireDefault(_CaseCard);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56389,6 +56589,16 @@
 	    }
 
 	    _createClass(AddNewCase, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(props) {
+	            console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
+	        }
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
+	        }
+	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
@@ -56406,12 +56616,7 @@
 	                            'Add new case'
 	                        )
 	                    ),
-	                    _react2.default.createElement(_FormAddNewCase2.default, { userObject: this.props.userObject })
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-xs-4' },
-	                    _react2.default.createElement(_CaseCard2.default, null)
+	                    _react2.default.createElement(_FormAddNewCase2.default, this.props)
 	                )
 	            );
 	        }
@@ -56420,17 +56625,10 @@
 	    return AddNewCase;
 	}(_react2.default.Component);
 
-	AddNewCase.defaultProps = {
-	    userObject: {
-	        fbId: "",
-	        username: ""
-	    }
-	};
-
 	exports.default = AddNewCase;
 
 /***/ },
-/* 506 */
+/* 507 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56445,11 +56643,13 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _userServices = __webpack_require__(228);
+	var _FormCase = __webpack_require__(508);
 
-	var _userServices2 = _interopRequireDefault(_userServices);
+	var _FormCase2 = _interopRequireDefault(_FormCase);
 
-	var _reactBootstrap = __webpack_require__(237);
+	var _caseServices = __webpack_require__(502);
+
+	var _caseServices2 = _interopRequireDefault(_caseServices);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -56465,70 +56665,157 @@
 		function FormAddNewCase(props) {
 			_classCallCheck(this, FormAddNewCase);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormAddNewCase).call(this, props));
-
-			_this.state = {};
-			return _this;
+			return _possibleConstructorReturn(this, Object.getPrototypeOf(FormAddNewCase).call(this, props));
 		}
 
 		_createClass(FormAddNewCase, [{
 			key: 'componentWillReceiveProps',
 			value: function componentWillReceiveProps(props) {
 				console.log("componentWillReceiveProps{FormAddNewCase}: " + JSON.stringify(props));
-				this.setState({ form: {
-						username: props.userObject.username
-					} });
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				console.log("componentDidMount{FormAddNewCase}: " + JSON.stringify(this.props));
 			}
 		}, {
 			key: 'handleSubmit',
 			value: function handleSubmit(event) {
 				event.preventDefault();
+				if (event.target) {
+					var self = this;
+					_caseServices2.default.saveNewCase(event.target, this.props.userObject.userId).then(function (res) {
+						console.log("return from CaseServices.saveNewCase: " + JSON.stringify(res));
+						if (res.code == 200) {
+							this.props.resetError(res);
+						} else {
+							console.log("setError: " + this.props.setError);
+							this.props.setError(res);
+						}
+					});
+				}
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(_FormCase2.default, { handleSubmit: this.handleSubmit.bind(this), userObject: this.props.userObject });
+			}
+		}]);
 
-				console.log($("select[name='animalType']").val());
-				var formData = new FormData();
-				formData.append('userId', this.props.userObject.userId);
-				formData.append('caseName', $('input[name=caseName]').val());
-				formData.append('animalType', $("select[name='animalType']").val());
-				formData.append('animalName', '');
-				formData.append('caseStatus', $("select[name='caseStatus']").val());
-				formData.append('createdDate', new Date());
-				formData.append('caseDate', '');
-				formData.append('description', $('textarea[name=description]').val());
-				formData.append('profile_picture', $('input[type=file]')[0].files[0]);
+		return FormAddNewCase;
+	}(_react2.default.Component);
 
-				$.ajax({
-					url: '/api/case/addNewCase',
-					data: formData,
-					contentType: false,
-					processData: false,
-					type: "POST",
-					dataType: "json",
-					success: function success(data, textStatus, jqXHR) {
-						//process data
-						console.log(data);
-						console.log(textStatus);
-						console.log(jqXHR);
-					},
-					error: function error(data, textStatus, jqXHR) {
-						//process error msg
-						console.log(data);
-						console.log(textStatus);
-						console.log(jqXHR);
+	exports.default = FormAddNewCase;
+
+/***/ },
+/* 508 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(237);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var FormCase = function (_React$Component) {
+		_inherits(FormCase, _React$Component);
+
+		function FormCase(props) {
+			_classCallCheck(this, FormCase);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormCase).call(this, props));
+
+			_this.state = {
+				user: {},
+				caseName: "",
+				description: "",
+				animalType: "dog",
+				caseStatus: "open_fund",
+				imagePath: "uploads/processed/anonymous.webp",
+				fileinputClass: "fileinput-new"
+			};
+			return _this;
+		}
+
+		_createClass(FormCase, [{
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(props) {
+				console.log("componentWillReceiveProps{FormCase}: " + JSON.stringify(props));
+				if (props.item) {
+					var item = props.item;
+					if (item.imagePath) {
+						item.fileinputClass = "fileinput-exists";
 					}
+					if (!item.imagePath) {
+						item.imagePath = "uploads/processed/anonymous.webp";
+					}
+					this.setState(item);
+				}
+				if (props.userObject) {
+					this.setState({ user: props.userObject });
+				}
+			}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+				console.log("componentDidMount{FormCase}: " + JSON.stringify(this.props));
+				if (this.props.item) {
+					this.setState(this.props.item);
+				}
+				if (this.props.userObject) {
+					this.setState({ user: this.props.userObject });
+				}
+			}
+		}, {
+			key: 'handleCaseNameChange',
+			value: function handleCaseNameChange(event) {
+				this.setState({
+					caseName: event.target.value
 				});
 			}
-
-			/*handleCaseNameChange(event) {
-	         this.setState({
-	         	caseName: event.target.value
-	         });
-	     }
-	      handleDescriptionChange(event) {
-	         this.setState({
-	         	description: event.target.value
-	         });
-	     }*/
-
+		}, {
+			key: 'handleDescriptionChange',
+			value: function handleDescriptionChange(event) {
+				this.setState({
+					description: event.target.value
+				});
+			}
+		}, {
+			key: 'handleAnimalTypeChange',
+			value: function handleAnimalTypeChange(event) {
+				this.setState({
+					animalType: event.target.value
+				});
+			}
+		}, {
+			key: 'handleCaseStatusChange',
+			value: function handleCaseStatusChange(event) {
+				this.setState({
+					caseStatus: event.target.value
+				});
+			}
+		}, {
+			key: 'handleProfilePictureChange',
+			value: function handleProfilePictureChange(event) {
+				console.log("handleProfilePictureChange");
+				console.log(event);
+			}
 		}, {
 			key: 'render',
 			value: function render() {
@@ -56537,7 +56824,7 @@
 					{ className: 'col-xs-12' },
 					_react2.default.createElement(
 						_reactBootstrap.Form,
-						{ horizontal: true, name: 'AddNewCase', onSubmit: this.handleSubmit.bind(this), encType: 'multipart/form-data' },
+						{ horizontal: true, name: 'FormCase', onSubmit: this.props.handleSubmit, encType: 'multipart/form-data' },
 						_react2.default.createElement(
 							_reactBootstrap.FormGroup,
 							{ controlId: 'formHorizontalUsername' },
@@ -56552,7 +56839,7 @@
 								_react2.default.createElement(
 									_reactBootstrap.FormControl.Static,
 									null,
-									this.props.userObject.username
+									this.state.user.username
 								)
 							)
 						),
@@ -56569,8 +56856,13 @@
 								{ sm: 10 },
 								_react2.default.createElement(
 									'div',
-									{ className: 'fileinput fileinput-new', 'data-provides': 'fileinput' },
-									_react2.default.createElement('div', { className: 'fileinput-preview thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } }),
+									{ className: "fileinput " + this.state.fileinputClass, 'data-provides': 'fileinput' },
+									_react2.default.createElement('div', { className: 'fileinput-new thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } }),
+									_react2.default.createElement(
+										'div',
+										{ className: 'fileinput-preview fileinput-exists thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } },
+										_react2.default.createElement('img', { src: "http://localhost:3000/" + this.state.imagePath })
+									),
 									_react2.default.createElement(
 										'div',
 										null,
@@ -56585,14 +56877,14 @@
 											_react2.default.createElement(
 												'span',
 												{ className: 'fileinput-exists' },
-												'Change'
+												'เปลี่ยน'
 											),
 											_react2.default.createElement('input', { type: 'file', name: 'profile_picture', accept: 'image/*' })
 										),
 										_react2.default.createElement(
 											'a',
 											{ href: '#', className: 'btn btn-default fileinput-exists', 'data-dismiss': 'fileinput' },
-											'Remove'
+											'ลบ'
 										)
 									)
 								)
@@ -56609,7 +56901,7 @@
 							_react2.default.createElement(
 								_reactBootstrap.Col,
 								{ sm: 10 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส' })
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส', value: this.state.caseName, onChange: this.handleCaseNameChange.bind(this) })
 							)
 						),
 						_react2.default.createElement(
@@ -56623,7 +56915,7 @@
 							_react2.default.createElement(
 								_reactBootstrap.Col,
 								{ sm: 10 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'description', componentClass: 'textarea', placeholder: 'รายละเอียด' })
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'description', componentClass: 'textarea', placeholder: 'รายละเอียด', value: this.state.description, onChange: this.handleDescriptionChange.bind(this) })
 							)
 						),
 						_react2.default.createElement(
@@ -56639,7 +56931,7 @@
 								{ sm: 10 },
 								_react2.default.createElement(
 									_reactBootstrap.FormControl,
-									{ name: 'animalType', componentClass: 'select', placeholder: 'กรุณาเลือก' },
+									{ componentClass: 'select', name: 'animalType', placeholder: 'กรุณาเลือก', onChange: this.handleAnimalTypeChange.bind(this), value: this.state.animalType },
 									_react2.default.createElement(
 										'option',
 										{ value: 'dog' },
@@ -56671,7 +56963,7 @@
 								{ sm: 10 },
 								_react2.default.createElement(
 									_reactBootstrap.FormControl,
-									{ name: 'caseStatus', componentClass: 'select', placeholder: 'กรุณาเลือก' },
+									{ componentClass: 'select', name: 'caseStatus', placeholder: 'กรุณาเลือก', onChange: this.handleCaseStatusChange.bind(this), value: this.state.caseStatus },
 									_react2.default.createElement(
 										'option',
 										{ value: 'open_fund' },
@@ -56703,13 +56995,13 @@
 			}
 		}]);
 
-		return FormAddNewCase;
+		return FormCase;
 	}(_react2.default.Component);
 
-	exports.default = FormAddNewCase;
+	exports.default = FormCase;
 
 /***/ },
-/* 507 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56724,11 +57016,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _FormAccount = __webpack_require__(508);
+	var _FormAccount = __webpack_require__(510);
 
 	var _FormAccount2 = _interopRequireDefault(_FormAccount);
 
-	var _Counter = __webpack_require__(510);
+	var _Counter = __webpack_require__(512);
 
 	var _Counter2 = _interopRequireDefault(_Counter);
 
@@ -56777,7 +57069,6 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      console.log("Account render");
 	      return _react2.default.createElement(
 	        'div',
 	        null,
@@ -56823,7 +57114,7 @@
 	exports.default = Account;
 
 /***/ },
-/* 508 */
+/* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -56842,7 +57133,7 @@
 
 	var _userServices2 = _interopRequireDefault(_userServices);
 
-	var _InputText = __webpack_require__(509);
+	var _InputText = __webpack_require__(511);
 
 	var _InputText2 = _interopRequireDefault(_InputText);
 
@@ -56883,7 +57174,6 @@
 				};
 
 				_userServices2.default.saveUser(postUser).then(function (resolve) {
-					console.log("result");
 					console.log(resolve);
 				});
 
@@ -56934,7 +57224,7 @@
 	exports.default = FormAccount;
 
 /***/ },
-/* 509 */
+/* 511 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -57014,7 +57304,7 @@
 	exports.default = InputText;
 
 /***/ },
-/* 510 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57075,7 +57365,7 @@
 	Counter.defaultProps = { initialCount: 0 };
 
 /***/ },
-/* 511 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57090,7 +57380,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _CaseDetail = __webpack_require__(512);
+	var _CaseDetail = __webpack_require__(514);
 
 	var _CaseDetail2 = _interopRequireDefault(_CaseDetail);
 
@@ -57117,13 +57407,15 @@
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {}
+	        /*<CaseDetail case_id="573d85c369981eaa77f5a620"/>*/
+
 	    }, {
 	        key: 'render',
 	        value: function render() {
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                _react2.default.createElement(_CaseDetail2.default, { case_id: '573d85c369981eaa77f5a620' })
+	                this.props.children
 	            );
 	        }
 	    }]);
@@ -57134,7 +57426,7 @@
 	exports.default = MyCases;
 
 /***/ },
-/* 512 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57182,25 +57474,20 @@
 	        return _this;
 	    }
 
-	    /*componentWillReceiveProps(props) {
-	           console.log("componentWillReceiveProps{CaseDetail}");
-	           var self = this;
-	           CaseServices.getCase(props.case_id).then(function(res) {
-	               console.log("return from CaseServices.getCase: " + JSON.stringify(res));
-	               if (res.code == 200) {
-	                   self.setState({item: res.object}, function() {
-	                       //console.log(self.state);
-	                   });
-	               }
-	           });
-	       }*/
-
 	    _createClass(CaseDetail, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(props) {
+	            console.log("componentWillReceiveProps{CaseDetail}: " + JSON.stringify(props));
+	        }
+	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.case_id);
+	            //console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.case_id);
+	            console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.params.id);
+
+	            var case_id = this.props.params.id;
 	            var self = this;
-	            _caseServices2.default.getCase(this.props.case_id).then(function (res) {
+	            _caseServices2.default.getCase(case_id).then(function (res) {
 	                console.log("return from CaseServices.getCase: " + JSON.stringify(res));
 	                if (res.code == 200) {
 	                    self.setState({ item: res.object }, function () {
@@ -57236,6 +57523,171 @@
 	CaseDetail.defaultProps = {};
 
 	exports.default = CaseDetail;
+
+/***/ },
+/* 515 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var CasePage = function (_React$Component) {
+	    _inherits(CasePage, _React$Component);
+
+	    function CasePage(props) {
+	        _classCallCheck(this, CasePage);
+
+	        return _possibleConstructorReturn(this, Object.getPrototypeOf(CasePage).call(this, props));
+	    }
+
+	    _createClass(CasePage, [{
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(props) {
+	            console.log("componentWillReceiveProps{CasePage}: " + JSON.stringify(props.userObject));
+	        }
+	    }, {
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            console.log("componentDidMount{CasePage}");
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "h3",
+	                    null,
+	                    "Case Page"
+	                ),
+	                _react2.default.cloneElement(this.props.children, { userObject: "this.props.userObject" })
+	            );
+	        }
+	    }]);
+
+	    return CasePage;
+	}(_react2.default.Component);
+
+	CasePage.propTypes = {
+	    userObject: _react2.default.PropTypes.object
+	};
+
+	CasePage.defaultProps = {
+	    userObject: {}
+	};
+
+	exports.default = CasePage;
+
+/***/ },
+/* 516 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _FormCase = __webpack_require__(508);
+
+	var _FormCase2 = _interopRequireDefault(_FormCase);
+
+	var _caseServices = __webpack_require__(502);
+
+	var _caseServices2 = _interopRequireDefault(_caseServices);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var FormEditCase = function (_React$Component) {
+	    _inherits(FormEditCase, _React$Component);
+
+	    function FormEditCase(props) {
+	        _classCallCheck(this, FormEditCase);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormEditCase).call(this, props));
+
+	        _this.state = {
+	            item: {}
+	        };
+	        return _this;
+	    }
+
+	    _createClass(FormEditCase, [{
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(props) {}
+	    }, {
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            console.log("componentDidMount{FormEditCase} : getCase with case_id: " + this.props.params.id);
+
+	            var case_id = this.props.params.id;
+	            var self = this;
+	            _caseServices2.default.getCase(case_id).then(function (res) {
+	                console.log("return from CaseServices.getCase: " + JSON.stringify(res));
+	                if (res.code == 200) {
+	                    self.setState({ item: res.object }, function () {
+	                        //console.log(self.state);
+	                    });
+	                }
+	            });
+	        }
+	    }, {
+	        key: 'handleSubmit',
+	        value: function handleSubmit(event) {
+	            event.preventDefault();
+	            if (event.target) {
+	                var self = this;
+	                _caseServices2.default.updateCase(event.target, this.props.userObject.userId, "").then(function (res) {
+	                    console.log("return from CaseServices.updateCase: " + JSON.stringify(res));
+	                    if (res.code == 200) {}
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            return _react2.default.createElement(
+	                'div',
+	                { className: 'col-xs-8' },
+	                _react2.default.createElement(_FormCase2.default, { item: this.state.item, handleSubmit: this.handleSubmit.bind(this) })
+	            );
+	        }
+	    }]);
+
+	    return FormEditCase;
+	}(_react2.default.Component);
+
+	exports.default = FormEditCase;
 
 /***/ }
 /******/ ]);

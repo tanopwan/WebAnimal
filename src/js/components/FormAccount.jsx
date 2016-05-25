@@ -26,7 +26,6 @@ class FormAccount extends React.Component {
 		};
 
 		userServices.saveUser(postUser).then(function(resolve) {
-			console.log("result");
 			console.log(resolve);
 		});
 

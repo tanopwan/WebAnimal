@@ -31,7 +31,6 @@ class Account extends React.Component {
     }
 
     render() {
-    	console.log("Account render");
         return (
         	<div>
 	            <div className="page-header">

@@ -14,11 +14,18 @@ class CaseDetail extends React.Component {
         }
 	}
 
+	componentWillReceiveProps(props) {
+        console.log("componentWillReceiveProps{CaseDetail}: " + JSON.stringify(props));
+    }
+
     componentDidMount() {
-        console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.case_id);
+        //console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.case_id);
+        console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.params.id);
+        
+        var case_id = this.props.params.id;
         var self = this;
-        CaseServices.getCase(this.props.case_id).then(function(res) {
-            //console.log("return from CaseServices.getCase: " + JSON.stringify(res));
+        CaseServices.getCase(case_id).then(function(res) {
+            console.log("return from CaseServices.getCase: " + JSON.stringify(res));
             if (res.code == 200) {
                 self.setState({item: res.object}, function() {
                     //console.log(self.state);

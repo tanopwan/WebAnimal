@@ -23,9 +23,7 @@ class ViewCaseContainer extends React.Component {
         var self = this;
         this.setState({filters: {
             animalTypes: animalTypes
-        }}, function() {
-            console.log("already setState");
-        });
+        }});
     }
 
     render() {

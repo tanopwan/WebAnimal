@@ -10,12 +10,11 @@ class CaseCard extends React.Component {
     }
 
     componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps{CaseCard}: props" + JSON.stringify(props));
+        //console.log("componentWillReceiveProps{CaseCard} with props: " + JSON.stringify(props));
         this.setState({value: props.value});
     }
 
     componentDidMount() {
-        console.log("componentDidMount{CaseCard}: this.props" + JSON.stringify(this.props));
         this.setState({value: this.props.value});
     }
 
