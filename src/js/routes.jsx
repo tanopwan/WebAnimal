@@ -12,6 +12,7 @@ import AddNewCase from './components/AddNewCase.jsx';
 import Account from './components/Account.jsx';
 import MyCases from './components/MyCases.jsx';
 import CasePage from './components/CasePage.jsx';
+import DevPanel from './components/DevPanel.jsx';
 
 import CaseContainer from './components/CaseContainer.jsx';
 import CaseDetail from './components/CaseDetail.jsx';
@@ -31,5 +32,6 @@ export default (
         	<Route path="view/:id" component={CaseDetail}/>
             <Route path="edit/:id" component={FormEditCase}/>
         </Route>
+        <Route path="dev" component={DevPanel}/>
     </Route>
 );

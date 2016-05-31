@@ -1,5 +1,6 @@
 import React from 'react';
 import CasePanel from './CasePanel.jsx'
+import FormComment from './FormComment.jsx'
 import CaseServices from '../services/case-services.js';
 
 class About extends React.Component {
@@ -24,6 +25,9 @@ class About extends React.Component {
     render() {
         return (
             <div>
+                <div className="col-xs-4">
+                    <FormComment/>
+                </div>
                 <div className="col-xs-12">
 	                {this.state.items.map(function(item) {
 	                    return <CasePanel key={item._id} item={item} />

@@ -19,5 +19,9 @@ class MyCases extends React.Component {
         );
     }
 }
+
+MyCases.contextTypes = {
+    store: React.PropTypes.object
+}
  
 export default MyCases;

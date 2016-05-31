@@ -16,6 +16,7 @@ case_router.route("/:id").get(getCase);
 
 case_router.post("/addNewCase", [upload.single('profile_picture'), addNewCase]);
 case_router.post("/updateCase", [upload.single('profile_picture'), updateCase]);
+case_router.post("/comment", [upload.single('comment_picture'), addComment]);
 
 function getCases(req, res) {
 	console.log("getCases: " + JSON.stringify(req.query));
@@ -58,7 +59,7 @@ function addNewCase(req, res) {
 		req.body.user = req.body.userId;
 		if (req.file) {
 	    	console.log(req.file);
-	    	var imagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
+	    	var imagePath = upload_path_processed_public + "/comment/" + req.file.filename + ".webp";
 		    var image = sharp(req.file.path);
 		    image
 		    	.resize(300)
@@ -69,7 +70,7 @@ function addNewCase(req, res) {
 			        }
 				});
 
-		    req.body.imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
+		    req.body.imagePath = upload_path_processed + "/comment/" + req.file.filename + ".webp"
 	    }
 	    
 	    if (req.body.caseName) {
@@ -104,9 +105,79 @@ function addNewCase(req, res) {
 
 function updateCase(req, res) {
 	response_template.action = "updateCase";
-	res.send(response_template);
+	if (req.body) {
+		req.body.user = req.body.userId;
+		if (req.file) {
+	    	console.log(req.file);
+	    	var imagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
+		    var image = sharp(req.file.path);
+		    image
+		    	.resize(300)
+		    	.toFormat(sharp.format.webp)
+		    	.toFile(imagePath, function(err) {
+			        if (err) {
+			        	throw err;
+			        }
+				});
+
+		    req.body.imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
+	    }
+	    
+	    if (req.body.caseName) {
+	    	Case
+	    	var _case = new Case(req.body);
+
+		    _case.save(function (err, result) {
+			  	if (err) {
+			    	response_template.code = 500;
+			    	response_template.message = "save case failed";
+			    	response_template.object = err;
+			  	} else {
+			  		response_template.message = "save case success";
+			    	response_template.object = result;
+			  	}
+			  	res.send(response_template);
+			})
+	    }
+	}
 }
 
+//const addComment = (req, res) => {
+function addComment(req, res) {
+	response_template.action = "addComment";
+	if (req.body) {
+		if (req.file) {
+	    	console.log(req.file);
+	    	var imagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
+		    var image = sharp(req.file.path);
+		    image
+		    	.resize(300)
+		    	.toFormat(sharp.format.webp)
+		    	.toFile(imagePath, function(err) {
+			        if (err) {
+			        	throw err;
+			        }
+				});
+
+		    req.body.imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
+	    }
+	    
+	    if (req.body.caseName) {
+	    	var _case = new Case(req.body);
+		    _case.save(function (err, result) {
+			  	if (err) {
+			    	response_template.code = 500;
+			    	response_template.message = "save case failed";
+			    	response_template.object = err;
+			  	} else {
+			  		response_template.message = "save case success";
+			    	response_template.object = result;
+			  	}
+			  	res.send(response_template);
+			})
+	    }
+	}
+}
 module.exports = case_router;
 
 

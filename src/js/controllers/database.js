@@ -20,10 +20,11 @@ var case_schema = mongoose.Schema({
 	description: 'string',
 	imagePath: 'string'
 });
-var case_comment_schema = mongoose.Schema({
+var comment_schema = mongoose.Schema({
 	user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	case: { type: mongoose.Schema.Types.ObjectId, ref: 'Case' },
 	comment: 'string',
+	imagePath: 'string',
 	createdDate: 'string'
 });
 var bill_schema = mongoose.Schema({
@@ -35,6 +36,8 @@ var bill_schema = mongoose.Schema({
 
 var User = mongoose.model('User', user_schema);
 var Case = mongoose.model('Case', case_schema);
+var Comment = mongoose.model('Comment', comment_schema);
 
 module.exports.User = User;
 module.exports.Case = Case;
+module.exports.Comment = Comment;

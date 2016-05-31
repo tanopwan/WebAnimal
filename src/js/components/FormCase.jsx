@@ -68,11 +68,6 @@ class FormCase extends React.Component {
         });	
     }
 
-    handleProfilePictureChange(event) {
-    	console.log("handleProfilePictureChange");
-    	console.log(event);
-    }
-
     render() {
         return (
         	<div className="col-xs-12">
@@ -95,7 +90,6 @@ class FormCase extends React.Component {
 								<div className="fileinput-preview fileinput-exists thumbnail" data-trigger="fileinput" style={{width: "200px", height: "150px"}}>
 									<img src={"http://localhost:3000/" + this.state.imagePath}/>
 								</div>
-
 							  	<div>
 							  		<span className="btn btn-default btn-file"><span className="fileinput-new">เลือกรูป</span><span className="fileinput-exists">เปลี่ยน</span>
 							  		<input type="file" name="profile_picture" accept="image/*"/></span>
@@ -108,8 +102,16 @@ class FormCase extends React.Component {
 					    <Col componentClass={ControlLabel} sm={2}>
 					        หัวข้อ
 					    </Col>
-					    <Col sm={10}>
+					    <Col sm={5}>
 					        <FormControl name="caseName" type="text" placeholder="ขื่อเคส" value={this.state.caseName} onChange={this.handleCaseNameChange.bind(this)}/>
+					    </Col>
+					    <Col sm={5}>
+					    {(function(error, self) {
+	                        if (error.caseName) {
+	                            return (<div className="alert alert-danger">{self.context.store.getState().errorObject.formError.caseName}</div>);
+	                        }
+	                    })(this.context.store.getState().errorObject.formError, this)}
+					        
 					    </Col>
 				    </FormGroup>
 				    <FormGroup controlId="formControlsDescription">
@@ -152,6 +154,10 @@ class FormCase extends React.Component {
 			</div>
         );
     }
+}
+
+FormCase.contextTypes = {
+    store: React.PropTypes.object
 }
 
 export default FormCase;
