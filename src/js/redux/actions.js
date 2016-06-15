@@ -31,3 +31,4 @@ export const resetError = (type) => {
 export const onLogin = (user) => {
 	return { type: ON_LOGIN, user }
 }
+

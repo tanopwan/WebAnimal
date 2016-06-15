@@ -6,10 +6,13 @@ var Promise = promise.Promise;
 var resourceUrl = "http://localhost:3000/api/case/";
 var Promise = promise.Promise;
 
-function postAjaxUrl (url, formData) {
+function postAjaxUrl (url, formData, accessToken) {
     return new Promise(function (resolve, reject) {
         $.ajax({
             url: url,
+            headers: {
+                "access_token": accessToken
+            },
             data: formData,
             contentType: false,
             processData: false,
@@ -22,6 +25,7 @@ function postAjaxUrl (url, formData) {
             error: function(data, textStatus, jqXHR) {
                 console.log(data);
                 console.log(jqXHR);
+                resolve(data);
             },
         });
     });
@@ -79,7 +83,7 @@ module.exports = {
                 urlParams = urlParams + animalTypesParam;    
             }
         }
-        
+
         return new Promise(function (resolve, reject) {
             $.ajax({
                 url: urlParams,
@@ -105,28 +109,91 @@ module.exports = {
         });
     },
 
-    saveNewCase: function(formTarget, userId) {
-        var result = postCase(formTarget, userId);
-        if (result.formData) {
-            console.log("result.formData");
-            return postAjaxUrl ('/api/case/addNewCase', result.formData);
+    addNewCase: (accessToken, userId, caseName, description, animalType, caseStatus, caseDate, profilePicture) => {
+        if (!accessToken) {
+            var response_template = {code: 400, message: "accessToken cannot be empty", action: "[case-services]addNewCase", object: {fields: ["accessToken"]}};
+            return Promise.resolve(response_template);
         }
-        return result;
+
+        if (!userId) {
+            var response_template = {code: 400, message: "userId cannot be empty", action: "[case-services]addNewCase", object: {fields: ["userId"]}};
+            return Promise.resolve(response_template);
+        }
+
+        if (!caseName) {
+            var response_template = {code: 400, message: "caseName cannot be empty", action: "[case-services]addNewCase", object: {fields: ["caseName"]}};
+            return Promise.resolve(response_template);
+        }
+
+        var formData = new FormData();
+        formData.append('user', userId);
+        formData.append('caseName', caseName);
+        formData.append('description', description);
+        formData.append('animalType', animalType);
+        formData.append('caseStatus', caseStatus);
+        formData.append('caseDate', caseDate);
+        formData.append('createdDate', new Date());
+        if (profilePicture) {
+            formData.append('profilePicture', profilePicture);    
+        }
+
+        return postAjaxUrl('/api/case/addNewCase', formData, accessToken);
     },
 
-    updateCase: function(formTarget, userId, case_id) {
-        var result = postCase(formTarget, userId);
-        result.formData.append('case_id', case_id);
-        return postAjaxUrl ('/api/case/updateCase', result.formData);
+    updateCase: (accessToken, caseId, caseName, description, animalType, caseStatus, caseDate, profilePicture) => {
+        if (!accessToken) {
+            var response_template = {code: 400, message: "accessToken cannot be empty", action: "[case-services]updateCase", object: {fields: ["accessToken"]}};
+            return Promise.resolve(response_template);
+        }
+
+        if (!caseId) {
+            var response_template = {code: 400, message: "caseId cannot be empty", action: "[case-services]updateCase", object: {fields: ["caseId"]}};
+            return Promise.resolve(response_template);
+        }
+
+        if (!caseName) {
+            var response_template = {code: 400, message: "caseName cannot be empty", action: "[case-services]updateCase", object: {fields: ["caseName"]}};
+            return Promise.resolve(response_template);
+        }
+
+        var formData = new FormData();
+        formData.append('case_id', caseId);
+        formData.append('caseName', caseName);
+        formData.append('description', description);
+        formData.append('animalType', animalType);
+        formData.append('caseStatus', caseStatus);
+        formData.append('caseDate', caseDate);
+        if (profilePicture) {
+            formData.append('profilePicture', profilePicture);    
+        }
+
+        return postAjaxUrl('/api/case/updateCase', formData, accessToken);
     },
 
     addComment: (comment, comment_picture, userId, caseId) => {
+        if (!comment) {
+            var response_template = {code: 400, message: "comment cannot be empty", action: "[case-services]addComment", object: {fields: ["comment"]}};
+            return Promise.resolve(response_template);
+        }
+
+        if (!userId) {
+            var response_template = {code: 400, message: "userId cannot be empty", action: "[case-services]addComment", object: {fields: ["userId"]}};
+            return Promise.resolve(response_template);
+        }
+
+        if (!caseId) {
+            var response_template = {code: 400, message: "caseId cannot be empty", action: "[case-services]addComment", object: {fields: ["caseId"]}};
+            return Promise.resolve(response_template);
+        }
+
         var formData = new FormData();
         formData.append('user', userId);
         formData.append('case', caseId);
         formData.append('createdDate', new Date());
         formData.append('comment', comment);
-        formData.append('comment_picture', comment_picture);
+        if (comment_picture) {
+            formData.append('comment_picture', comment_picture);    
+        }
         return postAjaxUrl('/api/case/comment', formData);
         
     }

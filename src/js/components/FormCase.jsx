@@ -1,18 +1,18 @@
-import React from 'react';
-
+import React, { PropTypes } from 'react';
 import { Button, Form, FormGroup, FormControl, Col, ControlLabel } from 'react-bootstrap'
+
+import { setError, resetError, SET_ERROR, ErrorTypes } from '../redux/actions'
 
 class FormCase extends React.Component {
 
 	constructor(props) {
 		super(props);
 		this.state = {
-			user: {},
 			caseName: "",
 			description: "",
 			animalType: "dog",
 			caseStatus: "open_fund",
-			imagePath: "uploads/processed/anonymous.webp",
+			imagePath: "images/anonymous.webp",
 			fileinputClass: "fileinput-new"
 		};
 	}
@@ -25,7 +25,7 @@ class FormCase extends React.Component {
 				item.fileinputClass = "fileinput-exists";
 			}
 			if (!item.imagePath) {
-				item.imagePath = "uploads/processed/anonymous.webp";
+				item.imagePath = "images/anonymous.webp";
 			}
 			this.setState(item);
 		}
@@ -42,6 +42,16 @@ class FormCase extends React.Component {
 		if (this.props.userObject) {
 			this.setState({user: this.props.userObject});
 		}
+
+		var self = this;
+		this.unsubscribe = this.context.store.subscribe(() => {
+			this.forceUpdate();
+		});
+    }
+
+	componentDidUnMount() {
+        console.log("componentDidUnMount{FormCase}");
+        this.unsubscribe();
     }
 
 	handleCaseNameChange(event) {
@@ -68,16 +78,44 @@ class FormCase extends React.Component {
         });	
     }
 
+    handleSubmit(event) {
+    	event.preventDefault();
+    	var store = this.context.store;
+    	store.dispatch(resetError(ErrorTypes.ERR_FORM_INVALID));
+		if (event.target) {
+			var caseName = event.target.caseName.value;
+			var description = event.target.description.value;
+			var animalType = event.target.animalType.value;
+			var caseStatus = event.target.caseStatus.value;
+			var profilePicture = event.target.profilePicture.files[0];
+
+			if (!caseName) {
+				store.dispatch(setError(ErrorTypes.ERR_FORM_INVALID, {caseName: "กรุณาใส่ชื่อเคส"}));
+				return;
+			}
+
+			//var caseDate = event.target.caseDate.value;
+			this.props.handleSubmit(this.props.userObject.accessToken,
+									this.props.userObject.userId,
+	        						caseName,
+	        						description,
+	        						animalType,
+	        						caseStatus,
+	        						null,
+	        						profilePicture);
+		}
+    }
+
     render() {
         return (
         	<div className="col-xs-12">
-	        	<Form horizontal name="FormCase" onSubmit={this.props.handleSubmit} encType="multipart/form-data">
+	        	<Form horizontal name="FormCase" onSubmit={this.handleSubmit.bind(this)} encType="multipart/form-data">
 				    <FormGroup controlId="formHorizontalUsername">
 					    <Col componentClass={ControlLabel} sm={2}>
 					        เจ้าของเคส
 					    </Col>
 					    <Col sm={10}>
-					        <FormControl.Static>{this.state.user.username}</FormControl.Static>
+					        <FormControl.Static>{this.props.userObject.username}</FormControl.Static>
 					    </Col>
 				    </FormGroup>
 				    <FormGroup controlId="formHorizontalCaseProfile">
@@ -92,26 +130,24 @@ class FormCase extends React.Component {
 								</div>
 							  	<div>
 							  		<span className="btn btn-default btn-file"><span className="fileinput-new">เลือกรูป</span><span className="fileinput-exists">เปลี่ยน</span>
-							  		<input type="file" name="profile_picture" accept="image/*"/></span>
+							  		<input type="file" name="profilePicture" accept="image/*"/></span>
 							    	<a href="#" className="btn btn-default fileinput-exists" data-dismiss="fileinput">ลบ</a>
 							  	</div>
 							</div>
 						</Col>
 				    </FormGroup>
-				    <FormGroup controlId="formHorizontalCaseName">
+				    <FormGroup controlId="formHorizontalCaseName" className="info">
 					    <Col componentClass={ControlLabel} sm={2}>
 					        หัวข้อ
 					    </Col>
-					    <Col sm={5}>
+					    <Col sm={10}>
 					        <FormControl name="caseName" type="text" placeholder="ขื่อเคส" value={this.state.caseName} onChange={this.handleCaseNameChange.bind(this)}/>
-					    </Col>
-					    <Col sm={5}>
-					    {(function(error, self) {
-	                        if (error.caseName) {
-	                            return (<div className="alert alert-danger">{self.context.store.getState().errorObject.formError.caseName}</div>);
-	                        }
-	                    })(this.context.store.getState().errorObject.formError, this)}
-					        
+
+						    {(function(error, self) {
+		                        if (error.caseName) {
+		                            return (<span className="help-block">{self.context.store.getState().errorObject.formError.message.caseName}</span>);
+		                        }
+		                    })(this.context.store.getState().errorObject.formError.message, this)}
 					    </Col>
 				    </FormGroup>
 				    <FormGroup controlId="formControlsDescription">
@@ -158,6 +194,10 @@ class FormCase extends React.Component {
 
 FormCase.contextTypes = {
     store: React.PropTypes.object
+}
+
+FormCase.propTypes = {
+	handleSubmit: PropTypes.func.isRequired
 }
 
 export default FormCase;

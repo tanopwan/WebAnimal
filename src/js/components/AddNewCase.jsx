@@ -4,11 +4,11 @@ import FormAddNewCase from './FormAddNewCase.jsx';
 class AddNewCase extends React.Component {
 
     componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
+        //console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
     }
 
     componentDidMount() {
-        console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
+        //console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
     }
 
     render() {

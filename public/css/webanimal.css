@@ -49,3 +49,8 @@ body {
 .top10 { margin-top:10px; }
 .top10minus { margin-top:-10px; }
 
+div.form_display {
+  width: 100%;
+  padding-top: 10px;
+  word-wrap: normal;
+}

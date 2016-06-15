@@ -8,19 +8,24 @@ import ReactDOMServer from 'react-dom/server';
 import App from './components/App.jsx';
 
 import bodyParser from 'body-parser';
+import passport from './controllers/auth.js'
 
 import router from './router.jsx';
 import user_router from './controllers/users.js'
 import case_router from './controllers/cases.js'
- 
+import donor_router from './controllers/donors.js'
+
 var app = express();
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(passport.initialize());
+
 app.use('/api/user', user_router);
 app.use('/api/case', case_router);
+app.use('/api/donor', donor_router);
 app.use('/', router);
  
 app.engine('handlebars', exphbs());

@@ -2,30 +2,6 @@ import React from 'react';
 import userServices from '../services/user-services.js';
 import { setError, onLogin, SET_ERROR, ErrorTypes } from '../redux/actions'
 
-const getUserProfile = (FB, store) => {
-    var self = this;
-        if( res.status === "connected" ) {
-            this.FB.api('/me', function(response) {
-                console.log( "getUserProfile{FacebookButton}: " + JSON.stringify(response) );
-                var message = "Welcome " + response.name;
-                self.setState({
-                    message: message
-                });
-                var userObject = {
-                    fbId: response.id,
-                    username: response.name
-                }
-                userServices.userLogin(userObject).then(function(res) {
-                    if (res.code == 200) {
-                        self.context.store.dispatch(onLogin(res.object));
-                    }
-                    else {
-                        self.context.store.dispatch(setError(res));
-                    }
-                })
-            })
-        }
-}
 export default class FacebookButton extends React.Component {
     constructor(props) {
         super(props);
@@ -75,6 +51,9 @@ export default class FacebookButton extends React.Component {
         var self = this;
         const getUserProfile = (res) => {
             if( res.status === "connected" ) {
+
+                var accessToken = res.authResponse.accessToken;
+
                 self.FB.api('/me', function(response) {
                     console.log( "getUserProfile{FacebookButton}: " + JSON.stringify(response) );
                     var userObject = {
@@ -83,7 +62,7 @@ export default class FacebookButton extends React.Component {
                     }
                     userServices.userLogin(userObject).then(function(res) {
                         if (res.code == 200) {
-                            self.context.store.dispatch(onLogin(res.object));
+                            self.context.store.dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
                         }
                         else {
                             self.context.store.dispatch(setError(res));

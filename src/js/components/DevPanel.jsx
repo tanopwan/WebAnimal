@@ -7,9 +7,9 @@ const DevPanelDiv = ({state}) => (
     </pre>
 )
 
-DevPanelDiv.propTypes = {
+/*DevPanelDiv.propTypes = {
     state: React.PropTypes.object
-}
+}*/
 
 const mapStateToProps = (state) => {
     return {

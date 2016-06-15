@@ -25980,12 +25980,6 @@
 
 	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
 
-	        _this.state = {
-	            userObject: {},
-	            err: false,
-	            errorObject: null
-	        };
-
 	        _this.store = _stores.store;
 	        return _this;
 	    }
@@ -25995,7 +25989,6 @@
 	        value: function componentDidMount() {
 	            var _this2 = this;
 
-	            console.log("componentDidMount{App}");
 	            this.unsubscribe = this.store.subscribe(function () {
 	                _this2.forceUpdate();
 	            });
@@ -26006,13 +25999,11 @@
 	    }, {
 	        key: 'componentDidUnMount',
 	        value: function componentDidUnMount() {
-	            console.log("componentDidUnMount{App}");
 	            this.unsubscribe();
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            //console.log("APP render:" + this.store.getState().errorObject.mainError.hasError);
 	            return _react2.default.createElement(
 	                _reactRedux.Provider,
 	                { store: this.store },
@@ -27834,30 +27825,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var getUserProfile = function getUserProfile(FB, store) {
-	    var self = undefined;
-	    if (res.status === "connected") {
-	        undefined.FB.api('/me', function (response) {
-	            console.log("getUserProfile{FacebookButton}: " + JSON.stringify(response));
-	            var message = "Welcome " + response.name;
-	            self.setState({
-	                message: message
-	            });
-	            var userObject = {
-	                fbId: response.id,
-	                username: response.name
-	            };
-	            _userServices2.default.userLogin(userObject).then(function (res) {
-	                if (res.code == 200) {
-	                    self.context.store.dispatch((0, _actions.onLogin)(res.object));
-	                } else {
-	                    self.context.store.dispatch((0, _actions.setError)(res));
-	                }
-	            });
-	        });
-	    }
-	};
-
 	var FacebookButton = function (_React$Component) {
 	    _inherits(FacebookButton, _React$Component);
 
@@ -27918,6 +27885,9 @@
 	            var self = this;
 	            var getUserProfile = function getUserProfile(res) {
 	                if (res.status === "connected") {
+
+	                    var accessToken = res.authResponse.accessToken;
+
 	                    self.FB.api('/me', function (response) {
 	                        console.log("getUserProfile{FacebookButton}: " + JSON.stringify(response));
 	                        var userObject = {
@@ -27926,7 +27896,7 @@
 	                        };
 	                        _userServices2.default.userLogin(userObject).then(function (res) {
 	                            if (res.code == 200) {
-	                                self.context.store.dispatch((0, _actions.onLogin)(res.object));
+	                                self.context.store.dispatch((0, _actions.onLogin)(Object.assign(res.object, { accessToken: accessToken })));
 	                            } else {
 	                                self.context.store.dispatch((0, _actions.setError)(res));
 	                            }
@@ -58523,10 +58493,13 @@
 	var resourceUrl = "http://localhost:3000/api/case/";
 	var Promise = _es6Promise2.default.Promise;
 
-	function postAjaxUrl(url, formData) {
+	function postAjaxUrl(url, formData, accessToken) {
 	    return new Promise(function (resolve, reject) {
 	        _jquery2.default.ajax({
 	            url: url,
+	            headers: {
+	                "access_token": accessToken
+	            },
 	            data: formData,
 	            contentType: false,
 	            processData: false,
@@ -58539,6 +58512,7 @@
 	            error: function error(data, textStatus, jqXHR) {
 	                console.log(data);
 	                console.log(jqXHR);
+	                resolve(data);
 	            }
 	        });
 	    });
@@ -58619,28 +58593,91 @@
 	        });
 	    },
 
-	    saveNewCase: function saveNewCase(formTarget, userId) {
-	        var result = postCase(formTarget, userId);
-	        if (result.formData) {
-	            console.log("result.formData");
-	            return postAjaxUrl('/api/case/addNewCase', result.formData);
+	    addNewCase: function addNewCase(accessToken, userId, caseName, description, animalType, caseStatus, caseDate, profilePicture) {
+	        if (!accessToken) {
+	            var response_template = { code: 400, message: "accessToken cannot be empty", action: "[case-services]addNewCase", object: { fields: ["accessToken"] } };
+	            return Promise.resolve(response_template);
 	        }
-	        return result;
+
+	        if (!userId) {
+	            var response_template = { code: 400, message: "userId cannot be empty", action: "[case-services]addNewCase", object: { fields: ["userId"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        if (!caseName) {
+	            var response_template = { code: 400, message: "caseName cannot be empty", action: "[case-services]addNewCase", object: { fields: ["caseName"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        var formData = new FormData();
+	        formData.append('user', userId);
+	        formData.append('caseName', caseName);
+	        formData.append('description', description);
+	        formData.append('animalType', animalType);
+	        formData.append('caseStatus', caseStatus);
+	        formData.append('caseDate', caseDate);
+	        formData.append('createdDate', new Date());
+	        if (profilePicture) {
+	            formData.append('profilePicture', profilePicture);
+	        }
+
+	        return postAjaxUrl('/api/case/addNewCase', formData, accessToken);
 	    },
 
-	    updateCase: function updateCase(formTarget, userId, case_id) {
-	        var result = postCase(formTarget, userId);
-	        result.formData.append('case_id', case_id);
-	        return postAjaxUrl('/api/case/updateCase', result.formData);
+	    updateCase: function updateCase(accessToken, caseId, caseName, description, animalType, caseStatus, caseDate, profilePicture) {
+	        if (!accessToken) {
+	            var response_template = { code: 400, message: "accessToken cannot be empty", action: "[case-services]updateCase", object: { fields: ["accessToken"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        if (!caseId) {
+	            var response_template = { code: 400, message: "caseId cannot be empty", action: "[case-services]updateCase", object: { fields: ["caseId"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        if (!caseName) {
+	            var response_template = { code: 400, message: "caseName cannot be empty", action: "[case-services]updateCase", object: { fields: ["caseName"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        var formData = new FormData();
+	        formData.append('case_id', caseId);
+	        formData.append('caseName', caseName);
+	        formData.append('description', description);
+	        formData.append('animalType', animalType);
+	        formData.append('caseStatus', caseStatus);
+	        formData.append('caseDate', caseDate);
+	        if (profilePicture) {
+	            formData.append('profilePicture', profilePicture);
+	        }
+
+	        return postAjaxUrl('/api/case/updateCase', formData, accessToken);
 	    },
 
 	    addComment: function addComment(comment, comment_picture, userId, caseId) {
+	        if (!comment) {
+	            var response_template = { code: 400, message: "comment cannot be empty", action: "[case-services]addComment", object: { fields: ["comment"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        if (!userId) {
+	            var response_template = { code: 400, message: "userId cannot be empty", action: "[case-services]addComment", object: { fields: ["userId"] } };
+	            return Promise.resolve(response_template);
+	        }
+
+	        if (!caseId) {
+	            var response_template = { code: 400, message: "caseId cannot be empty", action: "[case-services]addComment", object: { fields: ["caseId"] } };
+	            return Promise.resolve(response_template);
+	        }
+
 	        var formData = new FormData();
 	        formData.append('user', userId);
 	        formData.append('case', caseId);
 	        formData.append('createdDate', new Date());
 	        formData.append('comment', comment);
-	        formData.append('comment_picture', comment_picture);
+	        if (comment_picture) {
+	            formData.append('comment_picture', comment_picture);
+	        }
 	        return postAjaxUrl('/api/case/comment', formData);
 	    }
 	};
@@ -58779,9 +58816,14 @@
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
 	            var self = this;
+	            console.log("componentDidMount{About}");
 	            _caseServices2.default.getCases().then(function (res) {
+	                console.log("getCases...");
+	                console.log(res);
 	                if (res.code == 200) {
 	                    self.setState({ items: res.object });
+	                } else {
+	                    console.log(res);
 	                }
 	            });
 	        }
@@ -58793,12 +58835,12 @@
 	                null,
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'col-xs-4' },
+	                    { className: 'col-xs-12' },
 	                    _react2.default.createElement(_FormComment2.default, null)
 	                ),
 	                _react2.default.createElement(
 	                    'div',
-	                    { className: 'col-xs-12' },
+	                    { className: 'col-xs-8' },
 	                    this.state.items.map(function (item) {
 	                        return _react2.default.createElement(_CasePanel2.default, { key: item._id, item: item });
 	                    })
@@ -58816,81 +58858,120 @@
 /* 539 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactRedux = __webpack_require__(231);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CasePanel = function (_React$Component) {
-	    _inherits(CasePanel, _React$Component);
-
-	    function CasePanel(props) {
-	        _classCallCheck(this, CasePanel);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CasePanel).call(this, props));
-
-	        _this.state = {
-	            item: {
-	                user: {},
-	                caseName: ""
-	            }
-	        };
-	        return _this;
-	    }
-
-	    _createClass(CasePanel, [{
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(props) {}
-	    }, {
-	        key: "componentDidMount",
-	        value: function componentDidMount() {}
-	    }, {
-	        key: "render",
-	        value: function render() {
-	            return _react2.default.createElement(
-	                "div",
-	                { className: "panel panel-default" },
+	var CasePanel = function CasePanel(_ref) {
+	    var item = _ref.item;
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'panel panel-default' },
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'panel-heading' },
+	            item.createdDate
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'panel-body' },
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'col-xs-4' },
+	                _react2.default.createElement('img', { className: 'thumbnail', src: item.imagePath, width: '150px' })
+	            ),
+	            _react2.default.createElement(
+	                'div',
+	                { className: 'col-xs-6' },
 	                _react2.default.createElement(
-	                    "div",
-	                    { className: "panel-heading" },
-	                    this.props.item.caseName
+	                    'div',
+	                    { className: 'row section_vertical' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-4 text-right' },
+	                        'ชื่อเคส'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-6' },
+	                        item.caseName
+	                    )
 	                ),
 	                _react2.default.createElement(
-	                    "div",
-	                    { className: "panel-body" },
-	                    "Panel Content"
+	                    'div',
+	                    { className: 'row section_vertical' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-4 text-right' },
+	                        'รายละเอียด'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-6' },
+	                        item.description
+	                    )
 	                ),
 	                _react2.default.createElement(
-	                    "div",
-	                    { className: "panel-footer" },
-	                    "Panel Footer"
+	                    'div',
+	                    { className: 'row section_vertical' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-4 text-right' },
+	                        'ประเภทสัตว์'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-6' },
+	                        item.animalType
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row section_vertical' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-4 text-right' },
+	                        'ชื่อสัตว์'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-6' },
+	                        item.animalName
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'row section_vertical' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-4 text-right' },
+	                        'สถานะ'
+	                    ),
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'col-xs-6' },
+	                        item.caseStatus
+	                    )
 	                )
-	            );
-	        }
-	    }]);
-
-	    return CasePanel;
-	}(_react2.default.Component);
-
-	CasePanel.defaultProps = {
-	    item: {
-	        caseName: ""
-	    }
+	            )
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'panel-footer text-right' },
+	            'โดย ',
+	            item.user.username
+	        )
+	    );
 	};
 
 	exports.default = CasePanel;
@@ -59166,12 +59247,12 @@
 	    _createClass(AddNewCase, [{
 	        key: 'componentWillReceiveProps',
 	        value: function componentWillReceiveProps(props) {
-	            console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
+	            //console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
 	        }
 	    }, {
 	        key: 'componentDidMount',
 	        value: function componentDidMount() {
-	            console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
+	            //console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
 	        }
 	    }, {
 	        key: 'render',
@@ -59209,10 +59290,8 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+					value: true
 	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
@@ -59232,66 +59311,33 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var FormAddNewCase = function (_React$Component) {
-		_inherits(FormAddNewCase, _React$Component);
-
-		function FormAddNewCase(props) {
-			_classCallCheck(this, FormAddNewCase);
-
-			return _possibleConstructorReturn(this, Object.getPrototypeOf(FormAddNewCase).call(this, props));
-		}
-
-		_createClass(FormAddNewCase, [{
-			key: 'componentWillReceiveProps',
-			value: function componentWillReceiveProps(props) {
-				console.log("componentWillReceiveProps{FormAddNewCase}: " + JSON.stringify(props));
-			}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-				console.log("componentDidMount{FormAddNewCase}: " + JSON.stringify(this.props));
-				console.log(this.context.store);
-			}
-		}, {
-			key: 'handleSubmit',
-			value: function handleSubmit(event) {
-				event.preventDefault();
-				this.context.store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_FORM_INVALID, "goofy"));
-				/*if (event.target) {
-	   	var self = this;
-	          CaseServices.saveNewCase(event.target, this.props.userObject.userId).then(function(res) {
-	              console.log("return from CaseServices.saveNewCase: " + JSON.stringify(res));
-	              if (res.code == 200) {
-	                  this.props.resetError(res);
-	              }
-	              else {
-	              	console.log("setError: " + this.props.setError);
-	              	this.props.setError(res);
-	              }
-	          });
-	   }*/
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(_FormCase2.default, { handleSubmit: this.handleSubmit.bind(this), userObject: this.props.userObject });
-			}
-		}]);
-
-		return FormAddNewCase;
-	}(_react2.default.Component);
-
-	FormAddNewCase.contextTypes = {
-		store: _react2.default.PropTypes.object
+	var mapStateToProps = function mapStateToProps(state) {
+					return {
+									userObject: state.userObject
+					};
 	};
 
-	//FormAddNewCase = connect()(FormAddNewCase)
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+					return {
+									dispatch: dispatch,
+									handleSubmit: function handleSubmit(accessToken, userId, caseName, description, animalType, caseStatus, caseDate, profilePicture) {
+													_caseServices2.default.addNewCase(accessToken, userId, caseName, description, animalType, caseStatus, caseDate, profilePicture).then(function (res) {
+																	console.log("return from CaseServices.addNewCase: " + JSON.stringify(res));
+																	if (res.code == 200) {
+																					dispatch((0, _actions.resetError)(res));
+																	} else {
+																					dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_MAIN, res.message));
+																	}
+													}, function (onRejected) {
+																	dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_MAIN, JSON.stringify(onRejected)));
+													}).catch(function (errorThrown) {
+																	console.log("Exception: ", errorThrown);
+													});
+									}
+					};
+	};
+
+	var FormAddNewCase = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_FormCase2.default);
 
 	exports.default = FormAddNewCase;
 
@@ -59313,6 +59359,8 @@
 
 	var _reactBootstrap = __webpack_require__(270);
 
+	var _actions = __webpack_require__(264);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -59330,12 +59378,11 @@
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormCase).call(this, props));
 
 			_this.state = {
-				user: {},
 				caseName: "",
 				description: "",
 				animalType: "dog",
 				caseStatus: "open_fund",
-				imagePath: "uploads/processed/anonymous.webp",
+				imagePath: "images/anonymous.webp",
 				fileinputClass: "fileinput-new"
 			};
 			return _this;
@@ -59351,7 +59398,7 @@
 						item.fileinputClass = "fileinput-exists";
 					}
 					if (!item.imagePath) {
-						item.imagePath = "uploads/processed/anonymous.webp";
+						item.imagePath = "images/anonymous.webp";
 					}
 					this.setState(item);
 				}
@@ -59362,6 +59409,8 @@
 		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
+				var _this2 = this;
+
 				console.log("componentDidMount{FormCase}: " + JSON.stringify(this.props));
 				if (this.props.item) {
 					this.setState(this.props.item);
@@ -59369,6 +59418,17 @@
 				if (this.props.userObject) {
 					this.setState({ user: this.props.userObject });
 				}
+
+				var self = this;
+				this.unsubscribe = this.context.store.subscribe(function () {
+					_this2.forceUpdate();
+				});
+			}
+		}, {
+			key: 'componentDidUnMount',
+			value: function componentDidUnMount() {
+				console.log("componentDidUnMount{FormCase}");
+				this.unsubscribe();
 			}
 		}, {
 			key: 'handleCaseNameChange',
@@ -59399,6 +59459,28 @@
 				});
 			}
 		}, {
+			key: 'handleSubmit',
+			value: function handleSubmit(event) {
+				event.preventDefault();
+				var store = this.context.store;
+				store.dispatch((0, _actions.resetError)(_actions.ErrorTypes.ERR_FORM_INVALID));
+				if (event.target) {
+					var caseName = event.target.caseName.value;
+					var description = event.target.description.value;
+					var animalType = event.target.animalType.value;
+					var caseStatus = event.target.caseStatus.value;
+					var profilePicture = event.target.profilePicture.files[0];
+
+					if (!caseName) {
+						store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_FORM_INVALID, { caseName: "กรุณาใส่ชื่อเคส" }));
+						return;
+					}
+
+					//var caseDate = event.target.caseDate.value;
+					this.props.handleSubmit(this.props.userObject.accessToken, this.props.userObject.userId, caseName, description, animalType, caseStatus, null, profilePicture);
+				}
+			}
+		}, {
 			key: 'render',
 			value: function render() {
 				return _react2.default.createElement(
@@ -59406,7 +59488,7 @@
 					{ className: 'col-xs-12' },
 					_react2.default.createElement(
 						_reactBootstrap.Form,
-						{ horizontal: true, name: 'FormCase', onSubmit: this.props.handleSubmit, encType: 'multipart/form-data' },
+						{ horizontal: true, name: 'FormCase', onSubmit: this.handleSubmit.bind(this), encType: 'multipart/form-data' },
 						_react2.default.createElement(
 							_reactBootstrap.FormGroup,
 							{ controlId: 'formHorizontalUsername' },
@@ -59421,7 +59503,7 @@
 								_react2.default.createElement(
 									_reactBootstrap.FormControl.Static,
 									null,
-									this.state.user.username
+									this.props.userObject.username
 								)
 							)
 						),
@@ -59461,7 +59543,7 @@
 												{ className: 'fileinput-exists' },
 												'เปลี่ยน'
 											),
-											_react2.default.createElement('input', { type: 'file', name: 'profile_picture', accept: 'image/*' })
+											_react2.default.createElement('input', { type: 'file', name: 'profilePicture', accept: 'image/*' })
 										),
 										_react2.default.createElement(
 											'a',
@@ -59474,7 +59556,7 @@
 						),
 						_react2.default.createElement(
 							_reactBootstrap.FormGroup,
-							{ controlId: 'formHorizontalCaseName' },
+							{ controlId: 'formHorizontalCaseName', className: 'info' },
 							_react2.default.createElement(
 								_reactBootstrap.Col,
 								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
@@ -59482,21 +59564,17 @@
 							),
 							_react2.default.createElement(
 								_reactBootstrap.Col,
-								{ sm: 5 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส', value: this.state.caseName, onChange: this.handleCaseNameChange.bind(this) })
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 5 },
+								{ sm: 10 },
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส', value: this.state.caseName, onChange: this.handleCaseNameChange.bind(this) }),
 								function (error, self) {
 									if (error.caseName) {
 										return _react2.default.createElement(
-											'div',
-											{ className: 'alert alert-danger' },
-											self.context.store.getState().errorObject.formError.caseName
+											'span',
+											{ className: 'help-block' },
+											self.context.store.getState().errorObject.formError.message.caseName
 										);
 									}
-								}(this.context.store.getState().errorObject.formError, this)
+								}(this.context.store.getState().errorObject.formError.message, this)
 							)
 						),
 						_react2.default.createElement(
@@ -59595,6 +59673,10 @@
 
 	FormCase.contextTypes = {
 		store: _react2.default.PropTypes.object
+	};
+
+	FormCase.propTypes = {
+		handleSubmit: _react.PropTypes.func.isRequired
 	};
 
 	exports.default = FormCase;
@@ -60222,9 +60304,9 @@
 	    );
 	};
 
-	DevPanelDiv.propTypes = {
-	    state: _react2.default.PropTypes.object
-	};
+	/*DevPanelDiv.propTypes = {
+	    state: React.PropTypes.object
+	}*/
 
 	var mapStateToProps = function mapStateToProps(state) {
 	    return {

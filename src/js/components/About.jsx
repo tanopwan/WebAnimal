@@ -15,9 +15,15 @@ class About extends React.Component {
 
 	componentDidMount() {
         var self = this;
+        console.log("componentDidMount{About}");
         CaseServices.getCases().then(function(res) {
+            console.log("getCases...");
+            console.log(res);
             if (res.code == 200) {
                 self.setState({items: res.object});
+            }
+            else {
+                console.log(res);
             }
         });
     }
@@ -25,13 +31,13 @@ class About extends React.Component {
     render() {
         return (
             <div>
-                <div className="col-xs-4">
+                <div className="col-xs-12">
                     <FormComment/>
                 </div>
-                <div className="col-xs-12">
-	                {this.state.items.map(function(item) {
-	                    return <CasePanel key={item._id} item={item} />
-	                })}
+                <div className="col-xs-8">
+	                {this.state.items.map((item) => (
+	                   <CasePanel key={item._id} item={item} />
+	                ))}
 	            </div>
             </div>
         );

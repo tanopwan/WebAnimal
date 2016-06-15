@@ -17,18 +17,15 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        console.log("componentDidMount{App}");
         this.unsubscribe = this.store.subscribe(() => { this.forceUpdate()});
         this.store.subscribe(() => { console.log(this.store.getState()) });
     }
 
     componentDidUnMount() {
-        console.log("componentDidUnMount{App}");
         this.unsubscribe();
     }
 
     render() {
-        //console.log("APP render:" + this.store.getState().errorObject.mainError.hasError);
         return (
             <Provider store={this.store}>
                 <div>
