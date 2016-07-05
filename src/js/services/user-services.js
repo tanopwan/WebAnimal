@@ -7,6 +7,9 @@ var resourceUrl = "http://localhost:3000/api/user/";
 var Promise = promise.Promise;
 
 module.exports = {
+    facebookLogin: function() {
+        FB.login(); // Already subscribe in FacebookController.jsx
+    },
 	userLogin: function(jsonData, accessToken) {
         return new Promise(function (resolve, reject) {
             $.ajax({

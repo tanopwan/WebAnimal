@@ -13,7 +13,7 @@ class Home extends React.Component {
 
 	componentWillReceiveProps(props) {
 		//console.log("componentWillReceiveProps{Home}: props.errorObject: " + JSON.stringify(props.errorObject));
-        console.log("componentWillReceiveProps{Home}: props: " + JSON.stringify(props));
+        //console.log("componentWillReceiveProps{Home}: props: " + JSON.stringify(props));
     }
 
     componentDidMount() {

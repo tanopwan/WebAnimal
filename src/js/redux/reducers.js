@@ -1,11 +1,12 @@
 import { combineReducers } from 'redux'
-import { SET_ERROR, RESET_ERROR, ON_LOGIN, ErrorTypes } from './actions'
-import { SHOW_MODAL, HIDE_MODAL } from './actions'
-import { SHOW_LOGIN_MODAL, HIDE_LOGIN_MODAL } from './actions'
+//import { SET_ERROR, RESET_ERROR, ON_LOGIN, ErrorTypes } from './actions'
+//import { SHOW_MODAL, HIDE_MODAL } from './actions'
+//import { SHOW_LOGIN_MODAL, HIDE_LOGIN_MODAL } from './actions'
+import { ErrorTypes } from './actions'
 
 const mainError = (state = {hasError: false, message: {}}, action) => {
 	//console.log("update state mainError");
-	if (action.type === SET_ERROR) {
+	if (action.type === 'SET_ERROR') {
 	    switch(action.sub_type) {
 	        case ErrorTypes.ERR_MAIN :
 	            return Object.assign({}, state, { hasError: true, message: action.error });
@@ -13,7 +14,7 @@ const mainError = (state = {hasError: false, message: {}}, action) => {
 	            return state;
 	    }
 	}
-	else if (action.type === RESET_ERROR) {
+	else if (action.type === 'RESET_ERROR') {
 		switch(action.sub_type) {
 			case ErrorTypes.ERR_MAIN :
 				return Object.assign({}, state, { hasError: false, message: {} });
@@ -25,7 +26,7 @@ const mainError = (state = {hasError: false, message: {}}, action) => {
 }
 
 const formError = (state = {message: {}}, action) => {
-	if (action.type === SET_ERROR) {
+	if (action.type === 'SET_ERROR') {
 		switch(action.sub_type) {
 			case ErrorTypes.ERR_FORM_INVALID :
 				return Object.assign({}, state, { message: action.error });
@@ -33,7 +34,7 @@ const formError = (state = {message: {}}, action) => {
 				return state;
 		}
 	}
-	else if  (action.type === RESET_ERROR) {
+	else if  (action.type === 'RESET_ERROR') {
 		switch(action.sub_type) {
 			case ErrorTypes.ERR_FORM_INVALID :
 				return Object.assign({}, state, { message: {} });
@@ -46,8 +47,10 @@ const formError = (state = {message: {}}, action) => {
 
 const userObject = (state = {}, action) => {
 	switch(action.type) {
-		case ON_LOGIN :
-			return Object.assign({}, state, action.user);
+		case 'ON_LOGIN' :
+			return Object.assign({}, state, action.user, {status: 'LOGGED_IN'});
+		case 'DO_LOGIN' :
+			return Object.assign({}, state, { status: 'DO_LOGIN'})
 		default:
 			return state;
 	}
@@ -72,7 +75,7 @@ const modal = (state = { hasModal: false, title: "", body: "" }, action) => {
 	}
 }
 
-const login = (state = { hasModal: true }, action) => {
+const login = (state = { hasModal: false }, action) => {
 	switch (action.type) {
 		case 'SHOW_LOGIN_MODAL':
 			return Object.assign({}, state, { hasModal: true });

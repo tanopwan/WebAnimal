@@ -1,8 +1,8 @@
 import React from 'react';
 import userServices from '../services/user-services.js';
-import { setError, onLogin, showModal, SET_ERROR, ErrorTypes } from '../redux/actions'
+import { setError, onLogin, showModal, showLogin } from '../redux/actions'
 
-export default class FacebookButton extends React.Component {
+export default class FacebookController extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -16,15 +16,15 @@ export default class FacebookButton extends React.Component {
                 status     : true,
                 cookie     : true,
                 xfbml      : true,
-                oauth      : true,
                 version    : 'v2.6'
             });
 
             that.init();
+            console.log("FB SDK Loaded");
         };
 
         (function(d, s, id){
-            console.log("Load FB SDK");
+            console.log("FB SDK Loading...");
             var js, fjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) {return;}
             js = d.createElement(s); js.id = id;
@@ -33,28 +33,15 @@ export default class FacebookButton extends React.Component {
         }(document, 'script', 'facebook-jssdk'));
     }
 
-    componentDidUnMount() {
-        this.FB.Event.unsubscribe('auth.logout', this.onLogout);
-        this.FB.Event.unsubscribe('auth.statusChange', this.onStatusChange);
-    }
-
-    onStatusChange(response) {
-        this.getUserProfile(response);
-    }
-
-    onLogout(response) {
-        
-    }
-
     init() {
-        this.FB = FB;
-        var self = this;
+        var dispatch = this.context.store.dispatch;
         const getUserProfile = (res) => {
+            console.log("Getting login status...");
             if( res.status === "connected" ) {
 
                 var accessToken = res.authResponse.accessToken;
 
-                self.FB.api('/me', function(response) {
+                FB.api('/me', function(response) {
                     console.log( "Retrieved FB Profile from /me API: " + JSON.stringify(response) );
                     var userObject = {
                         fbId: response.id,
@@ -62,20 +49,26 @@ export default class FacebookButton extends React.Component {
                     }
                     userServices.userLogin(userObject, accessToken).then(function(res) {
                         if (res.code == 200) {
-                            self.context.store.dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
+                            dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
                         }
                         else {
-                            self.context.store.dispatch(setError(res));
-                            self.context.store.dispatch(showModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
+                            dispatch(setError(res));
+                            dispatch(showModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
                         }
                     }, function(res) {
                         if (res.status == 401) {
                             // Unauthorized
                             // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-                            self.context.store.dispatch(showModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+                            dispatch(showModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
                         }
                     })
                 })
+            }
+            else if (res.status === 'not_authorized') {
+                console.log('User is not authorized to WebAnimal App');
+            } else {
+                console.log('User is not logged into Facebook');
+                dispatch(showLogin());
             }
         }
 
@@ -85,24 +78,21 @@ export default class FacebookButton extends React.Component {
 
         FB.Event.subscribe('auth.logout', onLogout);
         FB.Event.subscribe('auth.statusChange', getUserProfile);
+
+        FB.getLoginStatus(getUserProfile);
     }
 
+    //Never happend
+    /*componentDidUnMount() {
+        this.FB.Event.unsubscribe('auth.logout', this.onLogout);
+        this.FB.Event.unsubscribe('auth.statusChange', this.onStatusChange);
+    }*/
+
     render() {
-        return (
-        <div>
-            <div
-                className="fb-login-button"
-                data-max-rows="0"
-                data-size="xlarge"
-                data-show-faces="false"
-                data-auto-logout-link="true"
-            ></div>
-            <div>{this.context.store.getState().message}</div>
-        </div>
-        );
+        return ( <span /> );
     }
 };
 
-FacebookButton.contextTypes = {
+FacebookController.contextTypes = {
     store: React.PropTypes.object
 }

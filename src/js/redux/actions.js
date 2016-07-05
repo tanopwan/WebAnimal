@@ -9,6 +9,7 @@ export const HIDE_MODAL = 'HIDE_MODAL'
 export const SHOW_LOGIN_MODAL = 'SHOW_LOGIN_MODAL'
 export const HIDE_LOGIN_MODAL = 'HIDE_LOGIN_MODAL'
 export const ON_LOGIN = 'ON_LOGIN'
+export const DO_LOGIN = 'DO_LOGIN'
 
 /*
  * other constants
@@ -34,6 +35,10 @@ export const showModal = (title, body) => {
 
 export const hideModal = () => {
 	return { type: HIDE_MODAL }
+}
+
+export const doLogin = () => {
+	return { type: DO_LOGIN }
 }
 
 export const showLogin = (title, body) => {

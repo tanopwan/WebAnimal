@@ -2,9 +2,8 @@ import React from 'react';
 import { connect } from 'react-redux'
 import { Modal, Button } from 'react-bootstrap'
 
-import { hideLogin } from '../redux/actions'
-
-import FacebookButton from './FacebookButton.jsx'
+import userServices from '../services/user-services.js';
+import { hideLogin, doLogin } from '../redux/actions'
 
 const LoginContent = ({title, body, dispatch}) => (
 <div className="static-modal">
@@ -13,8 +12,10 @@ const LoginContent = ({title, body, dispatch}) => (
 			<Modal.Title>ยินดีต้อนรับ</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-			กรุณาล็อคอินเพื่อความสะดวกในการใช้งาน
-			<FacebookButton />
+			<p> กรุณาล็อคอินเพื่อความสะดวกในการใช้งาน </p>
+			<a className="btn btn-block btn-social btn-facebook" onClick={() => { userServices.facebookLogin() }}>
+		    	<span className="fa fa-facebook"></span> Sign in with Facebook
+			</a>
 		</Modal.Body>
 		<Modal.Footer>
 			<Button onClick={() => dispatch(hideLogin())}>ปิดหน้าต่าง</Button>
