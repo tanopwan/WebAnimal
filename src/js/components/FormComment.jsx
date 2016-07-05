@@ -54,7 +54,7 @@ const handleReset = (event, store) => {
 }
 
 const RenderFormControlsComment = ({comment, handleChange}) => (
-     <FormControl name="comment" componentClass="textarea" placeholder="ข้อความ" value={comment} onChange={handleChange}/>    
+     <FormControl name="comment" componentClass="textarea" placeholder="ข้อความ" value={comment} onChange={handleChange}/> 
 );
 
 const RenderButtonGroup = ({onClick, store}) => (

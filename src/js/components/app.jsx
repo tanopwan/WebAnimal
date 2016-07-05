@@ -4,7 +4,9 @@ import { Provider } from 'react-redux'
 import { createStore } from 'redux'
 
 import { Link } from 'react-router';
-import FacebookButton from './FacebookButton.jsx';
+//import FacebookButton from './FacebookButton.jsx';
+import ModalRoot from './ModalPopup.jsx'
+import LoginRoot from './ModalLogin.jsx'
 
 import { store } from '../redux/stores'
 
@@ -18,7 +20,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.unsubscribe = this.store.subscribe(() => { this.forceUpdate()});
-        this.store.subscribe(() => { console.log(this.store.getState()) });
+        this.store.subscribe(() => { console.log("APP Subscribe: " + JSON.stringify(this.store.getState())) });
     }
 
     componentDidUnMount() {
@@ -27,11 +29,12 @@ class App extends React.Component {
 
     render() {
         return (
-            <Provider store={this.store}>
+        <Provider store={this.store}>
+            <div>
+                <div class="page-header">
+                    <h3>W E B · A N I M A L</h3>
+                </div>
                 <div>
-                    <div className="pull-right">
-                        <FacebookButton />
-                    </div>
                     <ul className="nav nav-pills">
                         <li><Link to='/'>Home</Link></li>
         				<li><Link to='/about'>About</Link></li>
@@ -48,8 +51,11 @@ class App extends React.Component {
                         }
                     })(this.store.getState().errorObject.mainError.hasError, this)}
                     {this.props.children}
+                    <ModalRoot />
+                    <LoginRoot />
                 </div>
-            </Provider>
+            </div>
+        </Provider>
         );
    }
 }

@@ -1,5 +1,7 @@
 import { combineReducers } from 'redux'
 import { SET_ERROR, RESET_ERROR, ON_LOGIN, ErrorTypes } from './actions'
+import { SHOW_MODAL, HIDE_MODAL } from './actions'
+import { SHOW_LOGIN_MODAL, HIDE_LOGIN_MODAL } from './actions'
 
 const mainError = (state = {hasError: false, message: {}}, action) => {
 	//console.log("update state mainError");
@@ -51,11 +53,43 @@ const userObject = (state = {}, action) => {
 	}
 }
 
+const modal = (state = { hasModal: false, title: "", body: "" }, action) => {
+	switch (action.type) {
+		case 'SHOW_MODAL':
+			return Object.assign({}, state, {
+				hasModal: true,
+		        title: action.title,
+		        body: action.body
+		    });
+		case 'HIDE_MODAL':
+			return Object.assign({}, state, {
+				hasModal: false,
+				title: "",
+				body: ""
+			});
+		default:
+			return state
+	}
+}
+
+const login = (state = { hasModal: true }, action) => {
+	switch (action.type) {
+		case 'SHOW_LOGIN_MODAL':
+			return Object.assign({}, state, { hasModal: true });
+		case 'HIDE_LOGIN_MODAL':
+			return Object.assign({}, state, { hasModal: false });
+		default:
+			return state
+	}
+}
+
 const webAnimalApp = combineReducers({
  	errorObject: combineReducers({
  		mainError,
  		formError
  	}),
+ 	modal,
+ 	login,
  	userObject
 })
 

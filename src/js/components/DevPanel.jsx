@@ -7,10 +7,6 @@ const DevPanelDiv = ({state}) => (
     </pre>
 )
 
-/*DevPanelDiv.propTypes = {
-    state: React.PropTypes.object
-}*/
-
 const mapStateToProps = (state) => {
     return {
         state

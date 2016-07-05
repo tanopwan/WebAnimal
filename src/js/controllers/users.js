@@ -1,10 +1,16 @@
 import express from 'express';
 import {User} from './database';
+import passport from './auth.js'
 
 var user_router = express.Router();
 
-user_router.route("/login").post(userLogin);
-user_router.route("/:id?").get(getUser).post(saveUser);
+user_router.get("/:fbId?", getUser);
+
+user_router.use(passport.authenticate('facebook-token'));
+
+user_router.post("/login", userLogin);
+user_router.post("/update", updateUser);
+
 
 function getUser(req, res) {
 	res.send("getUser");
@@ -12,33 +18,26 @@ function getUser(req, res) {
 
 var response_template = {code: 200, message: "", action: "", object: {}};
 
-function saveUser(req, res) {
-	console.log("saveUser: " + JSON.stringify(req.body));
+function updateUser(req, res) {
+	console.log("updateUser: " + JSON.stringify(req.body));
 	var fbId = req.body.fbId;
 	var username = req.body.username;
 
-	var userObject = {
-		fbId: fbId,
-		username: username,
+	var updateData = {
+		email,
+		mobile,
+		line,
+		address
 	};
-	/*db.collection('user').findOneAndReplace({fbId: fbId} , userObject, function(err, result) {
-		var response = JSON.parse(JSON.stringify(response_template));
-		response.action = "replace";
-		if (err) {
-			console.log("('user').save => " + JSON.stringify(err));
-			response.code = 500;
-			response.object = err;
-		}
-		else {
-			console.log("('user').save => saved " + fbId);
-			response.object = {
-				fbId: fbId,
-				username: username
-			}
-		}
-		res.send(response);
-	});*/
-	res.send(response_template);
+	
+	User.findOneAndUpdate({fbId}, updateData, null, (err, result) => {
+		console.log("updateUser");
+		console.log(err);
+		console.log(result);
+	});
+	var response = JSON.parse(JSON.stringify(response_template));
+	response.action = "updateUser";
+	res.send(response);
 }
 
 function userLogin(req, res) {
@@ -53,6 +52,7 @@ function userLogin(req, res) {
 
 	var user = new User({ fbId: fbId, username: username });
 
+	//The upsert = true option creates the object if it doesn't exist. defaults to false.
 	User.findOneAndUpdate({fbId: fbId}, {$setOnInsert: userObject}, {upsert: true, new: true}, function(err, result) {
 		var response = JSON.parse(JSON.stringify(response_template));
 		response.action = "findOneAndUpdate";
@@ -60,7 +60,6 @@ function userLogin(req, res) {
 			console.log("('user').save => error " + JSON.stringify(err));
 			response.code = 500;
 			response.object = err;
-			
 		}
 		else {
 			console.log("('user').save => saved " + JSON.stringify(result));

@@ -1,9 +1,8 @@
 import React from 'react';
 
 import userServices from '../services/user-services.js';
-import InputText from './InputText.jsx';
-
-
+//import InputText from './InputText.jsx';
+import { Form, FormGroup, FormControl, Col, ControlLabel } from 'react-bootstrap'
 
 class FormAccount extends React.Component {
 
@@ -20,6 +19,7 @@ class FormAccount extends React.Component {
     }
 
 	handleSubmit(event) {
+		event.preventDefault();
 		var postUser = {
 			fbId: this.props.userObject.fbId,
 			username: this.state.form.username
@@ -28,8 +28,6 @@ class FormAccount extends React.Component {
 		userServices.saveUser(postUser).then(function(resolve) {
 			console.log(resolve);
 		});
-
-        event.preventDefault();
 	}
 
 	handleUsernameChange(event) {
@@ -40,20 +38,49 @@ class FormAccount extends React.Component {
 
     render() {
         return (
-        	<form id="userForm" onSubmit={this.handleSubmit.bind(this)}>
-	            <div className="row">
-	            	<div className="col-xs-8">
-	            		<InputText name="username" display_name="ชื่อ" value={this.props.userObject.username} />
-	            	</div>
-	            </div>
-	            <div className="row">
-	            	<div className="col-xs-8">
-	            		<button type="submit" className="btn btn-success">Save</button>
-	            	</div>
-	            </div>
-            </form>
+            <Form horizontal onSubmit={(event) => { return handleSubmit(event, this.context.store) }}>
+			    <FormGroup controlId="formHorizontalUsername">
+			    	<Col componentClass={ControlLabel} sm={2}>
+			        	ชื่อ
+			      	</Col>
+			      	<Col sm={10}>
+			        	<FormControl type="static" />
+			      	</Col>
+			    </FormGroup>
+
+			    <FormGroup controlId="formHorizontalEmail">
+				    <Col componentClass={ControlLabel} sm={2}>
+				        อีเมล์
+				    </Col>
+				    <Col sm={10}>
+				        <FormControl type="email" placeholder="Email" />
+				    </Col>
+				</FormGroup>
+
+				<FormGroup controlId="formHorizontalMobile">
+				    <Col componentClass={ControlLabel} sm={2}>
+				        มือถือ
+				    </Col>
+				    <Col sm={10}>
+				        <FormControl type="text" placeholder="Mobile" />
+				    </Col>
+				</FormGroup>
+
+				<FormGroup controlId="formHorizontalLine">
+				    <Col componentClass={ControlLabel} sm={2}>
+				        Line ID
+				    </Col>
+				    <Col sm={10}>
+				        <FormControl type="text" placeholder="Line ID" />
+				    </Col>
+				</FormGroup>
+			</Form>
         );
     }
+}
+
+FormAccount.contextTypes = {
+    store: React.PropTypes.object
 }
 
 

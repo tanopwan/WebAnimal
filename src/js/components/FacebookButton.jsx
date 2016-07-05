@@ -1,6 +1,6 @@
 import React from 'react';
 import userServices from '../services/user-services.js';
-import { setError, onLogin, SET_ERROR, ErrorTypes } from '../redux/actions'
+import { setError, onLogin, showModal, SET_ERROR, ErrorTypes } from '../redux/actions'
 
 export default class FacebookButton extends React.Component {
     constructor(props) {
@@ -55,17 +55,24 @@ export default class FacebookButton extends React.Component {
                 var accessToken = res.authResponse.accessToken;
 
                 self.FB.api('/me', function(response) {
-                    console.log( "getUserProfile{FacebookButton}: " + JSON.stringify(response) );
+                    console.log( "Retrieved FB Profile from /me API: " + JSON.stringify(response) );
                     var userObject = {
                         fbId: response.id,
                         username: response.name
                     }
-                    userServices.userLogin(userObject).then(function(res) {
+                    userServices.userLogin(userObject, accessToken).then(function(res) {
                         if (res.code == 200) {
                             self.context.store.dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
                         }
                         else {
                             self.context.store.dispatch(setError(res));
+                            self.context.store.dispatch(showModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
+                        }
+                    }, function(res) {
+                        if (res.status == 401) {
+                            // Unauthorized
+                            // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+                            self.context.store.dispatch(showModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
                         }
                     })
                 })
@@ -85,9 +92,9 @@ export default class FacebookButton extends React.Component {
         <div>
             <div
                 className="fb-login-button"
-                data-max-rows="1"
-                data-size="medium"
-                data-show-faces="true"
+                data-max-rows="0"
+                data-size="xlarge"
+                data-show-faces="false"
                 data-auto-logout-link="true"
             ></div>
             <div>{this.context.store.getState().message}</div>

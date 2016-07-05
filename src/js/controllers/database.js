@@ -8,7 +8,15 @@ db.once('open', function() {
 	console.log('[DB] Connection established to ', url);
 });
 
-var user_schema = mongoose.Schema({ fbId: 'string', username: 'string' });
+var user_schema = mongoose.Schema({
+	fbId: 'string',			// From FB, Hidden to user
+	username: 'string',		// From FB and update every login
+	email: 'string',		// Require to open case
+	mobile: 'string',		// Require to open case
+	line: 'string',			// Require to open case
+	address: 'string',		// Require to open case
+	verify: 'string'		// Used by admin (None, Verifying, Verified, Rejected, Canceled)
+});
 var case_schema = mongoose.Schema({
 	user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	caseName: 'string',
