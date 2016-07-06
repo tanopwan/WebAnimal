@@ -45,12 +45,16 @@ const formError = (state = {message: {}}, action) => {
 	return state;
 }
 
-const userObject = (state = {}, action) => {
+const userObject = (state = {status: 'NONE'}, action) => {
 	switch(action.type) {
 		case 'ON_LOGIN' :
-			return Object.assign({}, state, action.user, {status: 'LOGGED_IN'});
+			return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
+		case 'ON_LOGOUT' :
+			return Object.assign({}, state, { status: 'LOGGED_OUT', userId: "" });
+		case 'ON_UNAUTH' :
+			return Object.assign({}, { status: 'UNAUTH' });
 		case 'DO_LOGIN' :
-			return Object.assign({}, state, { status: 'DO_LOGIN'})
+			return Object.assign({}, state, { status: 'DO_LOGIN' })
 		default:
 			return state;
 	}
@@ -87,13 +91,13 @@ const login = (state = { hasModal: false }, action) => {
 }
 
 const webAnimalApp = combineReducers({
+ 	modal,
+ 	login,
+ 	userObject,
  	errorObject: combineReducers({
  		mainError,
  		formError
- 	}),
- 	modal,
- 	login,
- 	userObject
+ 	})
 })
 
 export default webAnimalApp

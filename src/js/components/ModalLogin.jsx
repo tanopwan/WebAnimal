@@ -13,7 +13,7 @@ const LoginContent = ({title, body, dispatch}) => (
 		</Modal.Header>
 		<Modal.Body>
 			<p> กรุณาล็อคอินเพื่อความสะดวกในการใช้งาน </p>
-			<a className="btn btn-block btn-social btn-facebook" onClick={() => { userServices.facebookLogin() }}>
+			<a className="btn btn-block btn-social btn-facebook" onClick={() => { userServices.facebookLogin(); dispatch(hideLogin()); }}>
 		    	<span className="fa fa-facebook"></span> Sign in with Facebook
 			</a>
 		</Modal.Body>

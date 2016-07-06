@@ -1,6 +1,6 @@
 import React from 'react';
 import userServices from '../services/user-services.js';
-import { setError, onLogin, showModal, showLogin } from '../redux/actions'
+import { setError, onLogin, onLogout, onUnAuth, showModal, showLogin } from '../redux/actions'
 
 export default class FacebookController extends React.Component {
     constructor(props) {
@@ -52,6 +52,7 @@ export default class FacebookController extends React.Component {
                             dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
                         }
                         else {
+                            dispatch(onLogout());
                             dispatch(setError(res));
                             dispatch(showModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
                         }
@@ -59,6 +60,7 @@ export default class FacebookController extends React.Component {
                         if (res.status == 401) {
                             // Unauthorized
                             // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+                            dispatch(onUnAuth());
                             dispatch(showModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
                         }
                     })
@@ -66,27 +68,19 @@ export default class FacebookController extends React.Component {
             }
             else if (res.status === 'not_authorized') {
                 console.log('User is not authorized to WebAnimal App');
+                dispatch(showLogin());
             } else {
                 console.log('User is not logged into Facebook');
                 dispatch(showLogin());
             }
         }
 
-        const onLogout = (res) => {
-            console.log("onLogout");
-        }
-
-        FB.Event.subscribe('auth.logout', onLogout);
-        FB.Event.subscribe('auth.statusChange', getUserProfile);
-
-        FB.getLoginStatus(getUserProfile);
+        // Call every time
+        FB.getLoginStatus(function (res) {
+            getUserProfile(res);
+            FB.Event.subscribe('auth.statusChange', getUserProfile);
+        });
     }
-
-    //Never happend
-    /*componentDidUnMount() {
-        this.FB.Event.unsubscribe('auth.logout', this.onLogout);
-        this.FB.Event.unsubscribe('auth.statusChange', this.onStatusChange);
-    }*/
 
     render() {
         return ( <span /> );

@@ -48,6 +48,8 @@ function userLogin(req, res) {
 	var userObject = {
 		fbId: fbId,
 		username: username,
+		lastLogin: new Date(),
+		lastLogout: null
 	};
 
 	var user = new User({ fbId: fbId, username: username });

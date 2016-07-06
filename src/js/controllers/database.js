@@ -15,7 +15,9 @@ var user_schema = mongoose.Schema({
 	mobile: 'string',		// Require to open case
 	line: 'string',			// Require to open case
 	address: 'string',		// Require to open case
-	verify: 'string'		// Used by admin (None, Verifying, Verified, Rejected, Canceled)
+	verify: 'string',		// Used by admin (None, Verifying, Verified, Rejected, Canceled)
+	lastLogin: 'date',
+	lastLogout: 'date'
 });
 var case_schema = mongoose.Schema({
 	user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
