@@ -7,45 +7,44 @@ import * as Actions from '../redux/actions'
 class CaseDetailInternal extends React.Component {
 	constructor(props) {
 		super(props);
+		this.state = {};
 	}
 
 	componentWillMount() {
-		console.log("componentWillMount: " + JSON.stringify(this.props));
-		console.log(this.props.getDetail());
-		this.props.getDetail();
+		this.props.mount().then((result) => {
+			this.setState(result);
+		})
 	}
 
-	compoenentWillReceiveProps() {
-		console.log("compoenentWillReceiveProps: " + JSON.stringify(this.props));
-		console.log(this.props.getDetail());
+	componentWillUnmount() {
+		this.props.unmount();
 	}
 
 	render() {
         return (
 			<div>
-				<h4>เจ้าของเคส {this.props.username}</h4>
-				<h5>{this.props.caseName}</h5>
+				<h4>เจ้าของเคส {this.state.username}</h4>
+				<h5>{this.state.caseName}</h5>
 			</div>
 		)
 	}
 }
 const mapStateToProps = (state) => {
-    return {
-		username: state.viewCase.username,
-		caseName: state.viewCase.casename
-	}
+    return { }
 }
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-        getDetail: () => {
-			CaseServices.getCase(ownProps.params.id).then(function(result) {
-				console.log(result);
-				dispatch(Actions.onGetCaseDetail(result));
+		mount: () => {
+			return CaseServices.getCase(ownProps.params.id).then(function(result) {
+				if (result.code == 0) {
+					return result.object;
+				}
 			}, function(error) {
 				console.log(error);
 				dispatch(Actions.showWarningModal("ผิดพลาด", "ไม่สามารถแสดงรายละเอียดเคสได้"));
-			});
-		}
+			})
+		},
+		unmount: () => {}
     }
 }
 

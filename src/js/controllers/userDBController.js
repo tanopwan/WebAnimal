@@ -25,7 +25,7 @@ const User = {
 			fbId + "', '" +
 			username +
 			"', NOW()) ON DUPLICATE KEY UPDATE userId=userId, fbId=VALUES(fbId), username=VALUES(username), lastLogin=VALUES(lastLogin)";
-		
+
 		return query(queryString);
 	},
 	updateUserOnLogout: (userId) => {
@@ -42,7 +42,7 @@ const User = {
 				var user = result[0];
 				// Can check session expire later here
 				if (user && user.lastLogin) {
-					console.log("userDBController.js - User is already logged in with user " + JSON.stringify(user));
+					//console.log("userDBController.js - User is already logged in with user " + JSON.stringify(user));
 					return resolve(user);
 				}
 

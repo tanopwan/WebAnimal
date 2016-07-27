@@ -2,9 +2,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { RouterContext, match } from 'react-router'
- 
+
 import routes from './routes.jsx';
- 
+
 export default function(req, res) {
     console.log('[router.js] routes:' + req.url);
 
@@ -18,7 +18,7 @@ export default function(req, res) {
             	markup: ReactDOM.renderToString(<RouterContext {...renderProps} />)
         	});
     	} else {
-      		res.status(404).send('[router.js] Not found');
+      		res.status(404).send({message: '[router.jsx] Not found'});
     	}
     });
 }

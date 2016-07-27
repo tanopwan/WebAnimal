@@ -1,0 +1,47 @@
+{
+  "name": "web-animal",
+  "version": "0.0.1",
+  "dependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.11.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.11.1",
+    "body-parser": "^1.15.2",
+    "bootstrap": "^3.3.7",
+    "es6-promise": "^3.2.1",
+    "express": "^4.13.4",
+    "multer": "^1.1.0",
+    "mysql": "^2.11.1",
+    "node-mysql": "^0.4.2",
+    "passport": "^0.3.2",
+    "passport-facebook-token": "^3.3.0",
+    "react": "^15.2.1",
+    "react-bootstrap": "^0.30.0",
+    "react-redux": "^4.4.5",
+    "react-router-redux": "4.0.5",
+    "redux": "^3.5.2",
+    "redux-thunk": "^2.1.0",
+    "sharp": "^0.15.1",
+    "shortid": "^2.2.6"
+  },
+  "description": "An application serves people who want to help stray animals in the street of Thailand",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanopwan/WebAnimal.git"
+  },
+  "keywords": [
+    "WebAnimal"
+  ],
+  "author": "Nopwan Tanopwan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tanopwan/WebAnimal/issues"
+  },
+  "homepage": "https://github.com/tanopwan/WebAnimal#readme"
+}

@@ -13,7 +13,6 @@ export const ON_LOGOUT = 'ON_LOGOUT'
 export const ON_UNAUTH = 'ON_UNAUTH'
 export const ON_AUTH = 'ON_AUTH'
 export const ON_UPDATE_USER = 'ON_UPDATE_USER'
-export const ON_GET_CASE_DETAIL = 'ON_GET_CASE_DETAIL'
 
 /*
  * other constants
@@ -75,8 +74,4 @@ export const onUnAuth = () => {
 
 export const onUpdateUser = (user) => {
 	return { type: ON_UPDATE_USER, user }
-}
-
-export const onGetCaseDetail = (detail) => {
-	return { type: ON_GET_CASE_DETAIL, detail }
 }

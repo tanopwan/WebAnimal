@@ -81,13 +81,20 @@ module.exports = {
         }
 
         return new Promise(function (resolve, reject) {
-            $.ajax({
-                url: urlParams,
-                method: "GET",
-                dataType: "json",
-                success: resolve,
-                error: reject
-            });
+            if (typeof(window) != 'undefined') {
+                $.ajax({
+                    url: urlParams,
+                    method: "GET",
+                    dataType: "json",
+                    success: resolve,
+                    error: reject
+                });
+            }
+            else {
+                // If it is server side rendering, it will not have window object.
+                // This will prevent the error in console - Tanopwan
+                resolve();
+            }
         });
 	},
 
@@ -95,13 +102,20 @@ module.exports = {
         var urlParams = resourceUrl + case_id;
 
         return new Promise(function (resolve, reject) {
-            $.ajax({
-                url: urlParams,
-                method: "GET",
-                dataType: "json",
-                success: resolve,
-                error: reject
-            });
+            if (typeof(window) != 'undefined') {
+                $.ajax({
+                    url: urlParams,
+                    method: "GET",
+                    dataType: "json",
+                    success: resolve,
+                    error: reject
+                });
+            }
+            else {
+                // If it is server side rendering, it will not have window object.
+                // This will prevent the error in console - Tanopwan
+                resolve();
+            }
         });
     },
 
@@ -112,7 +126,7 @@ module.exports = {
 
         return new Promise(function (resolve, reject) {
             $.ajax({
-            url: resourceUrl,
+                url: resourceUrl,
                 headers: {
                     "access_token": accessToken
                 },
@@ -124,37 +138,6 @@ module.exports = {
                 error: reject
             });
         });
-    },
-
-    addNewCase: (accessToken, userId, caseName, description, animalType, caseStatus, caseDate, profilePicture) => {
-        if (!accessToken) {
-            var response_template = {code: 400, message: "accessToken cannot be empty", action: "[case-services]addNewCase", object: {fields: ["accessToken"]}};
-            return Promise.resolve(response_template);
-        }
-
-        if (!userId) {
-            var response_template = {code: 400, message: "userId cannot be empty", action: "[case-services]addNewCase", object: {fields: ["userId"]}};
-            return Promise.resolve(response_template);
-        }
-
-        if (!caseName) {
-            var response_template = {code: 400, message: "caseName cannot be empty", action: "[case-services]addNewCase", object: {fields: ["caseName"]}};
-            return Promise.resolve(response_template);
-        }
-
-        var formData = new FormData();
-        formData.append('user', userId);
-        formData.append('caseName', caseName);
-        formData.append('description', description);
-        formData.append('animalType', animalType);
-        formData.append('caseStatus', caseStatus);
-        formData.append('caseDate', caseDate);
-        formData.append('createdDate', new Date());
-        if (profilePicture) {
-            formData.append('profilePicture', profilePicture);
-        }
-
-        return postAjaxUrl('/api/case/addNewCase', formData, accessToken);
     },
     updateCase: (accessToken, caseId, caseName, description, animalType, caseStatus, caseDate, profilePicture) => {
         if (!accessToken) {
@@ -182,8 +165,7 @@ module.exports = {
         if (profilePicture) {
             formData.append('profilePicture', profilePicture);
         }
-
-        return postAjaxUrl('/api/case/updateCase', formData, accessToken);
+        return null;
     },
 
     addComment: (comment, comment_picture, userId, caseId) => {

@@ -94,20 +94,10 @@ const login = (state = { hasModal: false }, action) => {
 	}
 }
 
-const viewCase = (state = { }, action) => {
-	switch (action.type) {
-		case 'ON_GET_CASE_DETAIL':
-			return Object.assign({}, state, action.detail );
-		default:
-			return state
-	}
-}
-
 const webAnimalApp = combineReducers({
  	modal,
  	login,
  	userObject,
-	viewCase,
  	errorObject: combineReducers({
  		mainError,
  		formError

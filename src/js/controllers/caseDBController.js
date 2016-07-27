@@ -13,14 +13,28 @@ const query = (queryString) => {
 	});
 }
 
+const queryOne = (queryString) => {
+	return new Promise(function (resolve, reject) {
+		conn.query(queryString, function(err, result){
+			if(err)
+				return reject(err);
+
+			if (result.length == 1) {
+				return resolve(result[0]);
+			}
+			return reject("Not found");
+		});
+	});
+}
+
 const Case = {
 	getCases: (limit) => {
 		var queryString = "SELECT * FROM webanimal.Case limit " + limit;
 		return query(queryString);
 	},
 	getCase: (caseId) => {
-		var queryString = "SELECT * FROM webanimal.Case where caseId='" + caseId + "'";
-		return query(queryString);
+		var queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.caseId='" + caseId + "' and c.userId=u.userId";
+		return queryOne(queryString);
 	},
 	createCase: (userId, caseName, description, animalType, animalName, imagePath) => {
 		var caseId = shortid.generate();
