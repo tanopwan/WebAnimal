@@ -8,11 +8,11 @@ class CasePage extends React.Component {
 	}
 
 	componentWillReceiveProps(props) {
-		console.log("componentWillReceiveProps{CasePage}: " + JSON.stringify(props.userObject));
+		//console.log("componentWillReceiveProps{CasePage}: " + JSON.stringify(props.userObject));
     }
 
     componentDidMount() {
-        console.log("componentDidMount{CasePage}");
+        //console.log("componentDidMount{CasePage}");
     }
 
     render() {

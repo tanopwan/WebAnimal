@@ -1,50 +1,59 @@
 import React from 'react';
 
-import userServices from '../services/user-services.js';
-//import InputText from './InputText.jsx';
-import { Form, FormGroup, FormControl, Col, ControlLabel } from 'react-bootstrap'
+import { Form, Button, FormGroup, FormControl, Col, ControlLabel } from 'react-bootstrap'
 
 class FormAccount extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {};
+		this.state = { };
 	}
 
 	componentWillReceiveProps(props) {
 		console.log("componentWillReceiveProps{FormAccount}: " + JSON.stringify(props));
-        this.setState({form: {
-        	username: props.userObject.username
-        }});
+    }
+
+    componentWillMount() {
+		console.log("componentWillMount{FormAccount}: " + JSON.stringify(this.props));
+		this.setState({
+			email: this.props.email,
+			mobile: this.props.mobile,
+			lineId: this.props.lineId
+		})
     }
 
 	handleSubmit(event) {
 		event.preventDefault();
-		var postUser = {
-			fbId: this.props.userObject.fbId,
-			username: this.state.form.username
-		};
-
-		userServices.saveUser(postUser).then(function(resolve) {
-			console.log(resolve);
-		});
+		this.props.updateUser(this.state.email, this.state.mobile, this.state.lineId);
 	}
 
-	handleUsernameChange(event) {
-        this.setState({form: {
-        	username: event.target.value
-        }});
+	handleEmailChange(event) {
+        this.setState( {
+        	email: event.target.value
+        });
+    }
+
+    handleMobileChange(event) {
+        this.setState( {
+        	mobile: event.target.value
+        });
+    }
+
+    handleLineIdChange(event) {
+        this.setState( {
+        	lineId: event.target.value
+        });
     }
 
     render() {
         return (
-            <Form horizontal onSubmit={(event) => { return handleSubmit(event, this.context.store) }}>
+            <Form horizontal onSubmit={(event) => { this.handleSubmit(event) }}>
 			    <FormGroup controlId="formHorizontalUsername">
 			    	<Col componentClass={ControlLabel} sm={2}>
 			        	ชื่อ
 			      	</Col>
 			      	<Col sm={10}>
-			        	<FormControl type="static" />
+			        	<FormControl type="text" value={this.props.username} readOnly />
 			      	</Col>
 			    </FormGroup>
 
@@ -53,7 +62,7 @@ class FormAccount extends React.Component {
 				        อีเมล์
 				    </Col>
 				    <Col sm={10}>
-				        <FormControl type="email" placeholder="Email" />
+				        <FormControl type="email" placeholder="Email" value={this.state.email} onChange={this.handleEmailChange.bind(this)} />
 				    </Col>
 				</FormGroup>
 
@@ -62,7 +71,7 @@ class FormAccount extends React.Component {
 				        มือถือ
 				    </Col>
 				    <Col sm={10}>
-				        <FormControl type="text" placeholder="Mobile" />
+				        <FormControl type="text" placeholder="Mobile" value={this.state.mobile} onChange={this.handleMobileChange.bind(this)} />
 				    </Col>
 				</FormGroup>
 
@@ -71,17 +80,17 @@ class FormAccount extends React.Component {
 				        Line ID
 				    </Col>
 				    <Col sm={10}>
-				        <FormControl type="text" placeholder="Line ID" />
+				        <FormControl type="text" placeholder="Line ID" value={this.state.lineId} onChange={this.handleLineIdChange.bind(this)} />
 				    </Col>
 				</FormGroup>
+				<div className="row">
+					<div className="col-xs-offset-2 col-xs-10">
+						<Button bsStyle="info" type="submit">บันทึก</Button>
+					</div>
+				</div>
 			</Form>
         );
     }
 }
-
-FormAccount.contextTypes = {
-    store: React.PropTypes.object
-}
-
 
 export default FormAccount;

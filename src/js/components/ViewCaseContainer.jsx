@@ -1,6 +1,6 @@
 import React from 'react';
 import CaseCard from './CaseCard.jsx';
-import CaseServices from '../services/case-services.js';
+//import CaseServices from '../services/case-services.js';
 import CaseContainer from './CaseContainer.jsx';
 
 class ViewCaseContainer extends React.Component {
@@ -13,7 +13,7 @@ class ViewCaseContainer extends React.Component {
         }
 	}
 
-    componentDidMount() { 
+    componentDidMount() {
     }
 
     filterAnimalType (event) {
@@ -43,5 +43,5 @@ class ViewCaseContainer extends React.Component {
         );
     }
 }
- 
+
 export default ViewCaseContainer;

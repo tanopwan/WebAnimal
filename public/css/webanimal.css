@@ -1,56 +1,90 @@
 @font-face {
-    font-family: "TH Sarabun New";
-    src: url(fonts/THSarabunNew.ttf) format("truetype");
+	font-family: "TH Sarabun New";
+	src: url(fonts/THSarabunNew.ttf) format("truetype");
 }
 
-.cropthumbnail {
-  position: relative;
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
+.webanimal-page-header {
+	display: block;
+	border-bottom: 1px solid #dddddd;
+	background-color: #7D0552;
 }
+
+.webanimal-page-header a {
+	color: white;
+	text-decoration: none;
+	padding: 14px 25px;
+    text-align: center;
+    display: inline-block;
+    font-family: "TH Sarabun New", Verdana, Tahoma;
+    font-size: 25px;
+}
+
+.webanimal-page-header .dropdown {
+	display: inline-block;
+}
+
+.webanimal-page-header button, .webanimal-page-header button:active {
+	background-color: white;
+	text-decoration: none;
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 25px;
+}
+
+.webanimal-header-item {
+	margin-right: 10px;
+	margin-left: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.cropthumbnail {
+	position: relative;
+	width: 100%;
+	height: 200px;
+	overflow: hidden;
+}
+
 .cropthumbnail img {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 100%;
-  height: auto;
-  -webkit-transform: translate(-50%,-50%);
-      -ms-transform: translate(-50%,-50%);
-          transform: translate(-50%,-50%);
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 100%;
+	height: auto;
+	-webkit-transform: translate(-50%,-50%);
+		-ms-transform: translate(-50%,-50%);
+			transform: translate(-50%,-50%);
 }
 .cropthumbnail img.portrait {
-  width: 100%;
-  height: auto;
+	width: 100%;
+	height: auto;
 }
 
 div.card {
-  /*background-color: #e6e6e6;*/
-  margin: 10px 10px 10px 10px;
-  display: inline-block;
-  width: 250px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  text-align: center;
-  color: #4d4d4d;
-  font-family: "TH Sarabun New", Verdana, Tahoma;
-  font-size: 25px;
+	/*background-color: #e6e6e6;*/
+	margin: 10px 10px 10px 10px;
+	display: inline-block;
+	width: 250px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	text-align: center;
+	color: #4d4d4d;
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 25px;
 }
 
 div.container {
-  width: 100%;
-  padding: 10px;
+	width: 100%;
+	padding: 10px;
 }
 
 body {
-  /*background-color: #f9d616;*/
-
+	/*background-color: #f9d616;*/
+	padding: 0px 0px 0px 0px;
 }
 
 .top10 { margin-top:10px; }
 .top10minus { margin-top:-10px; }
 
 div.form_display {
-  width: 100%;
-  padding-top: 10px;
-  word-wrap: normal;
+	width: 100%;
+	padding-top: 10px;
+	word-wrap: normal;
 }

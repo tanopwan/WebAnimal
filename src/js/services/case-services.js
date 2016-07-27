@@ -1,8 +1,6 @@
 import $ from 'jquery';
 import promise from 'es6-promise';
 
-var Promise = promise.Promise;
-
 var resourceUrl = "http://localhost:3000/api/case/";
 var Promise = promise.Promise;
 
@@ -18,10 +16,7 @@ function postAjaxUrl (url, formData, accessToken) {
             processData: false,
             type: "POST",
             dataType: "json",
-            success: function(data, textStatus, jqXHR) {
-                //console.log(data);
-                //console.log(jqXHR);
-            },
+            success: resolve,
             error: function(data, textStatus, jqXHR) {
                 console.log(data);
                 console.log(jqXHR);
@@ -69,6 +64,7 @@ function postCase (formTarget, userId) {
 
 module.exports = {
 	getCases: function(filters) {
+        console.log('case-services.js - getCases');
         var urlParams = resourceUrl;
         if (filters) {
             var animalTypes = filters.animalTypes;
@@ -80,7 +76,7 @@ module.exports = {
                     }
                     animalTypesParam = animalTypesParam + "animal_types=" + animalType;
                 });
-                urlParams = urlParams + animalTypesParam;    
+                urlParams = urlParams + animalTypesParam;
             }
         }
 
@@ -103,6 +99,27 @@ module.exports = {
                 url: urlParams,
                 method: "GET",
                 dataType: "json",
+                success: resolve,
+                error: reject
+            });
+        });
+    },
+
+    createCase: (accessToken, userId, caseName, description, animalType, animalName, imagePath) => {
+        var jsonData = {
+            userId, caseName, description, animalType, animalName, imagePath
+        }
+
+        return new Promise(function (resolve, reject) {
+            $.ajax({
+            url: resourceUrl,
+                headers: {
+                    "access_token": accessToken
+                },
+                data: JSON.stringify(jsonData),
+                method: "POST",
+                dataType: "json",
+                contentType: "application/json",
                 success: resolve,
                 error: reject
             });
@@ -134,12 +151,11 @@ module.exports = {
         formData.append('caseDate', caseDate);
         formData.append('createdDate', new Date());
         if (profilePicture) {
-            formData.append('profilePicture', profilePicture);    
+            formData.append('profilePicture', profilePicture);
         }
 
         return postAjaxUrl('/api/case/addNewCase', formData, accessToken);
     },
-
     updateCase: (accessToken, caseId, caseName, description, animalType, caseStatus, caseDate, profilePicture) => {
         if (!accessToken) {
             var response_template = {code: 400, message: "accessToken cannot be empty", action: "[case-services]updateCase", object: {fields: ["accessToken"]}};
@@ -164,7 +180,7 @@ module.exports = {
         formData.append('caseStatus', caseStatus);
         formData.append('caseDate', caseDate);
         if (profilePicture) {
-            formData.append('profilePicture', profilePicture);    
+            formData.append('profilePicture', profilePicture);
         }
 
         return postAjaxUrl('/api/case/updateCase', formData, accessToken);
@@ -192,9 +208,9 @@ module.exports = {
         formData.append('createdDate', new Date());
         formData.append('comment', comment);
         if (comment_picture) {
-            formData.append('comment_picture', comment_picture);    
+            formData.append('comment_picture', comment_picture);
         }
         return postAjaxUrl('/api/case/comment', formData);
-        
+
     }
 };

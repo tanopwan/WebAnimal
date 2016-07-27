@@ -1,6 +1,6 @@
 import React from 'react';
 import userServices from '../services/user-services.js';
-import { setError, onLogin, onLogout, onUnAuth, showModal, showLogin } from '../redux/actions'
+import { setError, onLogin, onLogout, onAuth, onUnAuth, showWarningModal, showLogin } from '../redux/actions'
 
 export default class FacebookController extends React.Component {
     constructor(props) {
@@ -36,32 +36,44 @@ export default class FacebookController extends React.Component {
     init() {
         var dispatch = this.context.store.dispatch;
         const getUserProfile = (res) => {
-            console.log("Getting login status...");
+            console.log("Getting FB login status...");
             if( res.status === "connected" ) {
-
+                //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
                 var accessToken = res.authResponse.accessToken;
+                dispatch(onAuth(res.authResponse.userID, accessToken));
 
                 FB.api('/me', function(response) {
-                    console.log( "Retrieved FB Profile from /me API: " + JSON.stringify(response) );
+                    console.log( "Getting FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response) );
                     var userObject = {
                         fbId: response.id,
                         username: response.name
                     }
-                    userServices.userLogin(userObject, accessToken).then(function(res) {
-                        if (res.code == 200) {
-                            dispatch(onLogin(Object.assign(res.object, {accessToken: accessToken})));
+                    console.log( "Getting WebAnimal login status..." );
+                    userServices.userLoginStatus(userObject, accessToken).then(function(res) {
+                        console.log( "Getting WebAnimal login status... - " + JSON.stringify(res) );
+                        //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
+                        if (res.code == 0 && res.object) {
+                            // Log in
+                            var userId = res.object.userId;
+                            var lastLogin = res.object.lastLogin;
+                            dispatch(onLogin(Object.assign({}, res.object, {accessToken, userId, lastLogin})));
                         }
-                        else {
-                            dispatch(onLogout());
-                            dispatch(setError(res));
-                            dispatch(showModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
+                        else if (res.code == 1) {
+                            // Not log in
+                            dispatch(showLogin());
                         }
                     }, function(res) {
+                        // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
                         if (res.status == 401) {
                             // Unauthorized
                             // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
                             dispatch(onUnAuth());
-                            dispatch(showModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+                            dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+                        }
+                        //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
+                        else if (res.status == 400) {
+                            dispatch(onUnAuth());
+                            dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
                         }
                     })
                 })
@@ -78,7 +90,7 @@ export default class FacebookController extends React.Component {
         // Call every time
         FB.getLoginStatus(function (res) {
             getUserProfile(res);
-            FB.Event.subscribe('auth.statusChange', getUserProfile);
+            //FB.Event.subscribe('auth.statusChange', getUserProfile);
         });
     }
 

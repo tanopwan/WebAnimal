@@ -50,11 +50,13 @@ const userObject = (state = {status: 'NONE'}, action) => {
 		case 'ON_LOGIN' :
 			return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
 		case 'ON_LOGOUT' :
-			return Object.assign({}, state, { status: 'LOGGED_OUT', userId: "" });
+			return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'AUTH' });
 		case 'ON_UNAUTH' :
 			return Object.assign({}, { status: 'UNAUTH' });
-		case 'DO_LOGIN' :
-			return Object.assign({}, state, { status: 'DO_LOGIN' })
+		case 'ON_AUTH' :
+			return Object.assign({}, { fbId: action.fbId, username: action.username, accessToken: action.accessToken }, { status: 'AUTH' });
+		case 'ON_UPDATE_USER' :
+			return Object.assign({}, state, action.user );
 		default:
 			return state;
 	}
@@ -66,13 +68,15 @@ const modal = (state = { hasModal: false, title: "", body: "" }, action) => {
 			return Object.assign({}, state, {
 				hasModal: true,
 		        title: action.title,
-		        body: action.body
+		        body: action.body,
+		        style: action.style
 		    });
 		case 'HIDE_MODAL':
 			return Object.assign({}, state, {
 				hasModal: false,
 				title: "",
-				body: ""
+				body: "",
+				style: ""
 			});
 		default:
 			return state
@@ -90,10 +94,20 @@ const login = (state = { hasModal: false }, action) => {
 	}
 }
 
+const viewCase = (state = { }, action) => {
+	switch (action.type) {
+		case 'ON_GET_CASE_DETAIL':
+			return Object.assign({}, state, action.detail );
+		default:
+			return state
+	}
+}
+
 const webAnimalApp = combineReducers({
  	modal,
  	login,
  	userObject,
+	viewCase,
  	errorObject: combineReducers({
  		mainError,
  		formError

@@ -11,7 +11,9 @@ export const HIDE_LOGIN_MODAL = 'HIDE_LOGIN_MODAL'
 export const ON_LOGIN = 'ON_LOGIN'
 export const ON_LOGOUT = 'ON_LOGOUT'
 export const ON_UNAUTH = 'ON_UNAUTH'
-export const DO_LOGIN = 'DO_LOGIN'
+export const ON_AUTH = 'ON_AUTH'
+export const ON_UPDATE_USER = 'ON_UPDATE_USER'
+export const ON_GET_CASE_DETAIL = 'ON_GET_CASE_DETAIL'
 
 /*
  * other constants
@@ -31,16 +33,16 @@ export const setError = (type, error) => {
  	return { type: SET_ERROR, sub_type: type, error }
 }
 
-export const showModal = (title, body) => {
-	return { type: SHOW_MODAL, title, body}
+export const showWarningModal = (title, body) => {
+	return { type: SHOW_MODAL, title, body, style: "warning"}
+}
+
+export const showSuccessModal = (title, body) => {
+	return { type: SHOW_MODAL, title, body, style: "success"}
 }
 
 export const hideModal = () => {
 	return { type: HIDE_MODAL }
-}
-
-export const doLogin = () => {	// Facebook Login
-	return { type: DO_LOGIN }
 }
 
 export const showLogin = (title, body) => {
@@ -63,7 +65,18 @@ export const onLogout = () => {
 	return { type: ON_LOGOUT }
 }
 
+export const onAuth = (fbId, accessToken) => {
+	return { type: ON_AUTH, fbId, accessToken }
+}
+
 export const onUnAuth = () => {
 	return { type: ON_UNAUTH }
 }
 
+export const onUpdateUser = (user) => {
+	return { type: ON_UPDATE_USER, user }
+}
+
+export const onGetCaseDetail = (detail) => {
+	return { type: ON_GET_CASE_DETAIL, detail }
+}

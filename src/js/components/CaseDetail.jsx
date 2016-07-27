@@ -1,50 +1,57 @@
 import React from 'react';
-import ViewCaseContainer from './ViewCaseContainer.jsx';
+import { connect } from 'react-redux'
+
 import CaseServices from '../services/case-services.js';
+import * as Actions from '../redux/actions'
 
-class CaseDetail extends React.Component {
-
+class CaseDetailInternal extends React.Component {
 	constructor(props) {
 		super(props);
-        this.state = {
-            item : {
-                user: {},
-                caseName: ""    
-            }
-        }
 	}
 
-	componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps{CaseDetail}: " + JSON.stringify(props));
-    }
+	componentWillMount() {
+		console.log("componentWillMount: " + JSON.stringify(this.props));
+		console.log(this.props.getDetail());
+		this.props.getDetail();
+	}
 
-    componentDidMount() {
-        //console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.case_id);
-        console.log("componentDidMount{CaseDetail} : getCase with case_id: " + this.props.params.id);
-        
-        var case_id = this.props.params.id;
-        var self = this;
-        CaseServices.getCase(case_id).then(function(res) {
-            console.log("return from CaseServices.getCase: " + JSON.stringify(res));
-            if (res.code == 200) {
-                self.setState({item: res.object}, function() {
-                    //console.log(self.state);
-                });
-            }
-        });
-    }
+	compoenentWillReceiveProps() {
+		console.log("compoenentWillReceiveProps: " + JSON.stringify(this.props));
+		console.log(this.props.getDetail());
+	}
 
-    render() {
+	render() {
         return (
-            <div>
-                <h4>เจ้าของเคส {this.state.item.user.username}</h4>
-                <h5>{this.state.item.caseName}</h5>
-            </div>
-        );
+			<div>
+				<h4>เจ้าของเคส {this.props.username}</h4>
+				<h5>{this.props.caseName}</h5>
+			</div>
+		)
+	}
+}
+const mapStateToProps = (state) => {
+    return {
+		username: state.viewCase.username,
+		caseName: state.viewCase.casename
+	}
+}
+const mapDispatchToProps = (dispatch, ownProps) => {
+    return {
+        getDetail: () => {
+			CaseServices.getCase(ownProps.params.id).then(function(result) {
+				console.log(result);
+				dispatch(Actions.onGetCaseDetail(result));
+			}, function(error) {
+				console.log(error);
+				dispatch(Actions.showWarningModal("ผิดพลาด", "ไม่สามารถแสดงรายละเอียดเคสได้"));
+			});
+		}
     }
 }
 
-CaseDetail.defaultProps = {
-}
- 
+const CaseDetail = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(CaseDetailInternal);
+
 export default CaseDetail;

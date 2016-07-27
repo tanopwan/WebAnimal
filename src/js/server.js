@@ -13,7 +13,7 @@ import passport from './controllers/auth.js'
 import router from './router.jsx';
 import user_router from './controllers/users.js'
 import case_router from './controllers/cases.js'
-import donor_router from './controllers/donors.js'
+import upload_router from './controllers/uploads.js'
 
 var app = express();
 
@@ -25,7 +25,7 @@ app.use(passport.initialize());
 
 app.use('/api/user', user_router);
 app.use('/api/case', case_router);
-app.use('/api/donor', donor_router);
+app.use('/api/upload', upload_router);
 app.use('/', router);
  
 app.engine('handlebars', exphbs());

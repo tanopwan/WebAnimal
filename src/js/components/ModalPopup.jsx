@@ -4,7 +4,7 @@ import { Modal, Button } from 'react-bootstrap'
 
 import { hideModal } from '../redux/actions'
 
-const ModalContent = ({title, body, dispatch}) => (
+const ModalContent = ({title, body, style, dispatch}) => (
 <div className="static-modal">
 	<Modal.Dialog>
 		<Modal.Header>
@@ -14,7 +14,7 @@ const ModalContent = ({title, body, dispatch}) => (
 			{body}
 		</Modal.Body>
 		<Modal.Footer>
-			<Button bsStyle="warning" onClick={() => dispatch(hideModal())}>ปิดหน้าต่าง</Button>
+			<Button bsStyle={style} onClick={() => dispatch(hideModal())}>ปิดหน้าต่าง</Button>
 		</Modal.Footer>
 	</Modal.Dialog>
 </div>
@@ -23,7 +23,8 @@ const ModalContent = ({title, body, dispatch}) => (
 const mapStateToProps = (state) => {
     return {
         title: state.modal.title,
-        body: state.modal.body
+        body: state.modal.body,
+        style: state.modal.style
     }
 }
 
