@@ -16,7 +16,7 @@ class CaseContainer extends React.Component {
     componentWillReceiveProps(props) {
         var self = this;
         CaseServices.getCases(props.filters).then(function(res) {
-            if (res.code == 200) {
+            if (res.code == 0) {
                 self.setState({objects: res.object});
             }
         });
@@ -32,5 +32,5 @@ class CaseContainer extends React.Component {
         );
     }
 }
- 
+
 export default CaseContainer;
