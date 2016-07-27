@@ -57664,7 +57664,7 @@
 	        value: function componentWillReceiveProps(props) {
 	            var self = this;
 	            _caseServices2.default.getCases(props.filters).then(function (res) {
-	                if (res.code == 200) {
+	                if (res.code == 0) {
 	                    self.setState({ objects: res.object });
 	                }
 	            });
