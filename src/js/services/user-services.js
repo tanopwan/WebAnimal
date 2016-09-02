@@ -12,12 +12,12 @@ var resourceUrl = "http://localhost:3000/api/user/";
 // - LOGGED_IN : FB Graph to get username & Server already verify Token (username, lastLogin)
 // - UNAUTH : User not authorized WebAnimal App
 
-let onGetFBLoginStatus = (res, onAuth, onUnAuth, onLogin, showLogin, showWarningModal) => {
+let onGetFBLoginStatus = (res) => {
     return (dispatch) => {
         if( res.status === "connected" ) {
             //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
             var accessToken = res.authResponse.accessToken;
-            dispatch(onAuth(res.authResponse.userID, accessToken));
+            dispatch(Actions.onAuth(res.authResponse.userID, accessToken));
 
             FB.api('/me', function(response) {
                 console.log( "Received FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response) );
@@ -33,7 +33,7 @@ let onGetFBLoginStatus = (res, onAuth, onUnAuth, onLogin, showLogin, showWarning
                         // Log in
                         var userId = res.object.userId;
                         var lastLogin = res.object.lastLogin;
-                        dispatch(onLogin(Object.assign({}, res.object, {accessToken, userId, lastLogin})));
+                        dispatch(Actions.onLogin(Object.assign({}, res.object, {accessToken, userId, lastLogin})));
                     }
                     else {
                         dispatch(Actions.onLogout());
@@ -45,23 +45,23 @@ let onGetFBLoginStatus = (res, onAuth, onUnAuth, onLogin, showLogin, showWarning
                     if (res.status == 401) {
                         // Unauthorized
                         // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-                        dispatch(onUnAuth());
-                        dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+                        dispatch(Actions.onUnAuth());
+                        dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
                     }
                     //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
                     else if (res.status == 400) {
-                        dispatch(onUnAuth());
-                        dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
+                        dispatch(Actions.onUnAuth());
+                        dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
                     }
                 })
             })
         }
         else if (res.status === 'not_authorized') {
             console.log('User is not authorized to WebAnimal App');
-            dispatch(showLogin());
+            dispatch(Actions.showLogin());
         } else {    // 'unknown'
             console.log('User is not logged into Facebook');
-            dispatch(showLogin());
+            dispatch(Actions.showLogin());
         }
     }
 }
@@ -138,7 +138,7 @@ let userLogout = function(jsonData, accessToken) {
 module.exports = {
     facebookLogin: function(dispatch) {
         FB.login( function(res) {
-            store.dispatch(onGetFBLoginStatus(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
+            store.dispatch(onGetFBLoginStatus(res));
         }, {scope: 'email'} );
         // TODO: what to do when failed
     },

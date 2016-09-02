@@ -10,13 +10,12 @@ import MainMenu from './MainMenu.jsx'
 
 import { store } from '../redux/store.js'
 import { fbModule } from '../facebook-init.js';
-import * as Actions from '../redux/actions'
 import { onGetFBLoginStatus } from '../services/user-services.js'
 
 fbModule.subscribe((FB) => {
     FB.getLoginStatus(function (res) {
         store.dispatch(Actions.onFBInit());
-        store.dispatch(onGetFBLoginStatus(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
+        store.dispatch(onGetFBLoginStatus(res));
     });
 });
 
@@ -48,10 +47,6 @@ const AppConnect = ({children, store}) => (
 </Provider>
 );
 
-const mapStateToProps = (state) => {
-    return { }
-}
-
 function connectWithStore(store, WrappedComponent, ...args) {
     var App = connect(...args)(WrappedComponent)
     return function (props) {
@@ -59,6 +54,6 @@ function connectWithStore(store, WrappedComponent, ...args) {
     }
 }
 
-const App = connectWithStore(store, AppConnect, mapStateToProps)
+const App = connectWithStore(store, AppConnect, null)
 
 export default App;
