@@ -8,8 +8,7 @@ import * as Actions from '../redux/actions'
 
 const mapStateToProps = (state) => {
     return {
-        userObject: state.userObject,
-        errorObject: state.errorObject,
+        formError: state.errorObject.formError,
         username: state.userObject.username
     }
 }
@@ -54,6 +53,23 @@ const mapDispatchToProps = (dispatch) => {
         dispatch,
         create: (file, caseName, description, animalType, animalName) => {
         	dispatch(createUpload(file, caseName, description, animalType, animalName));
+        },
+        require: (caseName, description, profilePicture) => {
+            let hasError = false;
+            dispatch(Actions.resetError(Actions.ErrorTypes.ERR_FORM_INVALID));
+            if (!caseName) {
+                hasError = true;
+                dispatch(Actions.setFormError("caseName", "จำเป็น"));
+            }
+            if (!description) {
+                hasError = true;
+                dispatch(Actions.setFormError("description", "จำเป็น"));
+            }
+            if (!profilePicture) {
+                hasError = true;
+                dispatch(Actions.setFormError("profilePicture", "จำเป็น"));
+            }
+            return !hasError;
         }
     }
 }

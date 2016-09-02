@@ -27,7 +27,7 @@ app.use('/api/user', user_router);
 app.use('/api/case', case_router);
 app.use('/api/upload', upload_router);
 app.use('/', router);
- 
+
 app.engine('handlebars', exphbs());
 app.set('view engine', 'handlebars');
 app.set('views', path.join(__dirname, '../templates'));
@@ -37,4 +37,3 @@ var server = app.listen(3000, function() {
     var port = server.address().port;
     console.log('listening at http://%s:%s', host, port);
 });
-

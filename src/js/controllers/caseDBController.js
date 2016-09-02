@@ -22,28 +22,47 @@ const queryOne = (queryString) => {
 			if (result.length == 1) {
 				return resolve(result[0]);
 			}
-			return reject("Not found");
+			return reject("Query One Not found");
 		});
 	});
 }
 
 const Case = {
 	getCases: (limit) => {
-		var queryString = "SELECT * FROM webanimal.Case limit " + limit;
+		let queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.userId=u.userId limit " + limit;
 		return query(queryString);
 	},
 	getCase: (caseId) => {
-		var queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.caseId='" + caseId + "' and c.userId=u.userId";
+		let queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.caseId='" + caseId + "' and c.userId=u.userId";
 		return queryOne(queryString);
 	},
+	getComments: (caseId, limit) => {
+		let queryString = "SELECT co.commentId, co.comment, co.created, u.username, u.fbId, up.path as imagePath " +
+		"FROM webanimal.Comment co INNER JOIN webanimal.User u " +
+		"ON (co.userId=u.userId) LEFT OUTER JOIN  webanimal.Upload up " +
+		"ON (co.uploadId=up.uploadId) WHERE co.caseId='" + caseId + "' ORDER BY co.created DESC limit " + limit;
+		return query(queryString);
+	},
 	createCase: (userId, caseName, description, animalType, animalName, imagePath) => {
-		var caseId = shortid.generate();
+		let caseId = shortid.generate();
 		//INSERT INTO `webanimal`.`Case` (`caseId`, `userId`, `lock`, `caseName`, `imagePath`, `description`, `animalType`, `animalName`) VALUES ('111', 'rkrn0-0D', '0', 'a', 'b', 'c', 'd', 'e');
-		var queryString = "INSERT INTO webanimal.Case (caseId, userId, lockStatus, caseName, imagePath, description, animalType, animalName) "
+		let queryString = "INSERT INTO webanimal.Case (caseId, userId, lockStatus, caseName, imagePath, description, animalType, animalName) "
 							+ "VALUES ('" + caseId + "', '" + userId + "', '0', '" + caseName + "', '" + imagePath + "', '" + description
 							+ "', '" + animalType + "', '" + animalName + "')";
-		console.log(queryString);
 		return query(queryString);
+	},
+	addComment: (userId, caseId, comment, uploadId) => {
+		let commentId = shortid.generate();
+		if (uploadId) {
+			let queryString = "INSERT INTO webanimal.Comment (commentId, caseId, userId, comment, uploadId) "
+								+ "VALUES ('" + commentId + "', '" + caseId + "', '" + userId + "', '" + comment + "', '" + uploadId + "')";
+			return query(queryString);
+		}
+		else {
+			let queryString = "INSERT INTO webanimal.Comment (commentId, caseId, userId, comment) "
+								+ "VALUES ('" + commentId + "', '" + caseId + "', '" + userId + "', '" + comment + "')";
+			return query(queryString);
+		}
 	}
 }
 

@@ -63,13 +63,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	// render ลงไปใน DOM ที่ #content
-
-
-	// โหลดความสามารถของ react-router มาใช้งาน
-	// โหลด React มาใช้งาน
 	_reactDom2.default.render(_react2.default.createElement(_reactRouter.Router, { routes: _routes2.default, history: _reactRouter.browserHistory }), document.getElementById('content'));
-
-	// โหลด route ต่างๆ ที่เราได้กำหนดไว้
 
 /***/ },
 /* 1 */
@@ -26617,7 +26611,7 @@
 
 	var _About2 = _interopRequireDefault(_About);
 
-	var _AddNewCase = __webpack_require__(501);
+	var _AddNewCase = __webpack_require__(502);
 
 	var _AddNewCase2 = _interopRequireDefault(_AddNewCase);
 
@@ -26641,11 +26635,11 @@
 
 	var _CaseContainer2 = _interopRequireDefault(_CaseContainer);
 
-	var _CaseDetail = __webpack_require__(509);
+	var _ViewCase = __webpack_require__(512);
 
-	var _CaseDetail2 = _interopRequireDefault(_CaseDetail);
+	var _ViewCase2 = _interopRequireDefault(_ViewCase);
 
-	var _FormEditCase = __webpack_require__(512);
+	var _FormEditCase = __webpack_require__(514);
 
 	var _FormEditCase2 = _interopRequireDefault(_FormEditCase);
 
@@ -26667,7 +26661,7 @@
 	    _react2.default.createElement(
 	        _reactRouter.Route,
 	        { path: 'case', component: _CasePage2.default },
-	        _react2.default.createElement(_reactRouter.Route, { path: 'view/:id', component: _CaseDetail2.default }),
+	        _react2.default.createElement(_reactRouter.Route, { path: 'view/:id', component: _ViewCase2.default }),
 	        _react2.default.createElement(_reactRouter.Route, { path: 'edit/:id', component: _FormEditCase2.default })
 	    ),
 	    _react2.default.createElement(_reactRouter.Route, { path: 'dev', component: _DevPanel2.default })
@@ -26685,7 +26679,7 @@
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var _react = __webpack_require__(1);
 
@@ -26703,143 +26697,135 @@
 
 	var _ModalLogin2 = _interopRequireDefault(_ModalLogin);
 
-	var _FacebookController = __webpack_require__(487);
-
-	var _FacebookController2 = _interopRequireDefault(_FacebookController);
-
-	var _MainMenu = __webpack_require__(488);
+	var _MainMenu = __webpack_require__(490);
 
 	var _MainMenu2 = _interopRequireDefault(_MainMenu);
 
-	var _stores = __webpack_require__(490);
+	var _store = __webpack_require__(487);
+
+	var _facebookInit = __webpack_require__(492);
+
+	var _actions = __webpack_require__(479);
+
+	var Actions = _interopRequireWildcard(_actions);
+
+	var _userServices = __webpack_require__(481);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	_facebookInit.fbModule.subscribe(function (FB) {
+	    FB.getLoginStatus(function (res) {
+	        _store.store.dispatch(Actions.onFBInit());
+	        _store.store.dispatch((0, _userServices.onGetFBLoginStatus)(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
+	    });
+	});
 
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var App = function (_React$Component) {
-	    _inherits(App, _React$Component);
-
-	    function App(props) {
-	        _classCallCheck(this, App);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
-
-	        _this.store = _stores.store;
-	        return _this;
-	    }
-
-	    _createClass(App, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var _this2 = this;
-
-	            this.unsubscribe = this.store.subscribe(function () {
-	                _this2.forceUpdate();
-	            });
-	            //this.store.subscribe(() => { console.log("APP Subscribe: " + JSON.stringify(this.store.getState())) });
-	        }
-	    }, {
-	        key: 'componentDidUnMount',
-	        value: function componentDidUnMount() {
-	            this.unsubscribe();
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                _reactRedux.Provider,
-	                { store: this.store },
+	var AppConnect = function AppConnect(_ref) {
+	    var children = _ref.children;
+	    var store = _ref.store;
+	    return _react2.default.createElement(
+	        _reactRedux.Provider,
+	        { store: store },
+	        _react2.default.createElement(
+	            'div',
+	            null,
+	            _react2.default.createElement(_MainMenu2.default, null),
+	            _react2.default.createElement(
+	                'div',
+	                null,
 	                _react2.default.createElement(
-	                    'div',
-	                    null,
-	                    _react2.default.createElement(_MainMenu2.default, null),
+	                    'ul',
+	                    { className: 'nav nav-pills' },
 	                    _react2.default.createElement(
-	                        'div',
+	                        'li',
 	                        null,
 	                        _react2.default.createElement(
-	                            'ul',
-	                            { className: 'nav nav-pills' },
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/' },
-	                                    'Home'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/about' },
-	                                    'About'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/add_new_case' },
-	                                    'A D D'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/account' },
-	                                    'A C C O U N T'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/mycases' },
-	                                    'M Y C A S E S'
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                'li',
-	                                null,
-	                                _react2.default.createElement(
-	                                    _reactRouter.Link,
-	                                    { to: '/dev' },
-	                                    'D E V'
-	                                )
-	                            )
-	                        ),
-	                        function (error, self) {
-	                            if (error == true) {
-	                                return _react2.default.createElement(
-	                                    'div',
-	                                    { className: 'alert alert-danger' },
-	                                    self.store.getState().errorObject.mainError.message
-	                                );
-	                            }
-	                        }(this.store.getState().errorObject.mainError.hasError, this),
-	                        this.props.children,
-	                        _react2.default.createElement(_ModalPopup2.default, null),
-	                        _react2.default.createElement(_FacebookController2.default, null),
-	                        _react2.default.createElement(_ModalLogin2.default, null)
+	                            _reactRouter.Link,
+	                            { to: '/' },
+	                            'Home'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: '/about' },
+	                            'About'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: '/add_new_case' },
+	                            'A D D'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: '/account' },
+	                            'A C C O U N T'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: '/mycases' },
+	                            'M Y C A S E S'
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        'li',
+	                        null,
+	                        _react2.default.createElement(
+	                            _reactRouter.Link,
+	                            { to: '/dev' },
+	                            'D E V'
+	                        )
 	                    )
-	                )
-	            );
-	        }
-	    }]);
+	                ),
+	                function (error, self) {
+	                    if (store.getState().errorObject.mainError.hasError == true) {
+	                        return _react2.default.createElement(
+	                            'div',
+	                            { className: 'alert alert-danger' },
+	                            store.getState().errorObject.mainError.message
+	                        );
+	                    }
+	                }(store),
+	                children,
+	                _react2.default.createElement(_ModalPopup2.default, null),
+	                _react2.default.createElement(_ModalLogin2.default, null)
+	            )
+	        )
+	    );
+	};
 
-	    return App;
-	}(_react2.default.Component);
+	var mapStateToProps = function mapStateToProps(state) {
+	    return {};
+	};
+
+	function connectWithStore(store, WrappedComponent) {
+	    for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+	        args[_key - 2] = arguments[_key];
+	    }
+
+	    var App = _reactRedux.connect.apply(undefined, args)(WrappedComponent);
+	    return function (props) {
+	        return _react2.default.createElement(App, _extends({}, props, { store: store }));
+	    };
+	}
+
+	var App = connectWithStore(_store.store, AppConnect, mapStateToProps);
 
 	exports.default = App;
 
@@ -28620,8 +28606,9 @@
 	var ModalContent = function ModalContent(_ref) {
 		var title = _ref.title;
 		var body = _ref.body;
+		var imagePath = _ref.imagePath;
 		var style = _ref.style;
-		var dispatch = _ref.dispatch;
+		var hideModal = _ref.hideModal;
 		return _react2.default.createElement(
 			'div',
 			{ className: 'static-modal' },
@@ -28640,7 +28627,12 @@
 				_react2.default.createElement(
 					_reactBootstrap.Modal.Body,
 					null,
-					body
+					body,
+					function () {
+						if (imagePath) {
+							return _react2.default.createElement('img', { src: imagePath });
+						}
+					}()
 				),
 				_react2.default.createElement(
 					_reactBootstrap.Modal.Footer,
@@ -28648,7 +28640,7 @@
 					_react2.default.createElement(
 						_reactBootstrap.Button,
 						{ bsStyle: style, onClick: function onClick() {
-								return dispatch((0, _actions.hideModal)());
+								return hideModal();
 							} },
 						'ปิดหน้าต่าง'
 					)
@@ -28661,13 +28653,16 @@
 		return {
 			title: state.modal.title,
 			body: state.modal.body,
+			imagePath: state.modal.imagePath,
 			style: state.modal.style
 		};
 	};
 
 	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
 		return {
-			dispatch: dispatch
+			hideModal: function hideModal() {
+				return dispatch((0, _actions.hideModal)());
+			}
 		};
 	};
 
@@ -45718,6 +45713,7 @@
 	var SET_ERROR = exports.SET_ERROR = 'SET_ERROR';
 	var RESET_ERROR = exports.RESET_ERROR = 'RESET_ERROR';
 	var SHOW_MODAL = exports.SHOW_MODAL = 'SHOW_MODAL';
+	var SHOW_MODAL_IMAGE = exports.SHOW_MODAL_IMAGE = 'SHOW_MODAL_IMAGE';
 	var HIDE_MODAL = exports.HIDE_MODAL = 'HIDE_MODAL';
 	var SHOW_LOGIN_MODAL = exports.SHOW_LOGIN_MODAL = 'SHOW_LOGIN_MODAL';
 	var HIDE_LOGIN_MODAL = exports.HIDE_LOGIN_MODAL = 'HIDE_LOGIN_MODAL';
@@ -45725,7 +45721,11 @@
 	var ON_LOGOUT = exports.ON_LOGOUT = 'ON_LOGOUT';
 	var ON_UNAUTH = exports.ON_UNAUTH = 'ON_UNAUTH';
 	var ON_AUTH = exports.ON_AUTH = 'ON_AUTH';
+	var ON_FB_INIT = exports.ON_FB_INIT = 'ON_FB_INIT';
 	var ON_UPDATE_USER = exports.ON_UPDATE_USER = 'ON_UPDATE_USER';
+	var VIEW_CASE = exports.VIEW_CASE = 'VIEW_CASE';
+	var ON_VIEW_CASE = exports.ON_VIEW_CASE = 'ON_VIEW_CASE';
+	var ON_VIEW_COMMENT = exports.ON_VIEW_COMMENT = 'ON_VIEW_COMMENT';
 
 	/*
 	 * other constants
@@ -45740,6 +45740,9 @@
 	 * action creators
 	 */
 
+	var setFormError = exports.setFormError = function setFormError(field, message) {
+		return { type: SET_ERROR, sub_type: ErrorTypes.ERR_FORM_INVALID, error: { field: field, message: message } };
+	};
 	var setError = exports.setError = function setError(type, error) {
 		return { type: SET_ERROR, sub_type: type, error: error };
 	};
@@ -45750,6 +45753,10 @@
 
 	var showSuccessModal = exports.showSuccessModal = function showSuccessModal(title, body) {
 		return { type: SHOW_MODAL, title: title, body: body, style: "success" };
+	};
+
+	var showPictureModal = exports.showPictureModal = function showPictureModal(title, imagePath) {
+		return { type: SHOW_MODAL_IMAGE, title: title, imagePath: imagePath, style: "info" };
 	};
 
 	var hideModal = exports.hideModal = function hideModal() {
@@ -45784,8 +45791,24 @@
 		return { type: ON_UNAUTH };
 	};
 
+	var onFBInit = exports.onFBInit = function onFBInit() {
+		return { type: ON_FB_INIT };
+	};
+
 	var onUpdateUser = exports.onUpdateUser = function onUpdateUser(user) {
 		return { type: ON_UPDATE_USER, user: user };
+	};
+
+	var viewCase = exports.viewCase = function viewCase(caseId) {
+		return { type: VIEW_CASE, caseId: caseId };
+	};
+
+	var onViewCase = exports.onViewCase = function onViewCase(caseObject) {
+		return { type: ON_VIEW_CASE, caseObject: caseObject };
+	};
+
+	var onViewComment = exports.onViewComment = function onViewComment(objects) {
+		return { type: ON_VIEW_COMMENT, objects: objects };
 	};
 
 /***/ },
@@ -45912,6 +45935,8 @@
 
 	var Actions = _interopRequireWildcard(_actions);
 
+	var _store = __webpack_require__(487);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -45924,6 +45949,76 @@
 	// - AUTH : FB is authorized but not log in (fbId, accessToken)
 	// - LOGGED_IN : FB Graph to get username & Server already verify Token (username, lastLogin)
 	// - UNAUTH : User not authorized WebAnimal App
+
+	var onGetFBLoginStatus = function onGetFBLoginStatus(res, onAuth, onUnAuth, onLogin, showLogin, showWarningModal) {
+	    return function (dispatch) {
+	        if (res.status === "connected") {
+	            //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
+	            var accessToken = res.authResponse.accessToken;
+	            dispatch(onAuth(res.authResponse.userID, accessToken));
+
+	            FB.api('/me', function (response) {
+	                console.log("Received FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response));
+	                var userObject = {
+	                    fbId: response.id,
+	                    username: response.name
+	                };
+	                console.log("Receiving WebAnimal login status...");
+	                userLogin(userObject, accessToken).then(function (res) {
+	                    console.log("Received WebAnimal login status... - " + JSON.stringify(res));
+	                    //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
+	                    if (res.code == 0 && res.object) {
+	                        // Log in
+	                        var userId = res.object.userId;
+	                        var lastLogin = res.object.lastLogin;
+	                        dispatch(onLogin(Object.assign({}, res.object, { accessToken: accessToken, userId: userId, lastLogin: lastLogin })));
+	                    } else {
+	                        dispatch(Actions.onLogout());
+	                        dispatch(Actions.setError(res));
+	                        dispatch(Actions.showWarningModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
+	                    }
+	                }, function (res) {
+	                    // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+	                    if (res.status == 401) {
+	                        // Unauthorized
+	                        // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+	                        dispatch(onUnAuth());
+	                        dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+	                    }
+	                    //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
+	                    else if (res.status == 400) {
+	                            dispatch(onUnAuth());
+	                            dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
+	                        }
+	                });
+	            });
+	        } else if (res.status === 'not_authorized') {
+	            console.log('User is not authorized to WebAnimal App');
+	            dispatch(showLogin());
+	        } else {
+	            // 'unknown'
+	            console.log('User is not logged into Facebook');
+	            dispatch(showLogin());
+	        }
+	    };
+	};
+
+	var userLoginStatus = function userLoginStatus(jsonData, accessToken) {
+	    return new Promise(function (resolve, reject) {
+	        _jquery2.default.ajax({
+	            url: resourceUrl + "login/status",
+	            headers: {
+	                "access_token": accessToken
+	            },
+	            data: JSON.stringify(jsonData),
+	            method: "POST",
+	            dataType: "json",
+	            contentType: "application/json",
+	            success: resolve,
+	            error: reject
+	        });
+	    });
+	};
 
 	var userLogin = function userLogin(jsonData, accessToken) {
 	    return new Promise(function (resolve, reject) {
@@ -45942,98 +46037,53 @@
 	    });
 	};
 
+	var updateUser = function updateUser(jsonData, accessToken) {
+	    return new Promise(function (resolve, reject) {
+	        _jquery2.default.ajax({
+	            url: resourceUrl + "update",
+	            headers: {
+	                "access_token": accessToken
+	            },
+	            data: JSON.stringify(jsonData),
+	            method: "POST",
+	            dataType: "json",
+	            contentType: "application/json",
+	            success: resolve,
+	            error: reject
+	        });
+	    });
+	};
+
+	var userLogout = function userLogout(jsonData, accessToken) {
+	    return new Promise(function (resolve, reject) {
+	        console.log("user-services.js - userLogout");
+	        _jquery2.default.ajax({
+	            url: resourceUrl + "logout",
+	            headers: {
+	                "access_token": accessToken
+	            },
+	            data: JSON.stringify(jsonData),
+	            method: "POST",
+	            dataType: "json",
+	            contentType: "application/json",
+	            success: resolve,
+	            error: reject
+	        });
+	    });
+	};
+
 	module.exports = {
-	    // To Login and Authorized App with Facebook
 	    facebookLogin: function facebookLogin(dispatch) {
 	        FB.login(function (res) {
-	            console.log("user-services.js - FB.login()");
-	            if (res.status === "connected") {
-
-	                var accessToken = res.authResponse.accessToken;
-	                FB.api('/me', function (response) {
-	                    console.log("Retrieved FB Profile from /me API: " + JSON.stringify(response));
-	                    var userObject = {
-	                        fbId: response.id,
-	                        username: response.name
-	                    };
-	                    userLogin(userObject, accessToken).then(function (res) {
-	                        if (res.code == 0) {
-	                            var user = Object.assign(res.object, { accessToken: accessToken });
-	                            dispatch(Actions.onLogin(user));
-	                        } else {
-	                            dispatch(Actions.onLogout());
-	                            dispatch(Actions.setError(res));
-	                            dispatch(Actions.showWarningModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
-	                        }
-	                    }, function (res) {
-	                        if (res.status == 401) {
-	                            // Unauthorized
-	                            // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-	                            dispatch(Actions.onUnAuth());
-	                            dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
-	                        }
-	                    });
-	                });
-	            } else if (res.status === 'not_authorized') {
-	                console.log('User is not authorized to WebAnimal App');
-	                dispatch(Actions.showLogin());
-	            } else {
-	                console.log('User is not logged into Facebook');
-	                dispatch(Actions.showLogin());
-	            }
-	        }, { scope: 'email' }); // Already subscribe in FacebookController.jsx
+	            _store.store.dispatch(onGetFBLoginStatus(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
+	        }, { scope: 'email' });
 	        // TODO: what to do when failed
 	    },
-	    userLoginStatus: function userLoginStatus(jsonData, accessToken) {
-	        return new Promise(function (resolve, reject) {
-	            _jquery2.default.ajax({
-	                url: resourceUrl + "login/status",
-	                headers: {
-	                    "access_token": accessToken
-	                },
-	                data: JSON.stringify(jsonData),
-	                method: "POST",
-	                dataType: "json",
-	                contentType: "application/json",
-	                success: resolve,
-	                error: reject
-	            });
-	        });
-	    },
+	    onGetFBLoginStatus: onGetFBLoginStatus,
+	    userLoginStatus: userLoginStatus,
 	    userLogin: userLogin,
-	    userLogout: function userLogout(jsonData, accessToken) {
-	        return new Promise(function (resolve, reject) {
-	            console.log("user-services.js - userLogout");
-	            _jquery2.default.ajax({
-	                url: resourceUrl + "logout",
-	                headers: {
-	                    "access_token": accessToken
-	                },
-	                data: JSON.stringify(jsonData),
-	                method: "POST",
-	                dataType: "json",
-	                contentType: "application/json",
-	                success: resolve,
-	                error: reject
-	            });
-	        });
-	    },
-	    updateUser: function updateUser(jsonData, accessToken) {
-	        return new Promise(function (resolve, reject) {
-	            _jquery2.default.ajax({
-	                url: resourceUrl + "update",
-	                headers: {
-	                    "access_token": accessToken
-	                },
-	                data: JSON.stringify(jsonData),
-	                method: "POST",
-	                dataType: "json",
-	                contentType: "application/json",
-	                success: resolve,
-	                error: reject
-	            });
-	        });
-	    }
+	    userLogout: userLogout,
+	    updateUser: updateUser
 	};
 
 /***/ },
@@ -56858,147 +56908,219 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
+	exports.store = undefined;
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	var _redux = __webpack_require__(242);
 
-	var _react = __webpack_require__(1);
+	var _reduxThunk = __webpack_require__(488);
 
-	var _react2 = _interopRequireDefault(_react);
+	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 
-	var _userServices = __webpack_require__(481);
+	var _reducers = __webpack_require__(489);
 
-	var _userServices2 = _interopRequireDefault(_userServices);
-
-	var _actions = __webpack_require__(479);
+	var _reducers2 = _interopRequireDefault(_reducers);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var FacebookController = function (_React$Component) {
-	    _inherits(FacebookController, _React$Component);
-
-	    function FacebookController(props) {
-	        _classCallCheck(this, FacebookController);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(FacebookController).call(this, props));
-	    }
-
-	    _createClass(FacebookController, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            console.log("componentDidMount{FacebookButton}");
-	            var that = this;
-	            window.fbAsyncInit = function () {
-	                FB.init({
-	                    appId: '1669516483298849',
-	                    status: true,
-	                    cookie: true,
-	                    xfbml: true,
-	                    version: 'v2.6'
-	                });
-
-	                that.init();
-	                console.log("FB SDK Loaded");
-	            };
-
-	            (function (d, s, id) {
-	                console.log("FB SDK Loading...");
-	                var js,
-	                    fjs = d.getElementsByTagName(s)[0];
-	                if (d.getElementById(id)) {
-	                    return;
-	                }
-	                js = d.createElement(s);js.id = id;
-	                js.src = "//connect.facebook.net/en_US/sdk.js";
-	                fjs.parentNode.insertBefore(js, fjs);
-	            })(document, 'script', 'facebook-jssdk');
-	        }
-	    }, {
-	        key: 'init',
-	        value: function init() {
-	            var dispatch = this.context.store.dispatch;
-	            var getUserProfile = function getUserProfile(res) {
-	                console.log("Getting FB login status...");
-	                if (res.status === "connected") {
-	                    //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
-	                    var accessToken = res.authResponse.accessToken;
-	                    dispatch((0, _actions.onAuth)(res.authResponse.userID, accessToken));
-
-	                    FB.api('/me', function (response) {
-	                        console.log("Getting FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response));
-	                        var userObject = {
-	                            fbId: response.id,
-	                            username: response.name
-	                        };
-	                        console.log("Getting WebAnimal login status...");
-	                        _userServices2.default.userLoginStatus(userObject, accessToken).then(function (res) {
-	                            console.log("Getting WebAnimal login status... - " + JSON.stringify(res));
-	                            //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
-	                            if (res.code == 0 && res.object) {
-	                                // Log in
-	                                var userId = res.object.userId;
-	                                var lastLogin = res.object.lastLogin;
-	                                dispatch((0, _actions.onLogin)(Object.assign({}, res.object, { accessToken: accessToken, userId: userId, lastLogin: lastLogin })));
-	                            } else if (res.code == 1) {
-	                                // Not log in
-	                                dispatch((0, _actions.showLogin)());
-	                            }
-	                        }, function (res) {
-	                            // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-	                            if (res.status == 401) {
-	                                // Unauthorized
-	                                // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-	                                dispatch((0, _actions.onUnAuth)());
-	                                dispatch((0, _actions.showWarningModal)("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
-	                            }
-	                            //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
-	                            else if (res.status == 400) {
-	                                    dispatch((0, _actions.onUnAuth)());
-	                                    dispatch((0, _actions.showWarningModal)("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
-	                                }
-	                        });
-	                    });
-	                } else if (res.status === 'not_authorized') {
-	                    console.log('User is not authorized to WebAnimal App');
-	                    dispatch((0, _actions.showLogin)());
-	                } else {
-	                    console.log('User is not logged into Facebook');
-	                    dispatch((0, _actions.showLogin)());
-	                }
-	            };
-
-	            // Call every time
-	            FB.getLoginStatus(function (res) {
-	                getUserProfile(res);
-	                //FB.Event.subscribe('auth.statusChange', getUserProfile);
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement('span', null);
-	        }
-	    }]);
-
-	    return FacebookController;
-	}(_react2.default.Component);
-
-	exports.default = FacebookController;
-	;
-
-	FacebookController.contextTypes = {
-	    store: _react2.default.PropTypes.object
-	};
+	// Singleton instance
+	var store = exports.store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_reduxThunk2.default));
 
 /***/ },
 /* 488 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	exports.__esModule = true;
+	function createThunkMiddleware(extraArgument) {
+	  return function (_ref) {
+	    var dispatch = _ref.dispatch;
+	    var getState = _ref.getState;
+	    return function (next) {
+	      return function (action) {
+	        if (typeof action === 'function') {
+	          return action(dispatch, getState, extraArgument);
+	        }
+
+	        return next(action);
+	      };
+	    };
+	  };
+	}
+
+	var thunk = createThunkMiddleware();
+	thunk.withExtraArgument = createThunkMiddleware;
+
+	exports['default'] = thunk;
+
+/***/ },
+/* 489 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _redux = __webpack_require__(242);
+
+	var _actions = __webpack_require__(479);
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+	var mainError = function mainError() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasError: false, message: {} } : arguments[0];
+		var action = arguments[1];
+
+		//console.log("update state mainError");
+		if (action.type === 'SET_ERROR') {
+			switch (action.sub_type) {
+				case _actions.ErrorTypes.ERR_MAIN:
+					return Object.assign({}, state, { hasError: true, message: action.error });
+				default:
+					return state;
+			}
+		} else if (action.type === 'RESET_ERROR') {
+			switch (action.sub_type) {
+				case _actions.ErrorTypes.ERR_MAIN:
+					return Object.assign({}, state, { hasError: false, message: {} });
+				default:
+					return state;
+			}
+		}
+		return state;
+	};
+
+	var formError = function formError() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+		var action = arguments[1];
+
+		if (action.type === 'SET_ERROR') {
+			switch (action.sub_type) {
+				case _actions.ErrorTypes.ERR_FORM_INVALID:
+					return Object.assign({}, state, _defineProperty({}, action.error.field, action.error.message));
+				default:
+					return state;
+			}
+		} else if (action.type === 'RESET_ERROR') {
+			switch (action.sub_type) {
+				case _actions.ErrorTypes.ERR_FORM_INVALID:
+					return {};
+				default:
+					return state;
+			}
+		}
+		return state;
+	};
+
+	var userObject = function userObject() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? { status: 'NONE' } : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case 'ON_FB_INIT':
+				return Object.assign({}, { status: 'INIT' });
+			case 'ON_LOGIN':
+				return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
+			case 'ON_LOGOUT':
+				return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'AUTH' });
+			case 'ON_UNAUTH':
+				return Object.assign({}, { status: 'UNAUTH' });
+			case 'ON_AUTH':
+				return Object.assign({}, { fbId: action.fbId, username: action.username, accessToken: action.accessToken }, { status: 'AUTH' });
+			case 'ON_UPDATE_USER':
+				return Object.assign({}, state, action.user);
+			default:
+				return state;
+		}
+	};
+
+	var modal = function modal() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasModal: false, title: "", body: "", imagePath: "" } : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case 'SHOW_MODAL':
+				return Object.assign({}, state, {
+					hasModal: true,
+					title: action.title,
+					body: action.body,
+					style: action.style
+				});
+			case 'SHOW_MODAL_IMAGE':
+				return Object.assign({}, state, {
+					hasModal: true,
+					title: action.title,
+					imagePath: action.imagePath,
+					style: action.style
+				});
+			case 'HIDE_MODAL':
+				return Object.assign({}, state, {
+					hasModal: false,
+					title: "",
+					body: "",
+					imagePath: "",
+					style: ""
+				});
+			default:
+				return state;
+		}
+	};
+
+	var login = function login() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasModal: false } : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case 'SHOW_LOGIN_MODAL':
+				return Object.assign({}, state, { hasModal: true });
+			case 'HIDE_LOGIN_MODAL':
+				return Object.assign({}, state, { hasModal: false });
+			default:
+				return state;
+		}
+	};
+
+	var host = function host() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? 'http://localhost:3000' : arguments[0];
+		var action = arguments[1];
+
+		return state;
+	};
+
+	var action = function action() {
+		var state = arguments.length <= 0 || arguments[0] === undefined ? { view: {}, comments: [] } : arguments[0];
+		var action = arguments[1];
+
+		switch (action.type) {
+			case 'ON_VIEW_CASE':
+				return Object.assign({}, state, { view: action.caseObject });
+			case 'ON_VIEW_COMMENT':
+				return Object.assign({}, state, { comments: action.objects });
+			default:
+				return state;
+		}
+	};
+
+	var webAnimalApp = (0, _redux.combineReducers)({
+		host: host,
+		action: action,
+		modal: modal,
+		login: login,
+		userObject: userObject,
+		errorObject: (0, _redux.combineReducers)({
+			mainError: mainError,
+			formError: formError
+		})
+	});
+
+	exports.default = webAnimalApp;
+
+/***/ },
+/* 490 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57013,7 +57135,7 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _AccountMenu = __webpack_require__(489);
+	var _AccountMenu = __webpack_require__(491);
 
 	var _AccountMenu2 = _interopRequireDefault(_AccountMenu);
 
@@ -57045,7 +57167,7 @@
 	exports.default = MainMenu;
 
 /***/ },
-/* 489 */
+/* 491 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57199,190 +57321,103 @@
 	})(AccountMenu);
 
 /***/ },
-/* 490 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.store = undefined;
-
-	var _redux = __webpack_require__(242);
-
-	var _reduxThunk = __webpack_require__(491);
-
-	var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
-
-	var _reducers = __webpack_require__(492);
-
-	var _reducers2 = _interopRequireDefault(_reducers);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var store = exports.store = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_reduxThunk2.default));
-
-/***/ },
-/* 491 */
+/* 492 */
 /***/ function(module, exports) {
 
-	'use strict';
-
-	exports.__esModule = true;
-	function createThunkMiddleware(extraArgument) {
-	  return function (_ref) {
-	    var dispatch = _ref.dispatch;
-	    var getState = _ref.getState;
-	    return function (next) {
-	      return function (action) {
-	        if (typeof action === 'function') {
-	          return action(dispatch, getState, extraArgument);
-	        }
-
-	        return next(action);
-	      };
-	    };
-	  };
-	}
-
-	var thunk = createThunkMiddleware();
-	thunk.withExtraArgument = createThunkMiddleware;
-
-	exports['default'] = thunk;
-
-/***/ },
-/* 492 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 
-	var _redux = __webpack_require__(242);
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _actions = __webpack_require__(479);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var mainError = function mainError() {
-		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasError: false, message: {} } : arguments[0];
-		var action = arguments[1];
+	var debug = true;
 
-		//console.log("update state mainError");
-		if (action.type === 'SET_ERROR') {
-			switch (action.sub_type) {
-				case _actions.ErrorTypes.ERR_MAIN:
-					return Object.assign({}, state, { hasError: true, message: action.error });
-				default:
-					return state;
-			}
-		} else if (action.type === 'RESET_ERROR') {
-			switch (action.sub_type) {
-				case _actions.ErrorTypes.ERR_MAIN:
-					return Object.assign({}, state, { hasError: false, message: {} });
-				default:
-					return state;
-			}
-		}
-		return state;
-	};
-	//import { SET_ERROR, RESET_ERROR, ON_LOGIN, ErrorTypes } from './actions'
-	//import { SHOW_MODAL, HIDE_MODAL } from './actions'
-	//import { SHOW_LOGIN_MODAL, HIDE_LOGIN_MODAL } from './actions'
-
-
-	var formError = function formError() {
-		var state = arguments.length <= 0 || arguments[0] === undefined ? { message: {} } : arguments[0];
-		var action = arguments[1];
-
-		if (action.type === 'SET_ERROR') {
-			switch (action.sub_type) {
-				case _actions.ErrorTypes.ERR_FORM_INVALID:
-					return Object.assign({}, state, { message: action.error });
-				default:
-					return state;
-			}
-		} else if (action.type === 'RESET_ERROR') {
-			switch (action.sub_type) {
-				case _actions.ErrorTypes.ERR_FORM_INVALID:
-					return Object.assign({}, state, { message: {} });
-				default:
-					return state;
-			}
-		}
-		return state;
+	var getParameterByName = function getParameterByName(name, url) {
+	    if (!url) url = window.location.href;
+	    name = name.replace(/[\[\]]/g, "\\$&");
+	    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+	        results = regex.exec(url);
+	    if (!results) return null;
+	    if (!results[2]) return '';
+	    return decodeURIComponent(results[2].replace(/\+/g, " "));
 	};
 
-	var userObject = function userObject() {
-		var state = arguments.length <= 0 || arguments[0] === undefined ? { status: 'NONE' } : arguments[0];
-		var action = arguments[1];
-
-		switch (action.type) {
-			case 'ON_LOGIN':
-				return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
-			case 'ON_LOGOUT':
-				return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'AUTH' });
-			case 'ON_UNAUTH':
-				return Object.assign({}, { status: 'UNAUTH' });
-			case 'ON_AUTH':
-				return Object.assign({}, { fbId: action.fbId, username: action.username, accessToken: action.accessToken }, { status: 'AUTH' });
-			case 'ON_UPDATE_USER':
-				return Object.assign({}, state, action.user);
-			default:
-				return state;
-		}
+	var appLog = function appLog(message) {
+	    if (debug) {
+	        console.log(message);
+	    }
 	};
 
-	var modal = function modal() {
-		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasModal: false, title: "", body: "" } : arguments[0];
-		var action = arguments[1];
+	var FBModule = function () {
+	    function FBModule() {
+	        _classCallCheck(this, FBModule);
 
-		switch (action.type) {
-			case 'SHOW_MODAL':
-				return Object.assign({}, state, {
-					hasModal: true,
-					title: action.title,
-					body: action.body,
-					style: action.style
-				});
-			case 'HIDE_MODAL':
-				return Object.assign({}, state, {
-					hasModal: false,
-					title: "",
-					body: "",
-					style: ""
-				});
-			default:
-				return state;
-		}
-	};
+	        this.FB = null;
+	        this.targets = [];
+	    }
 
-	var login = function login() {
-		var state = arguments.length <= 0 || arguments[0] === undefined ? { hasModal: false } : arguments[0];
-		var action = arguments[1];
+	    _createClass(FBModule, [{
+	        key: "setFB",
+	        value: function setFB(FB) {
+	            this.FB = FB;
+	            this.publish();
+	        }
+	    }, {
+	        key: "subscribe",
+	        value: function subscribe(target) {
+	            this.targets.push(target);
 
-		switch (action.type) {
-			case 'SHOW_LOGIN_MODAL':
-				return Object.assign({}, state, { hasModal: true });
-			case 'HIDE_LOGIN_MODAL':
-				return Object.assign({}, state, { hasModal: false });
-			default:
-				return state;
-		}
-	};
+	            if (this.FB) {
+	                target(FB);
+	            }
+	        }
+	    }, {
+	        key: "publish",
+	        value: function publish() {
+	            var _this = this;
 
-	var webAnimalApp = (0, _redux.combineReducers)({
-		modal: modal,
-		login: login,
-		userObject: userObject,
-		errorObject: (0, _redux.combineReducers)({
-			mainError: mainError,
-			formError: formError
-		})
-	});
+	            this.targets.map(function (value) {
+	                value(_this.FB);
+	            });
+	        }
+	    }]);
 
-	exports.default = webAnimalApp;
+	    return FBModule;
+	}();
+
+	var fbModule = exports.fbModule = new FBModule();
+
+	if (typeof window != 'undefined') {
+	    console.log("facebook-init.js - client init");
+	    window.fbAsyncInit = function () {
+	        FB.init({
+	            appId: '1669516483298849',
+	            status: true,
+	            cookie: true,
+	            xfbml: true,
+	            version: 'v2.6'
+	        });
+
+	        appLog("facebook-init.js - FB SDK Loaded");
+	        fbModule.setFB(FB);
+	    };
+
+	    (function (d, s, id) {
+	        appLog("facebook-init.js - FB SDK Loading...");
+	        var js,
+	            fjs = d.getElementsByTagName(s)[0];
+	        if (d.getElementById(id)) {
+	            return;
+	        }
+	        js = d.createElement(s);js.id = id;
+	        js.src = "//connect.facebook.net/en_US/sdk.js";
+	        fjs.parentNode.insertBefore(js, fjs);
+	    })(document, 'script', 'facebook-jssdk');
+	}
 
 /***/ },
 /* 493 */
@@ -57525,8 +57560,6 @@
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -57535,78 +57568,34 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CaseCard = function (_React$Component) {
-	    _inherits(CaseCard, _React$Component);
-
-	    function CaseCard(props) {
-	        _classCallCheck(this, CaseCard);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CaseCard).call(this, props));
-
-	        _this.state = {
-	            value: ""
-	        };
-	        return _this;
-	    }
-
-	    _createClass(CaseCard, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(props) {
-	            //console.log("componentWillReceiveProps{CaseCard} with props: " + JSON.stringify(props));
-	            this.setState({ value: props.value });
-	        }
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            this.setState({ value: this.props.value });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                { className: 'card' },
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'cropthumbnail' },
-	                    _react2.default.createElement('img', { src: this.props.item.imagePath })
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'container' },
-	                    _react2.default.createElement(
-	                        'h3',
-	                        { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
-	                        this.props.item.caseName
-	                    ),
-	                    _react2.default.createElement(
-	                        'h4',
-	                        { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
-	                        'โดย ',
-	                        this.props.item.user.username
-	                    )
-	                )
-	            );
-	        }
-	    }]);
-
-	    return CaseCard;
-	}(_react2.default.Component);
-
-	CaseCard.defaultProps = {
-	    item: {
-	        imagePath: "",
-	        caseName: "",
-	        user: {
-	            username: ""
-	        }
-	    }
+	var CaseCard = function CaseCard(_ref) {
+	    var username = _ref.username;
+	    var caseName = _ref.caseName;
+	    var imagePath = _ref.imagePath;
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'card' },
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'cropthumbnail' },
+	            _react2.default.createElement('img', { src: imagePath })
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'container' },
+	            _react2.default.createElement(
+	                'h3',
+	                { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
+	                caseName
+	            ),
+	            _react2.default.createElement(
+	                'h4',
+	                { style: { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" } },
+	                'โดย ',
+	                username
+	            )
+	        )
+	    );
 	};
 
 	exports.default = CaseCard;
@@ -57660,12 +57649,13 @@
 	    }
 
 	    _createClass(CaseContainer, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(props) {
-	            var self = this;
-	            _caseServices2.default.getCases(props.filters).then(function (res) {
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            var _this2 = this;
+
+	            _caseServices2.default.getCases(this.props.filters).then(function (res) {
 	                if (res.code == 0) {
-	                    self.setState({ objects: res.object });
+	                    _this2.setState({ objects: res.object });
 	                }
 	            });
 	        }
@@ -57678,8 +57668,8 @@
 	                this.state.objects.map(function (item) {
 	                    return _react2.default.createElement(
 	                        _reactRouter.Link,
-	                        { to: '/case/edit/' + item._id, key: item._id },
-	                        _react2.default.createElement(_CaseCard2.default, { key: item._id, item: item })
+	                        { to: '/case/view/' + item.caseId, key: item.caseId },
+	                        _react2.default.createElement(_CaseCard2.default, { key: item.caseId, username: item.username, caseName: item.caseName, imagePath: item.imagePath })
 	                    );
 	                })
 	            );
@@ -57710,64 +57700,8 @@
 	var resourceUrl = "http://localhost:3000/api/case/";
 	var Promise = _es6Promise2.default.Promise;
 
-	function postAjaxUrl(url, formData, accessToken) {
-	    return new Promise(function (resolve, reject) {
-	        _jquery2.default.ajax({
-	            url: url,
-	            headers: {
-	                "access_token": accessToken
-	            },
-	            data: formData,
-	            contentType: false,
-	            processData: false,
-	            type: "POST",
-	            dataType: "json",
-	            success: resolve,
-	            error: function error(data, textStatus, jqXHR) {
-	                console.log(data);
-	                console.log(jqXHR);
-	                resolve(data);
-	            }
-	        });
-	    });
-	}
-
-	function postCase(formTarget, userId) {
-	    var formData = new FormData();
-	    formData.append('userId', userId);
-	    formData.append('createdDate', new Date());
-	    for (var i = 0; i < formTarget.length; i++) {
-	        var element = formTarget[i];
-	        if (element.type != "submit") {
-	            if (element.type == "file") {
-	                //console.log("Append " + element.name + "=" + element.value);
-	                if (element.files && element.files.length == 1) {
-	                    formData.append(element.name, element.files[0]);
-	                    console.log("value: " + element.value);
-	                    console.log(element.files[0]);
-	                }
-	            } else if (element.type == "text" || element.type == "select-one" || element.type == "textarea") {
-	                //console.log("Append " + element.name + "=" + element.value);
-	                if (element.name == "caseName" && element.value == "") {
-	                    var response_template = { code: 400, message: "caseName cannot be empty", action: "case-services", object: {} };
-	                    return Promise.resolve(response_template);
-	                } else if (element.name == "comment" && element.value == "") {
-	                    var response_template = { code: 400, message: "comment cannot be empty", action: "case-services", object: { fields: ["comment"] } };
-	                    return Promise.resolve(response_template);
-	                }
-
-	                formData.append(element.name, element.value);
-	            } else {
-	                console.log("Warning: case-services.js[saveNewCase] unhandle element type! [" + element.type + "]");
-	            }
-	        }
-	    }
-	    return { formData: formData };
-	}
-
 	module.exports = {
 	    getCases: function getCases(filters) {
-	        console.log('case-services.js - getCases');
 	        var urlParams = resourceUrl;
 	        if (filters) {
 	            var animalTypes = filters.animalTypes;
@@ -57820,6 +57754,27 @@
 	        });
 	    },
 
+	    getComments: function getComments(caseId, limit) {
+
+	        var urlParams = resourceUrl + caseId + '/comment?limit=' + limit;
+
+	        return new Promise(function (resolve, reject) {
+	            if (typeof window != 'undefined') {
+	                _jquery2.default.ajax({
+	                    url: urlParams,
+	                    method: "GET",
+	                    dataType: "json",
+	                    success: resolve,
+	                    error: reject
+	                });
+	            } else {
+	                // If it is server side rendering, it will not have window object.
+	                // This will prevent the error in console - Tanopwan
+	                resolve();
+	            }
+	        });
+	    },
+
 	    createCase: function createCase(accessToken, userId, caseName, description, animalType, animalName, imagePath) {
 	        var jsonData = {
 	            userId: userId, caseName: caseName, description: description, animalType: animalType, animalName: animalName, imagePath: imagePath
@@ -57840,60 +57795,26 @@
 	            });
 	        });
 	    },
-	    updateCase: function updateCase(accessToken, caseId, caseName, description, animalType, caseStatus, caseDate, profilePicture) {
-	        if (!accessToken) {
-	            var response_template = { code: 400, message: "accessToken cannot be empty", action: "[case-services]updateCase", object: { fields: ["accessToken"] } };
-	            return Promise.resolve(response_template);
-	        }
+	    addComment: function addComment(accessToken, userId, caseId, comment, uploadId) {
 
-	        if (!caseId) {
-	            var response_template = { code: 400, message: "caseId cannot be empty", action: "[case-services]updateCase", object: { fields: ["caseId"] } };
-	            return Promise.resolve(response_template);
-	        }
+	        var jsonData = {
+	            userId: userId, caseId: caseId, comment: comment, uploadId: uploadId
+	        };
 
-	        if (!caseName) {
-	            var response_template = { code: 400, message: "caseName cannot be empty", action: "[case-services]updateCase", object: { fields: ["caseName"] } };
-	            return Promise.resolve(response_template);
-	        }
-
-	        var formData = new FormData();
-	        formData.append('case_id', caseId);
-	        formData.append('caseName', caseName);
-	        formData.append('description', description);
-	        formData.append('animalType', animalType);
-	        formData.append('caseStatus', caseStatus);
-	        formData.append('caseDate', caseDate);
-	        if (profilePicture) {
-	            formData.append('profilePicture', profilePicture);
-	        }
-	        return null;
-	    },
-
-	    addComment: function addComment(comment, comment_picture, userId, caseId) {
-	        if (!comment) {
-	            var response_template = { code: 400, message: "comment cannot be empty", action: "[case-services]addComment", object: { fields: ["comment"] } };
-	            return Promise.resolve(response_template);
-	        }
-
-	        if (!userId) {
-	            var response_template = { code: 400, message: "userId cannot be empty", action: "[case-services]addComment", object: { fields: ["userId"] } };
-	            return Promise.resolve(response_template);
-	        }
-
-	        if (!caseId) {
-	            var response_template = { code: 400, message: "caseId cannot be empty", action: "[case-services]addComment", object: { fields: ["caseId"] } };
-	            return Promise.resolve(response_template);
-	        }
-
-	        var formData = new FormData();
-	        formData.append('user', userId);
-	        formData.append('case', caseId);
-	        formData.append('createdDate', new Date());
-	        formData.append('comment', comment);
-	        if (comment_picture) {
-	            formData.append('comment_picture', comment_picture);
-	        }
-	        return postAjaxUrl('/api/case/comment', formData);
+	        return new Promise(function (resolve, reject) {
+	            _jquery2.default.ajax({
+	                url: resourceUrl + "comment",
+	                headers: {
+	                    "access_token": accessToken
+	                },
+	                data: JSON.stringify(jsonData),
+	                method: "POST",
+	                dataType: "json",
+	                contentType: "application/json",
+	                success: resolve,
+	                error: reject
+	            });
+	        });
 	    }
 	};
 
@@ -57906,8 +57827,6 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
@@ -57927,65 +57846,17 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var About = function (_React$Component) {
-	    _inherits(About, _React$Component);
-
-	    function About(props) {
-	        _classCallCheck(this, About);
-
-	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(About).call(this, props));
-
-	        _this.state = {
-	            items: []
-	        };
-	        return _this;
-	    }
-
-	    _createClass(About, [{
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            var self = this;
-	            console.log("componentDidMount{About}");
-	            _caseServices2.default.getCases().then(function (res) {
-	                console.log("getCases...");
-	                console.log(res);
-	                if (res.code == 200) {
-	                    self.setState({ items: res.object });
-	                } else {
-	                    console.log(res);
-	                }
-	            });
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-xs-12' },
-	                    _react2.default.createElement(_FormComment2.default, null)
-	                ),
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-xs-8' },
-	                    this.state.items.map(function (item) {
-	                        return _react2.default.createElement(_CasePanel2.default, { key: item._id, item: item });
-	                    })
-	                )
-	            );
-	        }
-	    }]);
-
-	    return About;
-	}(_react2.default.Component);
+	var About = function About() {
+	    return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'col-xs-12' },
+	            _react2.default.createElement(_FormComment2.default, null)
+	        )
+	    );
+	};
 
 	exports.default = About;
 
@@ -58127,13 +57998,27 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactRedux = __webpack_require__(235);
+
+	var _es6Promise = __webpack_require__(483);
+
+	var _es6Promise2 = _interopRequireDefault(_es6Promise);
+
 	var _reactBootstrap = __webpack_require__(264);
 
 	var _caseServices = __webpack_require__(497);
 
 	var _caseServices2 = _interopRequireDefault(_caseServices);
 
+	var _uploadServices = __webpack_require__(501);
+
+	var _uploadServices2 = _interopRequireDefault(_uploadServices);
+
 	var _actions = __webpack_require__(479);
+
+	var Actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -58149,105 +58034,72 @@
 		});
 	};
 
-	var submitComment = function submitComment(event, store) {
-		event.preventDefault();
-
-		var comment = event.target.comment.value;
-		var comment_picture = null;
-		var isAttached = $('#tab-attach-image').attr('class') === "collapse in";
-		if (isAttached && event.target.comment_picture.files[0]) {
-			comment_picture = event.target.comment_picture.files[0];
-		}
-
-		if (comment.length == 0) {
-			var err = { comment: "กรุณาใส่คอมเมนต์" };
-			store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_FORM_INVALID, err));
-			return;
-		}
-
-		if (comment.length >= 1000) {
-			var err = { comment: "ข้อความยาวเกิน 1000 ตัวอักษร" };
-			store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_FORM_INVALID, err));
-			return;
-		}
-
-		var self = undefined;
-		_caseServices2.default.addComment(comment, comment_picture, store.getState().userObject.userId, "case001").then(function (res) {
-			console.log("return from CaseServices.addComment: " + JSON.stringify(res));
-			if (res.code == 200) {} else {
-				var err = "ไม่สามารถบันทึกข้อมูลได้ : " + JSON.stringify(err);
-				store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_MAIN, err));
-			}
-		});
-	};
-
-	var handleReset = function handleReset(event, store) {
-		event.preventDefault();
-		$('.fileinput').fileinput('clear');
-		$('textarea[name=comment]').val('');
-		store.dispatch((0, _actions.resetError)(_actions.ErrorTypes.ERR_FORM_INVALID));
-		store.dispatch((0, _actions.resetError)(_actions.ErrorTypes.ERR_MAIN));
-	};
-
 	var RenderFormControlsComment = function RenderFormControlsComment(_ref) {
 		var comment = _ref.comment;
 		var handleChange = _ref.handleChange;
-		return _react2.default.createElement(_reactBootstrap.FormControl, { name: 'comment', componentClass: 'textarea', placeholder: 'ข้อความ', value: comment, onChange: handleChange });
+		return _react2.default.createElement(_reactBootstrap.FormControl, { className: 'input-text-font', name: 'comment', componentClass: 'textarea', placeholder: 'ข้อความ', value: comment, onChange: handleChange });
 	};
 
-	var RenderButtonGroup = function RenderButtonGroup(_ref2) {
-		var _onClick = _ref2.onClick;
-		var store = _ref2.store;
+	var mapDispatchToPropsButtonGroup = function mapDispatchToPropsButtonGroup(dispatch) {
+		return {
+			resetForm: function resetForm(event) {
+				event.preventDefault();
+				$('.fileinput').fileinput('clear');
+				$('textarea[name=comment]').val('');
+				dispatch(Actions.resetError(Actions.ErrorTypes.ERR_FORM_INVALID));
+				dispatch(Actions.resetError(Actions.ErrorTypes.ERR_MAIN));
+			}
+		};
+	};
+
+	var RenderButtonGroupConnect = function RenderButtonGroupConnect(_ref2) {
+		var resetForm = _ref2.resetForm;
 		return _react2.default.createElement(
 			'div',
 			{ className: 'btn-group top10' },
 			_react2.default.createElement(
 				'button',
-				{ type: 'button', name: 'toggleUpload', className: 'btn btn-default btn-sm', 'data-toggle': 'collapse', 'data-target': '#tab-attach-image' },
-				'แนบรูป ',
-				_react2.default.createElement('span', { className: 'glyphicon glyphicon-menu-down' })
+				{ type: 'button', name: 'toggleUpload', className: 'btn btn-default btn-md input-text-font', 'data-toggle': 'collapse', 'data-target': '#tab-attach-image' },
+				'แนบรูป'
 			),
 			_react2.default.createElement(
 				'button',
-				{ type: 'submit', className: 'btn btn-default btn-sm' },
+				{ type: 'submit', className: 'btn btn-default btn-md input-text-font' },
 				'ส่งข้อความ'
 			),
 			_react2.default.createElement(
 				'button',
-				{ type: 'button', className: 'btn btn-default btn-sm', onClick: function onClick(event) {
-						return _onClick(event, store);
+				{ type: 'button', className: 'btn btn-default btn-md input-text-font', onClick: function onClick(event) {
+						return resetForm(event);
 					} },
 				'ลบข้อความ'
 			)
 		);
 	};
 
-	var FormComment = function (_React$Component) {
-		_inherits(FormComment, _React$Component);
+	var RenderButtonGroup = (0, _reactRedux.connect)(null, mapDispatchToPropsButtonGroup)(RenderButtonGroupConnect);
 
-		function FormComment(props) {
-			_classCallCheck(this, FormComment);
+	var FormCommentConnect = function (_React$Component) {
+		_inherits(FormCommentConnect, _React$Component);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormComment).call(this, props));
+		function FormCommentConnect(props) {
+			_classCallCheck(this, FormCommentConnect);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormCommentConnect).call(this, props));
 
 			_this.state = {
 				comment: "",
-				imagePath: "uploads/processed/anonymous.webp",
 				fileinputClass: "fileinput-new"
 			};
 			return _this;
 		}
 
-		_createClass(FormComment, [{
+		_createClass(FormCommentConnect, [{
 			key: 'componentWillReceiveProps',
-			value: function componentWillReceiveProps(props) {
-				console.log("componentWillReceiveProps{FormComment}: " + JSON.stringify(props));
-			}
+			value: function componentWillReceiveProps(props) {}
 		}, {
 			key: 'componentDidMount',
-			value: function componentDidMount() {
-				console.log("componentDidMount{FormComment}: " + JSON.stringify(this.props));
-			}
+			value: function componentDidMount() {}
 		}, {
 			key: 'render',
 			value: function render() {
@@ -58259,7 +58111,7 @@
 					_react2.default.createElement(
 						_reactBootstrap.Form,
 						{ horizontal: true, name: 'FormCase', onSubmit: function onSubmit(event) {
-								return submitComment(event, _this2.context.store);
+								return _this2.props.submitComment(event);
 							}, encType: 'multipart/form-data' },
 						_react2.default.createElement(
 							'div',
@@ -58268,22 +58120,22 @@
 								'div',
 								{ className: 'panel-heading' },
 								_react2.default.createElement(
-									'p',
-									null,
-									'โดย ',
-									this.context.store.getState().userObject.username
+									'span',
+									{ className: 'detail-header' },
+									'คอมเมนต์โดย ',
+									this.props.username
 								),
-								function (error, self) {
-									if (error.comment) {
+								function () {
+									if (_this2.props.formError.comment) {
 										return _react2.default.createElement(
 											'div',
 											{ className: 'alert alert-danger' },
-											self.context.store.getState().errorObject.formError.message.comment
+											JSON.stringify(_this2.props.formError.comment)
 										);
 									}
-								}(this.context.store.getState().errorObject.formError.message, this),
+								}(),
 								RenderFormControlsComment(this.state.comment, handleCommentChange.bind(this)),
-								_react2.default.createElement(RenderButtonGroup, { onClick: handleReset.bind(this), store: this.context.store })
+								_react2.default.createElement(RenderButtonGroup, null)
 							),
 							_react2.default.createElement(
 								'div',
@@ -58295,11 +58147,7 @@
 										'div',
 										{ className: "fileinput " + this.state.fileinputClass, 'data-provides': 'fileinput' },
 										_react2.default.createElement('div', { className: 'fileinput-new thumbnail', 'data-trigger': 'fileinput', style: { width: "300px", height: "200px" } }),
-										_react2.default.createElement(
-											'div',
-											{ className: 'fileinput-preview fileinput-exists thumbnail', 'data-trigger': 'fileinput', style: { width: "300px", height: "200px" } },
-											_react2.default.createElement('img', { 'data-src': "http://localhost:3000/" + this.state.imagePath })
-										),
+										_react2.default.createElement('div', { className: 'fileinput-preview fileinput-exists thumbnail', 'data-trigger': 'fileinput', style: { width: "300px", height: "200px" } }),
 										_react2.default.createElement(
 											'div',
 											{ className: 'btn-group' },
@@ -58308,19 +58156,19 @@
 												{ className: 'btn btn-default btn-sm btn-file' },
 												_react2.default.createElement(
 													'span',
-													{ className: 'fileinput-new' },
+													{ className: 'fileinput-new input-text-font' },
 													'เลือกรูป'
 												),
 												_react2.default.createElement(
 													'span',
-													{ className: 'fileinput-exists' },
+													{ className: 'fileinput-exists input-text-font' },
 													'เปลี่ยน'
 												),
 												_react2.default.createElement('input', { type: 'file', name: 'comment_picture', accept: 'image/*' })
 											),
 											_react2.default.createElement(
 												'a',
-												{ href: '#', className: 'btn btn-default btn-sm fileinput-exists', 'data-dismiss': 'fileinput' },
+												{ href: '#', className: 'btn btn-default btn-sm fileinput-exists input-text-font', 'data-dismiss': 'fileinput' },
 												'ลบ'
 											)
 										)
@@ -58333,543 +58181,85 @@
 			}
 		}]);
 
-		return FormComment;
+		return FormCommentConnect;
 	}(_react2.default.Component);
 
-	FormComment.contextTypes = {
-		store: _react2.default.PropTypes.object
+	var addComment = function addComment(comment, file) {
+		return function (dispatch, getState) {
+			var state = getState();
+			var accessToken = state.userObject.accessToken;
+			var userId = state.userObject.userId;
+			var caseId = state.action.view.caseId;
+
+			new Promise(function (resolve, reject) {
+				if (file) {
+					_uploadServices2.default.uploadSingleFile(accessToken, userId, file).then(function (result) {
+						resolve(result);
+					}, function (error) {
+						reject(error);
+					});
+				} else {
+					resolve({ code: 0, object: {} }); // No upload image
+				}
+			}).then(function (result) {
+				if (result.code == 0) {
+					var uploadId = result.object.uploadId;
+					return _caseServices2.default.addComment(accessToken, userId, caseId, comment, uploadId);
+				}
+				return Promise.reject("ไม่สามารถบันทึกรูปภาพได้");
+			}).then(function (res) {
+				if (res.code == 0) {
+					$('.fileinput').fileinput('clear');
+					$('textarea[name=comment]').val('');
+					dispatch(Actions.resetError(Actions.ErrorTypes.ERR_FORM_INVALID));
+					dispatch(Actions.resetError(Actions.ErrorTypes.ERR_MAIN));
+				} else {
+					dispatch(Actions.showWarningModal("ไม่สามารถบันทึกข้อมูลได้", JSON.stringify(res.message)));
+				}
+			}).catch(function (error) {
+				dispatch(Actions.showWarningModal("คอมเมนต์ไม่สำเร็จ", error));
+			});
+		};
 	};
 
+	var mapStateToProps = function mapStateToProps(state) {
+		return {
+			username: state.userObject.username,
+			formError: state.errorObject.formError
+		};
+	};
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+		return {
+			submitComment: function submitComment(event) {
+				event.preventDefault();
+
+				var comment = event.target.comment.value;
+				var comment_picture = null;
+				var isAttached = $('#tab-attach-image').attr('class') === "collapse in";
+				if (isAttached && event.target.comment_picture.files[0]) {
+					comment_picture = event.target.comment_picture.files[0];
+				}
+
+				if (comment.length == 0) {
+					dispatch(Actions.setFormError("comment", "กรุณาใส่ข้อความ"));
+					return;
+				}
+
+				if (comment.length >= 1000) {
+					dispatch(Actions.setFormError("comment", "ข้อความยาวเกิน 1000 ตัวอักษร"));
+					return;
+				}
+
+				dispatch(addComment(comment, comment_picture));
+			}
+		};
+	};
+
+	var FormComment = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(FormCommentConnect);
 	exports.default = FormComment;
 
 /***/ },
 /* 501 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _FormAddNewCase = __webpack_require__(502);
-
-	var _FormAddNewCase2 = _interopRequireDefault(_FormAddNewCase);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var AddNewCase = function (_React$Component) {
-	    _inherits(AddNewCase, _React$Component);
-
-	    function AddNewCase() {
-	        _classCallCheck(this, AddNewCase);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(AddNewCase).apply(this, arguments));
-	    }
-
-	    _createClass(AddNewCase, [{
-	        key: 'componentWillReceiveProps',
-	        value: function componentWillReceiveProps(props) {
-	            //console.log("componentWillReceiveProps{AddNewCase}: " + JSON.stringify(props));
-	        }
-	    }, {
-	        key: 'componentDidMount',
-	        value: function componentDidMount() {
-	            //console.log("componentDidMount{AddNewCase}: " + JSON.stringify(this.props));
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render() {
-	            return _react2.default.createElement(
-	                'div',
-	                null,
-	                _react2.default.createElement(
-	                    'div',
-	                    { className: 'col-xs-8' },
-	                    _react2.default.createElement(
-	                        'center',
-	                        null,
-	                        _react2.default.createElement(
-	                            'h4',
-	                            null,
-	                            'Add new case'
-	                        )
-	                    ),
-	                    _react2.default.createElement(_FormAddNewCase2.default, this.props)
-	                )
-	            );
-	        }
-	    }]);
-
-	    return AddNewCase;
-	}(_react2.default.Component);
-
-	exports.default = AddNewCase;
-
-/***/ },
-/* 502 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRedux = __webpack_require__(235);
-
-	var _FormCase = __webpack_require__(503);
-
-	var _FormCase2 = _interopRequireDefault(_FormCase);
-
-	var _caseServices = __webpack_require__(497);
-
-	var _caseServices2 = _interopRequireDefault(_caseServices);
-
-	var _uploadServices = __webpack_require__(504);
-
-	var _uploadServices2 = _interopRequireDefault(_uploadServices);
-
-	var _actions = __webpack_require__(479);
-
-	var Actions = _interopRequireWildcard(_actions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var mapStateToProps = function mapStateToProps(state) {
-	    return {
-	        userObject: state.userObject,
-	        errorObject: state.errorObject,
-	        username: state.userObject.username
-	    };
-	};
-
-	var createCase = function createCase(caseName, description, animalType, animalName, imagePath) {
-	    return function (dispatch, getState) {
-	        var state = getState();
-	        var accessToken = state.userObject.accessToken;
-	        var userId = state.userObject.userId;
-	        _caseServices2.default.createCase(accessToken, userId, caseName, description, animalType, animalName, imagePath).then(function (result) {
-	            console.log(result);
-	            if (result.code == 0) {
-	                dispatch(Actions.showSuccessModal("สร้างเคสสำเร็จ", ""));
-	                //redirect to view case page
-	            } else {
-	                dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", result.message));
-	            }
-	        }, function (error) {
-	            dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", error.responseText));
-	        });
-	    };
-	};
-
-	var createUpload = function createUpload(file, caseName, description, animalType, animalName) {
-	    return function (dispatch, getState) {
-	        var state = getState();
-	        var accessToken = state.userObject.accessToken;
-	        var userId = state.userObject.userId;
-	        _uploadServices2.default.uploadSingleFile(accessToken, userId, file).then(function (result) {
-	            var imagePath = result.object.imagePath;
-	            dispatch(createCase(caseName, description, animalType, animalName, imagePath));
-	        }, function (error) {
-	            console.log(error);
-	            dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", "ไม่สามารถ upload รูปภาพได้"));
-	        });
-	    };
-	};
-
-	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-	    return {
-	        dispatch: dispatch,
-	        create: function create(file, caseName, description, animalType, animalName) {
-	            dispatch(createUpload(file, caseName, description, animalType, animalName));
-	        }
-	    };
-	};
-
-	var FormAddNewCase = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_FormCase2.default);
-
-	exports.default = FormAddNewCase;
-
-/***/ },
-/* 503 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactBootstrap = __webpack_require__(264);
-
-	var _actions = __webpack_require__(479);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var FormCase = function (_React$Component) {
-		_inherits(FormCase, _React$Component);
-
-		function FormCase(props) {
-			_classCallCheck(this, FormCase);
-
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormCase).call(this, props));
-
-			_this.state = {
-				caseName: "",
-				animalName: "",
-				description: "",
-				animalType: "dog",
-				caseStatus: "open_fund",
-				imagePath: "images/anonymous.webp",
-				fileinputClass: "fileinput-new"
-			};
-			return _this;
-		}
-
-		_createClass(FormCase, [{
-			key: 'componentWillReceiveProps',
-			value: function componentWillReceiveProps(props) {
-				//console.log("componentWillReceiveProps{FormCase}: " + JSON.stringify(props));
-				if (props.item) {
-					var item = props.item;
-					if (item.imagePath) {
-						item.fileinputClass = "fileinput-exists";
-					}
-					if (!item.imagePath) {
-						item.imagePath = "images/anonymous.webp";
-					}
-					this.setState(item);
-				}
-				if (props.userObject) {
-					this.setState({ user: props.userObject });
-				}
-			}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-				if (this.props.item) {
-					this.setState(this.props.item);
-				}
-				if (this.props.userObject) {
-					this.setState({ user: this.props.userObject });
-				}
-			}
-		}, {
-			key: 'handleCaseNameChange',
-			value: function handleCaseNameChange(event) {
-				this.setState({
-					caseName: event.target.value
-				});
-			}
-		}, {
-			key: 'handleAnimalNameChange',
-			value: function handleAnimalNameChange(event) {
-				this.setState({
-					animalName: event.target.value
-				});
-			}
-		}, {
-			key: 'handleDescriptionChange',
-			value: function handleDescriptionChange(event) {
-				this.setState({
-					description: event.target.value
-				});
-			}
-		}, {
-			key: 'handleAnimalTypeChange',
-			value: function handleAnimalTypeChange(event) {
-				this.setState({
-					animalType: event.target.value
-				});
-			}
-		}, {
-			key: 'handleCaseStatusChange',
-			value: function handleCaseStatusChange(event) {
-				this.setState({
-					caseStatus: event.target.value
-				});
-			}
-		}, {
-			key: 'handleSubmit',
-			value: function handleSubmit(event) {
-				event.preventDefault();
-				//var store = this.context.store;
-				//store.dispatch(resetError(ErrorTypes.ERR_FORM_INVALID));
-				if (event.target) {
-					var caseName = this.state.caseName;
-					var description = this.state.description;
-					var animalType = this.state.animalType;
-					var animalName = this.state.animalName;
-					var caseStatus = this.state.caseStatus;
-
-					if (!caseName) {
-						store.dispatch((0, _actions.setError)(_actions.ErrorTypes.ERR_FORM_INVALID, { caseName: "กรุณาใส่ชื่อเคส" }));
-						return;
-					}
-
-					var profilePicture = event.target.profilePicture.files[0];
-					this.props.create(profilePicture, caseName, description, animalType, animalName);
-
-					//var caseDate = event.target.caseDate.value;
-					/*this.props.handleSubmit(this.props.userObject.accessToken,
-	    this.props.userObject.userId,
-	    caseName,
-	    description,
-	    animalType,
-	    caseStatus,
-	    null,
-	    profilePicture);*/
-				}
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					{ className: 'col-xs-12' },
-					_react2.default.createElement(
-						_reactBootstrap.Form,
-						{ horizontal: true, name: 'FormCase', onSubmit: this.handleSubmit.bind(this), encType: 'multipart/form-data' },
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formHorizontalUsername' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'เจ้าของเคส'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(
-									_reactBootstrap.FormControl.Static,
-									null,
-									this.props.userObject.username
-								)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formHorizontalCaseProfile' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'รูปโปรไฟล์'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(
-									'div',
-									{ className: "fileinput " + this.state.fileinputClass, 'data-provides': 'fileinput' },
-									_react2.default.createElement('div', { className: 'fileinput-new thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } }),
-									_react2.default.createElement(
-										'div',
-										{ className: 'fileinput-preview fileinput-exists thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } },
-										_react2.default.createElement('img', { src: "http://localhost:3000/" + this.state.imagePath })
-									),
-									_react2.default.createElement(
-										'div',
-										null,
-										_react2.default.createElement(
-											'span',
-											{ className: 'btn btn-default btn-file' },
-											_react2.default.createElement(
-												'span',
-												{ className: 'fileinput-new' },
-												'เลือกรูป'
-											),
-											_react2.default.createElement(
-												'span',
-												{ className: 'fileinput-exists' },
-												'เปลี่ยน'
-											),
-											_react2.default.createElement('input', { type: 'file', name: 'profilePicture', accept: 'image/*' })
-										),
-										_react2.default.createElement(
-											'a',
-											{ href: '#', className: 'btn btn-default fileinput-exists', 'data-dismiss': 'fileinput' },
-											'ลบ'
-										)
-									)
-								)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formHorizontalCaseName', className: 'info' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'หัวข้อ'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส', value: this.state.caseName, onChange: this.handleCaseNameChange.bind(this) }),
-								function (error, self) {
-									if (error.caseName) {
-										return _react2.default.createElement(
-											'span',
-											{ className: 'help-block' },
-											self.props.errorObject.formError.message.caseName
-										);
-									}
-								}(this.props.errorObject.formError.message, this)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formHorizontalAnimalName', className: 'info' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'ขื่อสัตว์'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'animalName', type: 'text', placeholder: 'ขื่อสัตว์', value: this.state.animalName, onChange: this.handleAnimalNameChange.bind(this) }),
-								function (error, self) {
-									if (error.animalName) {
-										return _react2.default.createElement(
-											'span',
-											{ className: 'help-block' },
-											self.props.errorObject.formError.message.animalName
-										);
-									}
-								}(this.props.errorObject.formError.message, this)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formControlsDescription' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'รายละเอียด'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'description', componentClass: 'textarea', placeholder: 'รายละเอียด', value: this.state.description, onChange: this.handleDescriptionChange.bind(this) })
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							null,
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'ประเภทสัตว์'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(
-									_reactBootstrap.FormControl,
-									{ componentClass: 'select', name: 'animalType', placeholder: 'กรุณาเลือก', onChange: this.handleAnimalTypeChange.bind(this), value: this.state.animalType },
-									_react2.default.createElement(
-										'option',
-										{ value: 'dog' },
-										'สุนัข'
-									),
-									_react2.default.createElement(
-										'option',
-										{ value: 'cat' },
-										'แมว'
-									),
-									_react2.default.createElement(
-										'option',
-										{ value: 'others' },
-										'อื่นๆ'
-									)
-								)
-							)
-						),
-						_react2.default.createElement(
-							_reactBootstrap.FormGroup,
-							{ controlId: 'formControlsSelect' },
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
-								'สถานะเคส'
-							),
-							_react2.default.createElement(
-								_reactBootstrap.Col,
-								{ sm: 10 },
-								_react2.default.createElement(
-									_reactBootstrap.FormControl,
-									{ componentClass: 'select', name: 'caseStatus', placeholder: 'กรุณาเลือก', onChange: this.handleCaseStatusChange.bind(this), value: this.state.caseStatus },
-									_react2.default.createElement(
-										'option',
-										{ value: 'open_fund' },
-										'เปิดระดมทุน'
-									),
-									_react2.default.createElement(
-										'option',
-										{ value: 'close_fund' },
-										'ปิดการระดมทุน'
-									)
-								)
-							)
-						),
-						_react2.default.createElement(
-							'div',
-							{ className: 'row' },
-							_react2.default.createElement(
-								'div',
-								{ className: 'col-xs-offset-2 col-xs-10' },
-								_react2.default.createElement(
-									_reactBootstrap.Button,
-									{ bsStyle: 'success', type: 'submit' },
-									'Success'
-								)
-							)
-						)
-					)
-				);
-			}
-		}]);
-
-		return FormCase;
-	}(_react2.default.Component);
-
-	exports.default = FormCase;
-
-/***/ },
-/* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -58915,6 +58305,448 @@
 	        });
 	    }
 	};
+
+/***/ },
+/* 502 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _FormAddNewCase = __webpack_require__(503);
+
+	var _FormAddNewCase2 = _interopRequireDefault(_FormAddNewCase);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var AddNewCase = function AddNewCase() {
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'col-xs-8' },
+	        _react2.default.createElement(
+	            'center',
+	            null,
+	            _react2.default.createElement(
+	                'h4',
+	                null,
+	                'Add new case'
+	            )
+	        ),
+	        _react2.default.createElement(_FormAddNewCase2.default, null)
+	    );
+	};
+
+	exports.default = AddNewCase;
+
+/***/ },
+/* 503 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(235);
+
+	var _FormCase = __webpack_require__(504);
+
+	var _FormCase2 = _interopRequireDefault(_FormCase);
+
+	var _caseServices = __webpack_require__(497);
+
+	var _caseServices2 = _interopRequireDefault(_caseServices);
+
+	var _uploadServices = __webpack_require__(501);
+
+	var _uploadServices2 = _interopRequireDefault(_uploadServices);
+
+	var _actions = __webpack_require__(479);
+
+	var Actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var mapStateToProps = function mapStateToProps(state) {
+	    return {
+	        formError: state.errorObject.formError,
+	        username: state.userObject.username
+	    };
+	};
+
+	var createCase = function createCase(caseName, description, animalType, animalName, imagePath) {
+	    return function (dispatch, getState) {
+	        var state = getState();
+	        var accessToken = state.userObject.accessToken;
+	        var userId = state.userObject.userId;
+	        _caseServices2.default.createCase(accessToken, userId, caseName, description, animalType, animalName, imagePath).then(function (result) {
+	            console.log(result);
+	            if (result.code == 0) {
+	                dispatch(Actions.showSuccessModal("สร้างเคสสำเร็จ", ""));
+	                //redirect to view case page
+	            } else {
+	                dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", result.message));
+	            }
+	        }, function (error) {
+	            dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", error.responseText));
+	        });
+	    };
+	};
+
+	var createUpload = function createUpload(file, caseName, description, animalType, animalName) {
+	    return function (dispatch, getState) {
+	        var state = getState();
+	        var accessToken = state.userObject.accessToken;
+	        var userId = state.userObject.userId;
+	        _uploadServices2.default.uploadSingleFile(accessToken, userId, file).then(function (result) {
+	            var imagePath = result.object.imagePath;
+	            dispatch(createCase(caseName, description, animalType, animalName, imagePath));
+	        }, function (error) {
+	            console.log(error);
+	            dispatch(Actions.showWarningModal("สร้างเคสไม่สำเร็จ", "ไม่สามารถ upload รูปภาพได้"));
+	        });
+	    };
+	};
+
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	    return {
+	        dispatch: dispatch,
+	        create: function create(file, caseName, description, animalType, animalName) {
+	            dispatch(createUpload(file, caseName, description, animalType, animalName));
+	        },
+	        require: function require(caseName, description, profilePicture) {
+	            var hasError = false;
+	            dispatch(Actions.resetError(Actions.ErrorTypes.ERR_FORM_INVALID));
+	            if (!caseName) {
+	                hasError = true;
+	                dispatch(Actions.setFormError("caseName", "จำเป็น"));
+	            }
+	            if (!description) {
+	                hasError = true;
+	                dispatch(Actions.setFormError("description", "จำเป็น"));
+	            }
+	            if (!profilePicture) {
+	                hasError = true;
+	                dispatch(Actions.setFormError("profilePicture", "จำเป็น"));
+	            }
+	            return !hasError;
+	        }
+	    };
+	};
+
+	var FormAddNewCase = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(_FormCase2.default);
+
+	exports.default = FormAddNewCase;
+
+/***/ },
+/* 504 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactBootstrap = __webpack_require__(264);
+
+	var _actions = __webpack_require__(479);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var FormCase = function (_React$Component) {
+		_inherits(FormCase, _React$Component);
+
+		function FormCase(props) {
+			_classCallCheck(this, FormCase);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(FormCase).call(this, props));
+
+			_this.state = {
+				caseName: "",
+				animalName: "",
+				description: "",
+				animalType: "dog",
+				fileinputClass: "fileinput-new"
+			};
+			return _this;
+		}
+
+		_createClass(FormCase, [{
+			key: 'handleCaseNameChange',
+			value: function handleCaseNameChange(event) {
+				this.setState({
+					caseName: event.target.value
+				});
+			}
+		}, {
+			key: 'handleAnimalNameChange',
+			value: function handleAnimalNameChange(event) {
+				this.setState({
+					animalName: event.target.value
+				});
+			}
+		}, {
+			key: 'handleDescriptionChange',
+			value: function handleDescriptionChange(event) {
+				this.setState({
+					description: event.target.value
+				});
+			}
+		}, {
+			key: 'handleAnimalTypeChange',
+			value: function handleAnimalTypeChange(event) {
+				this.setState({
+					animalType: event.target.value
+				});
+			}
+		}, {
+			key: 'handleSubmit',
+			value: function handleSubmit(event) {
+				event.preventDefault();
+				if (event.target) {
+					var caseName = this.state.caseName;
+					var description = this.state.description;
+					var animalType = this.state.animalType;
+					var animalName = this.state.animalName;
+					var profilePicture = event.target.profilePicture.files[0];
+
+					if (this.props.require(caseName, description, profilePicture)) {
+						this.props.create(profilePicture, caseName, description, animalType, animalName);
+					}
+				}
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+				return _react2.default.createElement(
+					'div',
+					{ className: 'col-xs-12' },
+					_react2.default.createElement(
+						_reactBootstrap.Form,
+						{ horizontal: true, name: 'FormCase', onSubmit: this.handleSubmit.bind(this), encType: 'multipart/form-data' },
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							{ controlId: 'formHorizontalUsername' },
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'เจ้าของเคส'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(
+									_reactBootstrap.FormControl.Static,
+									null,
+									this.props.username
+								)
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							{ controlId: 'formHorizontalCaseProfile' },
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'รูปโปรไฟล์'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(
+									'div',
+									{ className: "fileinput " + this.state.fileinputClass, 'data-provides': 'fileinput' },
+									_react2.default.createElement('div', { className: 'fileinput-new thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } }),
+									_react2.default.createElement(
+										'div',
+										{ className: 'fileinput-preview fileinput-exists thumbnail', 'data-trigger': 'fileinput', style: { width: "200px", height: "150px" } },
+										_react2.default.createElement('img', { src: 'http://localhost:3000/images/anonymous.webp' })
+									),
+									_react2.default.createElement(
+										'div',
+										null,
+										_react2.default.createElement(
+											'span',
+											{ className: 'btn btn-default btn-file' },
+											_react2.default.createElement(
+												'span',
+												{ className: 'fileinput-new' },
+												'เลือกรูป'
+											),
+											_react2.default.createElement(
+												'span',
+												{ className: 'fileinput-exists' },
+												'เปลี่ยน'
+											),
+											_react2.default.createElement('input', { type: 'file', name: 'profilePicture', accept: 'image/*' })
+										),
+										_react2.default.createElement(
+											'a',
+											{ href: '#', className: 'btn btn-default fileinput-exists', 'data-dismiss': 'fileinput' },
+											'ลบ'
+										),
+										function (error, self) {
+											if (error) {
+												return _react2.default.createElement(
+													'span',
+													{ className: 'label label-danger' },
+													error
+												);
+											}
+										}(this.props.formError.profilePicture, this)
+									)
+								)
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							{ controlId: 'formHorizontalCaseName', className: 'info' },
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'หัวข้อ'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'caseName', type: 'text', placeholder: 'ขื่อเคส', value: this.state.caseName, onChange: this.handleCaseNameChange.bind(this) })
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 2 },
+								function (error, self) {
+									if (error) {
+										return _react2.default.createElement(
+											'span',
+											{ className: 'label label-danger' },
+											error
+										);
+									}
+								}(this.props.formError.caseName, this)
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							{ controlId: 'formHorizontalAnimalName', className: 'info' },
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'ขื่อสัตว์'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'animalName', type: 'text', placeholder: 'ขื่อสัตว์', value: this.state.animalName, onChange: this.handleAnimalNameChange.bind(this) })
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							{ controlId: 'formControlsDescription' },
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'รายละเอียด'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(_reactBootstrap.FormControl, { name: 'description', componentClass: 'textarea', placeholder: 'รายละเอียด', value: this.state.description, onChange: this.handleDescriptionChange.bind(this) })
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 2 },
+								function (error, self) {
+									if (error) {
+										return _react2.default.createElement(
+											'span',
+											{ className: 'label label-danger' },
+											error
+										);
+									}
+								}(this.props.formError.description, this)
+							)
+						),
+						_react2.default.createElement(
+							_reactBootstrap.FormGroup,
+							null,
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ componentClass: _reactBootstrap.ControlLabel, sm: 2 },
+								'ประเภทสัตว์'
+							),
+							_react2.default.createElement(
+								_reactBootstrap.Col,
+								{ sm: 8 },
+								_react2.default.createElement(
+									_reactBootstrap.FormControl,
+									{ componentClass: 'select', name: 'animalType', placeholder: 'กรุณาเลือก', onChange: this.handleAnimalTypeChange.bind(this), value: this.state.animalType },
+									_react2.default.createElement(
+										'option',
+										{ value: 'dog' },
+										'สุนัข'
+									),
+									_react2.default.createElement(
+										'option',
+										{ value: 'cat' },
+										'แมว'
+									),
+									_react2.default.createElement(
+										'option',
+										{ value: 'others' },
+										'อื่นๆ'
+									)
+								)
+							)
+						),
+						_react2.default.createElement(
+							'div',
+							{ className: 'row' },
+							_react2.default.createElement(
+								'div',
+								{ className: 'col-xs-offset-2 col-xs-10' },
+								_react2.default.createElement(
+									_reactBootstrap.Button,
+									{ bsStyle: 'success', type: 'submit' },
+									'Success'
+								)
+							)
+						)
+					)
+				);
+			}
+		}]);
+
+		return FormCase;
+	}(_react2.default.Component);
+
+	exports.default = FormCase;
 
 /***/ },
 /* 505 */
@@ -58994,7 +58826,7 @@
 	    };
 	};
 
-	var _updateUser = function _updateUser(userId, email, mobile, lineId) {
+	var _updateUser = function _updateUser(email, mobile, lineId) {
 	    return function (dispatch, getState) {
 	        var state = getState();
 	        var accessToken = state.userObject.accessToken;
@@ -59261,8 +59093,6 @@
 		value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -59273,90 +59103,88 @@
 
 	var _caseServices2 = _interopRequireDefault(_caseServices);
 
-	var _actions = __webpack_require__(479);
-
-	var Actions = _interopRequireWildcard(_actions);
-
-	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CaseDetailInternal = function (_React$Component) {
-		_inherits(CaseDetailInternal, _React$Component);
-
-		function CaseDetailInternal(props) {
-			_classCallCheck(this, CaseDetailInternal);
-
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(CaseDetailInternal).call(this, props));
-
-			_this.state = {};
-			return _this;
+	var displayFundStatus = function displayFundStatus(fundStatus) {
+		if (fundStatus == 'close') {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'btn btn-default btn-lg' },
+				_react2.default.createElement('span', { className: 'glyphicon glyphicon-usd' }),
+				' ปิดระดมทุน'
+			);
+		} else {
+			return _react2.default.createElement(
+				'button',
+				{ type: 'button', className: 'btn btn-default btn-lg' },
+				_react2.default.createElement('span', { className: 'glyphicon glyphicon-usd' }),
+				' เปิดระดมทุน'
+			);
 		}
+	};
 
-		_createClass(CaseDetailInternal, [{
-			key: 'componentWillMount',
-			value: function componentWillMount() {
-				var _this2 = this;
+	var CaseDetailPresentational = function CaseDetailPresentational(_ref) {
+		var username = _ref.username;
+		var caseName = _ref.caseName;
+		var description = _ref.description;
+		var animalName = _ref.animalName;
+		var fundStatus = _ref.fundStatus;
+		var imagePath = _ref.imagePath;
+		var host = _ref.host;
+		return _react2.default.createElement(
+			'div',
+			{ className: 'panel panel-default' },
+			_react2.default.createElement(
+				'div',
+				{ className: 'panel-body' },
 
-				this.props.mount().then(function (result) {
-					_this2.setState(result);
-				});
-			}
-		}, {
-			key: 'componentWillUnmount',
-			value: function componentWillUnmount() {
-				this.props.unmount();
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-				return _react2.default.createElement(
-					'div',
-					null,
+				//Prevent error undefined imagePath
+				function () {
+					if (imagePath) return _react2.default.createElement('img', { className: 'detail-image', src: host + '/' + imagePath });
+				}(),
+				_react2.default.createElement(
+					'span',
+					{ className: 'detail-header' },
+					'เคส ',
+					animalName,
+					' โดยมี ',
 					_react2.default.createElement(
-						'h4',
-						null,
-						'เจ้าของเคส ',
-						this.state.username
+						'span',
+						{ className: 'label label-primary' },
+						username
 					),
-					_react2.default.createElement(
-						'h5',
-						null,
-						this.state.caseName
-					)
-				);
-			}
-		}]);
-
-		return CaseDetailInternal;
-	}(_react2.default.Component);
+					' เป็นเจ้าของเคส'
+				),
+				_react2.default.createElement(
+					'span',
+					{ className: 'detail-title' },
+					caseName
+				),
+				_react2.default.createElement(
+					'span',
+					{ className: 'detail-description' },
+					'"',
+					description,
+					'"'
+				),
+				displayFundStatus(fundStatus)
+			)
+		);
+	};
 
 	var mapStateToProps = function mapStateToProps(state) {
-		return {};
-	};
-	var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
 		return {
-			mount: function mount() {
-				return _caseServices2.default.getCase(ownProps.params.id).then(function (result) {
-					if (result.code == 0) {
-						return result.object;
-					}
-				}, function (error) {
-					console.log(error);
-					dispatch(Actions.showWarningModal("ผิดพลาด", "ไม่สามารถแสดงรายละเอียดเคสได้"));
-				});
-			},
-			unmount: function unmount() {}
+			host: state.host,
+			username: state.action.view.username,
+			caseName: state.action.view.caseName,
+			description: state.action.view.description,
+			animalName: state.action.view.animalName,
+			fundStatus: state.action.view.fundStatus,
+			imagePath: state.action.view.imagePath
 		};
 	};
 
-	var CaseDetail = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CaseDetailInternal);
+	var CaseDetail = (0, _reactRedux.connect)(mapStateToProps, null)(CaseDetailPresentational);
 
 	exports.default = CaseDetail;
 
@@ -59364,71 +59192,47 @@
 /* 510 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactRedux = __webpack_require__(235);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var CasePage = function (_React$Component) {
-	    _inherits(CasePage, _React$Component);
-
-	    function CasePage(props) {
-	        _classCallCheck(this, CasePage);
-
-	        return _possibleConstructorReturn(this, Object.getPrototypeOf(CasePage).call(this, props));
-	    }
-
-	    _createClass(CasePage, [{
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(props) {
-	            //console.log("componentWillReceiveProps{CasePage}: " + JSON.stringify(props.userObject));
-	        }
-	    }, {
-	        key: "componentDidMount",
-	        value: function componentDidMount() {
-	            //console.log("componentDidMount{CasePage}");
-	        }
-	    }, {
-	        key: "render",
-	        value: function render() {
-	            return _react2.default.createElement(
-	                "div",
-	                null,
-	                _react2.default.createElement(
-	                    "h3",
-	                    null,
-	                    "Case Page"
-	                ),
-	                _react2.default.cloneElement(this.props.children, { userObject: "this.props.userObject" })
-	            );
-	        }
-	    }]);
-
-	    return CasePage;
-	}(_react2.default.Component);
-
-	CasePage.propTypes = {
-	    userObject: _react2.default.PropTypes.object
+	var CasePagePresentational = function CasePagePresentational(_ref) {
+	    var children = _ref.children;
+	    var routes = _ref.routes;
+	    var caseId = _ref.caseId;
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'col-xs-12' },
+	        _react2.default.createElement(
+	            'span',
+	            { className: 'detail-header' },
+	            'case > view > ',
+	            caseId
+	        ),
+	        children
+	    );
 	};
 
-	CasePage.defaultProps = {
-	    userObject: {}
+	var mapStateToProps = function mapStateToProps(state, ownProps) {
+	    return {
+	        caseId: ownProps.params.id
+	    };
 	};
+	var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
+	    return {};
+	};
+
+	var CasePage = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CasePagePresentational);
 
 	exports.default = CasePage;
 
@@ -59485,13 +59289,253 @@
 	    value: true
 	});
 
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(235);
+
+	var _actions = __webpack_require__(479);
+
+	var Actions = _interopRequireWildcard(_actions);
+
+	var _caseServices = __webpack_require__(497);
+
+	var _caseServices2 = _interopRequireDefault(_caseServices);
+
+	var _CaseDetail = __webpack_require__(509);
+
+	var _CaseDetail2 = _interopRequireDefault(_CaseDetail);
+
+	var _FormComment = __webpack_require__(500);
+
+	var _FormComment2 = _interopRequireDefault(_FormComment);
+
+	var _CommentContainer = __webpack_require__(513);
+
+	var _CommentContainer2 = _interopRequireDefault(_CommentContainer);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var ViewCaseConnect = function ViewCaseConnect() {
+	    return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'col-xs-12 col-sm-12 col-md-8' },
+	            _react2.default.createElement(_CaseDetail2.default, null)
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'col-xs-12 col-sm-12 col-md-4' },
+	            _react2.default.createElement(_FormComment2.default, null)
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'col-xs-12 col-sm-12 col-md-8' },
+	            _react2.default.createElement(_CommentContainer2.default, null)
+	        )
+	    );
+	};
+
+	var getCase = function getCase(caseId) {
+	    return function (dispatch, getState) {
+	        _caseServices2.default.getCase(caseId).then(function (result) {
+	            if (result.code == 0) {
+	                dispatch(Actions.onViewCase(result.object));
+	            } else {
+	                dispatch(Actions.showWarningModal("ไม่สามารถแสดงรายละเอียดเคสได้", result.message));
+	            }
+	        }, function (error) {
+	            dispatch(Actions.showWarningModal("ผิดพลาด", "ไม่สามารถแสดงรายละเอียดเคสได้"));
+	        });
+	    };
+	};
+
+	var getComments = function getComments(caseId, limit) {
+	    return function (dispatch, getState) {
+	        _caseServices2.default.getComments(caseId, limit).then(function (result) {
+	            if (result.code == 0) {
+	                dispatch(Actions.onViewComment(result.object));
+	            } else {
+	                dispatch(Actions.showWarningModal("ไม่สามารถแสดงรายละเอียดคอมเมนต์ได้", result.message));
+	            }
+	        }, function (error) {
+	            dispatch(Actions.showWarningModal("ผิดพลาด", "ไม่สามารถแสดงรายละเอียดคอมเมนต์ได้"));
+	        });
+	    };
+	};
+
+	var mapStateToProps = function mapStateToProps(state) {
+	    return {};
+	};
+
+	var mapDispatchToProps = function mapDispatchToProps(dispatch, ownProps) {
+	    dispatch(getCase(ownProps.params.id));
+	    dispatch(getComments(ownProps.params.id, 20));
+	    return {};
+	};
+
+	var ViewCase = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(ViewCaseConnect);
+	exports.default = ViewCase;
+
+/***/ },
+/* 513 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRedux = __webpack_require__(235);
+
+	var _actions = __webpack_require__(479);
+
+	var Actions = _interopRequireWildcard(_actions);
+
+	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Comment = function Comment(_ref) {
+	    var username = _ref.username;
+	    var comment = _ref.comment;
+	    var date = _ref.date;
+	    var imagePath = _ref.imagePath;
+	    var fbId = _ref.fbId;
+	    var viewImage = _ref.viewImage;
+
+	    return _react2.default.createElement(
+	        'div',
+	        { className: 'panel panel-default' },
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'panel-body' },
+	            function () {
+	                if (imagePath) {
+	                    return _react2.default.createElement(
+	                        'a',
+	                        { href: '#', onClick: function onClick() {
+	                                return viewImage("รูปภาพขยาย", imagePath);
+	                            } },
+	                        _react2.default.createElement('img', { src: imagePath, className: 'comment-image' })
+	                    );
+	                }
+	            }(),
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'detail-comment' },
+	                comment
+	            )
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { className: 'panel-footer' },
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'detail-small pull-right' },
+	                date
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'detail-profile' },
+	                'โดย ',
+	                _react2.default.createElement('img', { src: "//graph.facebook.com/" + fbId + "/picture" }),
+	                ' ',
+	                username
+	            )
+	        )
+	    );
+	};
+
+	var CommentContainerPresentational = function CommentContainerPresentational(_ref2) {
+	    var comments = _ref2.comments;
+	    var host = _ref2.host;
+	    var viewImage = _ref2.viewImage;
+
+	    return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	            'p',
+	            null,
+	            _react2.default.createElement(
+	                'button',
+	                { className: 'btn btn-default', 'data-toggle': 'collapse', 'data-target': '#comments' },
+	                'View Comments ',
+	                _react2.default.createElement('span', { id: 'toggleIcon', className: 'glyphicon glyphicon-chevron-down' })
+	            )
+	        ),
+	        _react2.default.createElement(
+	            'div',
+	            { id: 'comments', className: 'collapse' },
+	            comments.map(function (comment) {
+	                if (comment.imagePath) {
+	                    return _react2.default.createElement(Comment, { key: comment.commentId,
+	                        username: comment.username,
+	                        comment: comment.comment,
+	                        date: comment.created,
+	                        imagePath: host + '/' + comment.imagePath,
+	                        fbId: comment.fbId,
+	                        viewImage: viewImage });
+	                } else {
+	                    return _react2.default.createElement(Comment, { key: comment.commentId,
+	                        username: comment.username,
+	                        comment: comment.comment,
+	                        date: comment.created,
+	                        fbId: comment.fbId,
+	                        viewImage: viewImage });
+	                }
+	            })
+	        )
+	    );
+	};
+
+	var mapStateToProps = function mapStateToProps(state) {
+	    return {
+	        comments: state.action.comments,
+	        host: state.host
+	    };
+	};
+
+	var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+	    return {
+	        viewImage: function viewImage(title, path) {
+	            dispatch(Actions.showPictureModal(title, path));
+	        }
+	    };
+	};
+
+	var CommentContainer = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(CommentContainerPresentational);
+
+	exports.default = CommentContainer;
+
+/***/ },
+/* 514 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _FormCase = __webpack_require__(503);
+	var _FormCase = __webpack_require__(504);
 
 	var _FormCase2 = _interopRequireDefault(_FormCase);
 

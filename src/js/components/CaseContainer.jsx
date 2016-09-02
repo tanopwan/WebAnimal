@@ -13,11 +13,10 @@ class CaseContainer extends React.Component {
         }
 	}
 
-    componentWillReceiveProps(props) {
-        var self = this;
-        CaseServices.getCases(props.filters).then(function(res) {
+    componentWillMount() {
+        CaseServices.getCases(this.props.filters).then((res) => {
             if (res.code == 0) {
-                self.setState({objects: res.object});
+                this.setState({objects: res.object});
             }
         });
     }
@@ -26,7 +25,7 @@ class CaseContainer extends React.Component {
         return (
             <div className="col-xs-12">
                 {this.state.objects.map(function(item) {
-                    return <Link to={'/case/edit/'+item._id} key={item._id}><CaseCard key={item._id} item={item} /></Link>
+                    return <Link to={'/case/view/'+item.caseId} key={item.caseId}><CaseCard key={item.caseId} username={item.username} caseName={item.caseName} imagePath={item.imagePath} /></Link>
                 })}
             </div>
         );

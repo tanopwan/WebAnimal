@@ -14,7 +14,7 @@ const mapStateToProps = (state) => {
     }
 }
 
-const updateUser = (userId, email, mobile, lineId) => {
+const updateUser = (email, mobile, lineId) => {
     return (dispatch, getState) => {
         let state = getState();
         var accessToken = state.userObject.accessToken;

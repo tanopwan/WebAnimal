@@ -5,27 +5,21 @@ import Case from './caseDBController.js'
 
 var response_template = {code: 200, message: "", action: "", object: {}};
 
-
 var case_router = express.Router();
 case_router.get("/", getCases);
 case_router.route("/:id").get(getCase);
+case_router.route("/:id/comment").get(getComments);
 
 case_router.use(passport.authenticate('facebook-token'));
 case_router.use(function (req, res, next) {
-  console.log('------> Request Type:', req.method);
+  //console.log('------> Request Type:', req.method);
   next();
 });
 
 case_router.post("/", createCase);
-//case_router.post("/", [upload.single('profilePicture'), addNewCase]);
-//case_router.post("/updateCase", [upload.single('profilePicture'), updateCase]);
-//case_router.post("/comment", [upload.single('comment_picture'), addComment]);
+case_router.post("/comment", addComment);
 
 var response_template = {code: 200, message: "", action: "", object: {}};
-
-function checkUser(req, res) {
-
-}
 
 function getCases(req, res) {
 	console.log("cases.js - Request[GET /api/case]: " + JSON.stringify(req.query));
@@ -58,11 +52,19 @@ function getCase(req, res) {
     })
 }
 
-function saveCase(req, res) {
-	console.log("saveCase: " + JSON.stringify(req.body));
-	response_template.object = "not implemented";
-	response_template.action = "saveCase";
-	res.send(response_template);
+function getComments(req, res) {
+    console.log("getComments: " + JSON.stringify(req.params) + ", limit: " + req.query.limit);
+    let limit = req.query.limit;
+    if (!limit) {
+        limit = 10;
+    }
+    Case.getComments(req.params.id, limit).then(function(result) {
+        var response = Object.assign({}, response_template, {code: 0, object: result, action: "getComments"});
+        res.send(response);
+    }, function(error) {
+        var response = Object.assign({}, response_template, {code: 2, object: error, action: "getComments"});
+        res.send(response);
+    })
 }
 
 function createCase(req, res) {
@@ -71,8 +73,9 @@ function createCase(req, res) {
 	response.action = "createCase";
 	if (!req.body) {
 		response.code = 1;
-		response.message = "Invalid Parameters";
+		response.message = "Invalid Parameters, Missing body";
 		res.send(response);
+        return;
 	}
 	var userId = req.body.userId;
 	var caseName = req.body.caseName;
@@ -81,10 +84,11 @@ function createCase(req, res) {
 	var animalName = req.body.animalName;
     var imagePath = req.body.imagePath;
 
-	if (!caseName || !userId || !imagePath || !description || !animalType) {
+	if (!caseName || !userId || !description || !animalType) {
 		response.code = 1;
-		response.message = "Invalid Parameters";
+		response.message = "Invalid Parameters, Missing required fields";
 		res.send(response);
+        return;
 	}
 
 	Case.createCase(userId, caseName, description, animalType, animalName, imagePath).then( function(result) {
@@ -100,73 +104,39 @@ function createCase(req, res) {
 	});
 }
 
-function updateCase(req, res) {
-	if (req.body) {
-		req.body.user = req.body.userId;
-		if (req.file) {
-	    	console.log(req.file);
-	    	var imagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
-		    var image = sharp(req.file.path);
-		    image
-		    	.resize(300)
-		    	.toFormat(sharp.format.webp)
-		    	.toFile(imagePath, function(err) {
-			        if (err) {
-			        	throw err;
-			        }
-				});
-
-		    req.body.imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
-	    }
-
-	    if (req.body.caseName) {
-	    	/*var _case = new Case(req.body);
-
-		    _case.save(function (err, result) {
-			  	if (err) {
-			    	var response = Object.assign({}, response_template, {code: 500, object: err, action: "addComment", message: "save case failed"});
-					res.send(response);
-			  	} else {
-			    	var response = Object.assign({}, response_template, {code: 200, object: result, action: "addComment", message: "save case success"});
-					res.send(response);
-			  	}
-			})*/
-	    }
-	}
-}
-
-//const addComment = (req, res) => {
 function addComment(req, res) {
-	if (req.body) {
-		if (req.file) {
-	    	console.log(req.file);
-	    	var imagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
-		    var image = sharp(req.file.path);
-		    image
-		    	.resize(300)
-		    	.toFormat(sharp.format.webp)
-		    	.toFile(imagePath, function(err) {
-			        if (err) {
-			        	throw err;
-			        }
-				});
-
-		    req.body.imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
-	    }
-
-	    if (req.body.caseName) {
-	    	/*var _case = new Case(req.body);
-		    _case.save(function (err, result) {
-			  	if (err) {
-			    	var response = Object.assign({}, response_template, {code: 500, object: err, action: "addComment", message: "save comment failed"});
-					res.send(response);
-			  	} else {
-			    	var response = Object.assign({}, response_template, {code: 200, object: result, action: "addComment", message: "save comment success"});
-					res.send(response);
-			  	}
-			})*/
-	    }
+    console.log("cases.js - [POST /api/case/comment] Request: " + JSON.stringify(req.body));
+	var response = Object.assign({}, response_template);
+	response.action = "addComment";
+	if (!req.body) {
+		response.code = 1;
+		response.message = "Invalid Parameters, Missing body";
+		res.send(response);
+        return;
 	}
+	var userId = req.body.userId;
+	var caseId = req.body.caseId;
+	var comment = req.body.comment;
+    var uploadId = req.body.uploadId;
+
+	if (!caseId || !userId || !comment) {
+		response.code = 1;
+		response.message = "Invalid Parameters, Missing required fields";
+		res.send(response);
+        return;
+	}
+
+	Case.addComment(userId, caseId, comment, uploadId).then( function(result) {
+		response.code = 0;
+		response.message = "success";
+		response.object = result;
+		res.send(response);
+	}, function(error) {
+		response.code = 2;
+		response.message = "Error saving a comment";
+		response.object = error;
+		res.send(response);
+	});
 }
 
 module.exports = case_router;

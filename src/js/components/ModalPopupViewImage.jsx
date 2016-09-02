@@ -4,24 +4,17 @@ import { Modal, Button } from 'react-bootstrap'
 
 import { hideModal } from '../redux/actions'
 
-const ModalContent = ({title, body, imagePath, style, hideModal}) => (
+const ModalContent = ({title, imagePath, style, hideModal}) => (
 <div className="static-modal">
 	<Modal.Dialog>
 		<Modal.Header>
 			<Modal.Title>{title}</Modal.Title>
 		</Modal.Header>
 		<Modal.Body>
-			{body}
-			{
-				(() => {
-					if (imagePath) {
-						return <img src={imagePath} />
-					}
-				})()
-			}
+			<img src={imagePath} />
 		</Modal.Body>
 		<Modal.Footer>
-			<Button bsStyle={style} onClick={() => hideModal()}>ปิดหน้าต่าง</Button>
+			<Button bsStyle={style} onClick={hideModal()}>ปิดหน้าต่าง</Button>
 		</Modal.Footer>
 	</Modal.Dialog>
 </div>
@@ -30,15 +23,14 @@ const ModalContent = ({title, body, imagePath, style, hideModal}) => (
 const mapStateToProps = (state) => {
     return {
         title: state.modal.title,
-        body: state.modal.body,
-		imagePath: state.modal.imagePath,
+        imagePath: state.modal.imagePath,
         style: state.modal.style
     }
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        hideModal: () => dispatch(hideModal())
+        hideModal: dispatch(hideModal())
     }
 }
 
@@ -55,6 +47,8 @@ const ModalRoot = ({ hasModal }) => {
 	return <ModalPopup/>
 }
 
-export default connect(
+const ModalRootViewImage = connect(
   state => state.modal
 )(ModalRoot)
+
+export default ModalRootViewImage;

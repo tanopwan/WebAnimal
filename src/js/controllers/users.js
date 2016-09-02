@@ -25,7 +25,7 @@ function updateUser(req, res) {
 	var email = req.body.email;
 	var mobile = req.body.mobile;
 	var lineId = req.body.lineId;
-	
+
 	if (!userId) {
 		response.code = 1;
 		response.message = "Invalid userId";
@@ -79,12 +79,13 @@ function userLogin(req, res) {
 			});
 
 		}, function(reject) {
+			console.log(reject);
 			res.status(500).send({ code: 1100, message: "updateUserOnLogin error" });
 		})
 	}
 	else {
 		res.status(400).send({ code: 1001, message: "Invalid parameters" });
-		return;	
+		return;
 	}
 }
 
@@ -111,5 +112,3 @@ function userLoginStatus(req, res) {
 }
 
 module.exports = user_router;
-
-

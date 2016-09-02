@@ -23,5 +23,5 @@ const DevPanel = connect(
     mapStateToProps,
     mapDispatchToProps
 )(DevPanelDiv)
- 
+
 export default DevPanel;

@@ -1,7 +1,4 @@
 import { combineReducers } from 'redux'
-//import { SET_ERROR, RESET_ERROR, ON_LOGIN, ErrorTypes } from './actions'
-//import { SHOW_MODAL, HIDE_MODAL } from './actions'
-//import { SHOW_LOGIN_MODAL, HIDE_LOGIN_MODAL } from './actions'
 import { ErrorTypes } from './actions'
 
 const mainError = (state = {hasError: false, message: {}}, action) => {
@@ -25,11 +22,11 @@ const mainError = (state = {hasError: false, message: {}}, action) => {
 	return state;
 }
 
-const formError = (state = {message: {}}, action) => {
+const formError = (state = {}, action) => {
 	if (action.type === 'SET_ERROR') {
 		switch(action.sub_type) {
 			case ErrorTypes.ERR_FORM_INVALID :
-				return Object.assign({}, state, { message: action.error });
+				return Object.assign({}, state, {[action.error.field]: action.error.message});
 			default:
 				return state;
 		}
@@ -37,7 +34,7 @@ const formError = (state = {message: {}}, action) => {
 	else if  (action.type === 'RESET_ERROR') {
 		switch(action.sub_type) {
 			case ErrorTypes.ERR_FORM_INVALID :
-				return Object.assign({}, state, { message: {} });
+				return {};
 			default:
 				return state;
 		}
@@ -47,6 +44,8 @@ const formError = (state = {message: {}}, action) => {
 
 const userObject = (state = {status: 'NONE'}, action) => {
 	switch(action.type) {
+		case 'ON_FB_INIT':
+			return Object.assign({}, { status: 'INIT' });
 		case 'ON_LOGIN' :
 			return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
 		case 'ON_LOGOUT' :
@@ -62,7 +61,7 @@ const userObject = (state = {status: 'NONE'}, action) => {
 	}
 }
 
-const modal = (state = { hasModal: false, title: "", body: "" }, action) => {
+const modal = (state = { hasModal: false, title: "", body: "", imagePath: "" }, action) => {
 	switch (action.type) {
 		case 'SHOW_MODAL':
 			return Object.assign({}, state, {
@@ -71,11 +70,19 @@ const modal = (state = { hasModal: false, title: "", body: "" }, action) => {
 		        body: action.body,
 		        style: action.style
 		    });
+		case 'SHOW_MODAL_IMAGE':
+			return Object.assign({}, state, {
+				hasModal: true,
+		        title: action.title,
+		        imagePath: action.imagePath,
+		        style: action.style
+		    });
 		case 'HIDE_MODAL':
 			return Object.assign({}, state, {
 				hasModal: false,
 				title: "",
 				body: "",
+				imagePath: "",
 				style: ""
 			});
 		default:
@@ -94,7 +101,24 @@ const login = (state = { hasModal: false }, action) => {
 	}
 }
 
+const host = (state = 'http://localhost:3000', action) => {
+	return state;
+}
+
+const action = (state = {view: {}, comments: []}, action) => {
+	switch (action.type) {
+		case 'ON_VIEW_CASE':
+			return Object.assign({}, state, { view: action.caseObject } );
+		case 'ON_VIEW_COMMENT':
+			return Object.assign({}, state, { comments: action.objects } );
+		default:
+			return state
+	}
+}
+
 const webAnimalApp = combineReducers({
+	host,
+	action,
  	modal,
  	login,
  	userObject,

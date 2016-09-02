@@ -18,7 +18,14 @@ const Upload = {
 		var uploadId = shortid.generate();
 		var queryString = "INSERT INTO Upload (`uploadId`, `userId`, `path`) "
 							+ "VALUES ('" + uploadId + "', '" + userId + "', '" + imagePath + "')";
-		return query(queryString);
+		return new Promise(function (resolve, reject) {
+			conn.query(queryString, function(err, result){
+				if(err)
+					return reject(err);
+
+				return resolve(uploadId);
+			});
+		});
 	}
 }
 

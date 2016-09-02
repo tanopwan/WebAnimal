@@ -70,6 +70,74 @@ div.card {
 	font-size: 25px;
 }
 
+.input-text-font {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 20px;
+}
+
+.display-block {
+	display: block;
+}
+
+.detail-image {
+	float: left;
+	width: 200px;
+	margin-right: 20px;
+}
+
+.comment-image {
+	float: left;
+	width: 100px;
+	margin-right: 20px;
+}
+
+.detail-header {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 25px;
+	color: #555555;
+	display: block;
+}
+
+.detail-title {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 30px;
+	color: #7D0552;
+	display: block;
+}
+
+.detail-small {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 20px;
+	color: #999999;
+	display: block;
+}
+
+.detail-description {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 22px;
+	color: #999999;
+	display: block;
+}
+
+.detail-comment {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 22px;
+	color: #999999;
+	display: block;
+}
+
+.detail-profile {
+	font-family: "TH Sarabun New", Verdana, Tahoma;
+	font-size: 20px;
+	color: #999999;
+	display: block;
+}
+
+.detail-profile>img {
+	width:25px;
+	height:25px;
+}
+
 div.container {
 	width: 100%;
 	padding: 10px;
@@ -87,4 +155,8 @@ div.form_display {
 	width: 100%;
 	padding-top: 10px;
 	word-wrap: normal;
+}
+
+.btn.sharp {
+	border-radius:0;
 }

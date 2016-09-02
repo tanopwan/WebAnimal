@@ -1,36 +1,27 @@
 import React from 'react';
+import { connect } from 'react-redux'
 
-class CasePage extends React.Component {
+const CasePagePresentational = ({children, routes, caseId}) => (
+    <div className="col-xs-12">
+        <span className="detail-header">
+			case > view > {caseId}
+		</span>
+        {children}
+    </div>
+);
 
-	constructor(props) {
-		super(props);
-
+const mapStateToProps = (state, ownProps) => {
+    return {
+		caseId: ownProps.params.id
 	}
-
-	componentWillReceiveProps(props) {
-		//console.log("componentWillReceiveProps{CasePage}: " + JSON.stringify(props.userObject));
-    }
-
-    componentDidMount() {
-        //console.log("componentDidMount{CasePage}");
-    }
-
-    render() {
-        return (
-            <div>
-                <h3>Case Page</h3>
-                {React.cloneElement(this.props.children, { userObject: "this.props.userObject"})}
-            </div>
-        );
-    }
+}
+const mapDispatchToProps = (dispatch, ownProps) => {
+    return { }
 }
 
-CasePage.propTypes = {
-    userObject: React.PropTypes.object
-}
-
-CasePage.defaultProps = {
-    userObject: {}
-}
+const CasePage = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(CasePagePresentational);
 
 export default CasePage;

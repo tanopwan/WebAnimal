@@ -30,7 +30,7 @@ function createUpload(req, res) {
 	}
 
 	var actualImagePath = upload_path_processed_public + "/" + req.file.filename + ".webp";
-	var image = sharp(req.file.path);
+	let image = sharp(req.file.path);
 	image.resize(300)
 	.toFormat(sharp.format.webp)
 	.toFile(actualImagePath, function(err) {
@@ -41,13 +41,13 @@ function createUpload(req, res) {
 		}
 	});
 
-	var imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
-	var userId = req.body.userId;
+	let imagePath = upload_path_processed + "/" + req.file.filename + ".webp"
+	let userId = req.body.userId;
 	if (userId && imagePath) {
 		Upload.create(userId, imagePath).then(function(result) {
 			response.code = 0;
 			response.message = "success";
-			response.object = {userId, imagePath};
+			response.object = {userId, imagePath, uploadId: result};
 			res.send(response);
 		}, function(error) {
 			response.code = 2;
