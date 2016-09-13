@@ -69,6 +69,8 @@ function createUser(req, res) {
 }
 
 function deleteUser(req, res) {
+	console.log("user.js - deleteUser: " + req.params.id);
+
 	User.deleteFBRecord(req.params.id).then(resolve => {
 		return User.deleteUser(req.params.id);
 	})
@@ -81,7 +83,7 @@ function deleteUser(req, res) {
 }
 
 function updateUser(req, res) {
-	console.log("updateUser: " + JSON.stringify(req.body));
+	console.log("user.js - updateUser: " + JSON.stringify(req.body));
 	var response = JSON.parse(JSON.stringify(response_template));
 	response.action = "updateUser";
 
@@ -162,34 +164,6 @@ function userLogin(req, res) {
 		res.status(400).send({ code: 1001, message: "Invalid parameters" });
 		return;
 	}
-
-	/*if (fbId && username) {
-		new Promise( function(resolve, reject) {
-			FBUser.getUserByFbId(fbId).then(resolve, reject);
-			FBUser.updateUserOnLogin(fbId, username).then(resolve, reject);
-		}).then( function(resolve) {
-			FBUser.getUserByFbId(fbId).then( function(resolve) {
-				var userId = resolve[0].userId;
-				var lastLogin = resolve[0].lastLogin;
-				var email = resolve[0].email;
-				var mobile = resolve[0].mobile;
-				var lineId = resolve[0].lineId;
-				var response = { code:0, message: "success", object: {fbId, username, userId, lastLogin, email, mobile, lineId} };
-				console.log("user.js - updated user login: " + JSON.stringify(response));
-				res.status(200).send(response);
-			}, function(reject) {
-				console.log(reject);
-				res.status(500).send({ code: 1100, message: "Cannot get userId" });
-			});
-		}, function(reject) {
-			console.log(reject);
-			res.status(500).send({ code: 1100, message: "updateUserOnLogin error" });
-		})
-	}
-	else {
-		res.status(400).send({ code: 1001, message: "Invalid parameters" });
-		return;
-	}*/
 }
 
 function userLoginStatus(req, res) {

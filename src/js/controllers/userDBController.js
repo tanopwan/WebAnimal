@@ -99,7 +99,7 @@ const User = {
 	},
 	updateUserByUserId: (userId, email, mobile, lineId) => {
 		//UPDATE `webanimal`.`User` SET `email`='tanopwan@gmail.com1', `mobile`='08011111111', `lineId`='tanopwan1' WHERE `userId`='rkrn0-0D';
-		var queryString = "UPDATE User SET email='" + email + "', lineId='" + lineId + "', mobile='" + mobile + "' WHERE userId='" + userId + "'";
+		var queryString = "UPDATE User SET email='" + email + "', lineId='" + lineId + "', mobile='" + mobile + "' WHERE id='" + userId + "'";
 		return query(queryString);
 	}
 }
