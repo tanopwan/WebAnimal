@@ -44,12 +44,10 @@ const formError = (state = {}, action) => {
 
 const userObject = (state = {status: 'NONE'}, action) => {
 	switch(action.type) {
-		case 'ON_FB_INIT':
-			return Object.assign({}, { status: 'INIT' });
 		case 'ON_LOGIN' :
 			return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
 		case 'ON_LOGOUT' :
-			return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'AUTH' });
+			return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'LOGGED_OUT' });
 		case 'ON_UNAUTH' :
 			return Object.assign({}, { status: 'UNAUTH' });
 		case 'ON_AUTH' :

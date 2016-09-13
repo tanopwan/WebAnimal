@@ -46,7 +46,7 @@ passport.use('facebook-token-login', new FacebookTokenStrategy({
 		clientSecret    : FACEBOOK_APP_SECRET
 	}, function(accessToken, refreshToken, profile, done) {
 
-		console.log("auth.js - facebook-token-login");
+		//console.log("auth.js - facebook-token-login");
 	    var user = {
 	        'email': profile.emails[0].value,
 	        'name' : profile.name.givenName + ' ' + profile.name.familyName,

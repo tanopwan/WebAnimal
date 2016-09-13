@@ -11,10 +11,74 @@ user_router.post("/login", userLogin);
 user_router.post("/logout", userLogout);
 user_router.post("/login/status", userLoginStatus);
 user_router.post("/update", updateUser);
+user_router.delete("/:id", deleteUser);
+user_router.post("/facebook/login", facebookLogin);
+user_router.post("/facebook/create", facebookCreate);
 
 var response_template = {code: 200, message: "", action: "", object: {}};
 
 //conn.end();
+
+function facebookLogin(req, res) {
+	console.log("user.js - facebookLogin: " + JSON.stringify(req.body));
+	let fbId = req.body.fbId;
+	let username = req.body.username;
+
+	if (fbId && username) {
+		User.getFbId(fbId)
+		.then( resolve => {
+			res.status(200).send({ code: 0, message: resolve });
+		})
+		.catch( reject => {
+			res.status(500).send({ code: 1100, message: reject });
+		});
+	}
+	else {
+		res.status(400).send({ code: 1001, message: "Invalid parameters" });
+	}
+}
+
+function facebookCreate(req, res) {
+	console.log("user.js - facebookCreate: " + JSON.stringify(req.body));
+	let fbId = req.body.fbId;
+	let username = req.body.username;
+
+	if (fbId && username) {
+		User.createFBRecord(fbId)
+		.then( resolve => {
+			res.status(200).send({ code: 0, message: resolve });
+		})
+		.catch( reject => {
+			res.status(500).send({ code: 1100, message: reject });
+		});
+	}
+	else {
+		res.status(400).send({ code: 1001, message: "Invalid parameters" });
+	}
+}
+
+function createUser(req, res) {
+	console.log("user.js - createUser: " + JSON.stringify(req.body));
+
+	User.createUser().then(resolve => {
+		res.status(200).send({ code: 0, message: resolve });
+	})
+	.catch( reject => {
+		res.status(500).send({ code: 1100, message: reject });
+	});
+}
+
+function deleteUser(req, res) {
+	User.deleteFBRecord(req.params.id).then(resolve => {
+		return User.deleteUser(req.params.id);
+	})
+	.then(resolve => {
+		res.status(200).send({ code: 0, message: resolve });
+	})
+	.catch(reject => {
+		res.status(500).send({ code: 1100, message: reject });
+	});
+}
 
 function updateUser(req, res) {
 	console.log("updateUser: " + JSON.stringify(req.body));
@@ -57,14 +121,54 @@ function userLogout(req, res) {
 
 function userLogin(req, res) {
 	console.log("user.js - userLogin: " + JSON.stringify(req.body));
-	var fbId = req.body.fbId;
-	var username = req.body.username;
+	let fbId = req.body.fbId;
+ 	let username = req.body.username;
 
 	if (fbId && username) {
 		new Promise( function(resolve, reject) {
-			User.updateUserOnLogin(fbId, username).then(resolve, reject);
+			User.getUserByFbId(fbId).then(resolve, reject);
+		})
+		.then( function(resolve) {
+			if (resolve.length == 0) {
+				// Sign up
+				return User.createUser();
+			}
+			return Promise.resolve(resolve);
+		})
+		.then( resolve => {
+			if (resolve.id && !resolve.fbId) {
+				return User.createFBUser(resolve.id, fbId, username);
+			}
+			return User.updateFBUserOnLogin(fbId);
+		})
+		.then(() => {
+			return User.getUserByFbId(fbId);
+		})
+		.then( resolve => {
+			var userId = resolve[0].userId;
+			var lastLogin = resolve[0].lastLogin;
+			var email = resolve[0].email;
+			var mobile = resolve[0].mobile;
+			var lineId = resolve[0].lineId;
+			var response = { code:0, message: "success", object: {fbId, username, userId, lastLogin, email, mobile, lineId} };
+			res.status(200).send(response);
+		})
+		.catch( function(reject) {
+			console.log(reject);
+			res.status(500).send({ code: 1100, message: reject });
+		})
+	}
+	else {
+		res.status(400).send({ code: 1001, message: "Invalid parameters" });
+		return;
+	}
+
+	/*if (fbId && username) {
+		new Promise( function(resolve, reject) {
+			FBUser.getUserByFbId(fbId).then(resolve, reject);
+			FBUser.updateUserOnLogin(fbId, username).then(resolve, reject);
 		}).then( function(resolve) {
-			User.getUserByFbId(fbId).then( function(resolve) {
+			FBUser.getUserByFbId(fbId).then( function(resolve) {
 				var userId = resolve[0].userId;
 				var lastLogin = resolve[0].lastLogin;
 				var email = resolve[0].email;
@@ -77,7 +181,6 @@ function userLogin(req, res) {
 				console.log(reject);
 				res.status(500).send({ code: 1100, message: "Cannot get userId" });
 			});
-
 		}, function(reject) {
 			console.log(reject);
 			res.status(500).send({ code: 1100, message: "updateUserOnLogin error" });
@@ -86,7 +189,7 @@ function userLogin(req, res) {
 	else {
 		res.status(400).send({ code: 1001, message: "Invalid parameters" });
 		return;
-	}
+	}*/
 }
 
 function userLoginStatus(req, res) {

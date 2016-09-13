@@ -9,14 +9,13 @@ import LoginRoot from './ModalLogin.jsx'
 import MainMenu from './MainMenu.jsx'
 
 import { store } from '../redux/store.js'
-import { fbModule } from '../facebook-init.js';
-import { onGetFBLoginStatus } from '../services/user-services.js'
+import * as Actions from '../redux/actions'
+import { onGetFBLoginStatus, checkLoginStatus } from '../services/user-services.js'
+import { fbModule } from 'facebook-module-es6';
 
-fbModule.subscribe((FB) => {
-    FB.getLoginStatus(function (res) {
-        store.dispatch(Actions.onFBInit());
-        store.dispatch(onGetFBLoginStatus(res));
-    });
+fbModule.init('1669516483298849');
+fbModule.getLoginStatus((res) => {
+    store.dispatch(onGetFBLoginStatus(res, checkLoginStatus));
 });
 
 const AppConnect = ({children, store}) => (

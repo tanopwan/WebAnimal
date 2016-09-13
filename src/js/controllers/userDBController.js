@@ -13,28 +13,74 @@ const query = (queryString) => {
 	});
 }
 
+const queryOne = (queryString) => {
+	return new Promise(function (resolve, reject) {
+		conn.query(queryString, function(err, result){
+			if(err)
+				return reject(err);
+
+			if (result.length == 1) {
+				return resolve(result[0]);
+			}
+			return resolve({});
+		});
+	});
+}
+
 const User = {
+	createUser: () => {
+		let userId = shortid.generate();
+		let queryString = "INSERT INTO User (id) VALUES ('" + userId + "')";
+		return new Promise(function (resolve, reject) {
+			conn.query(queryString, function(err, result){
+				if(err)
+					return reject(err);
+
+				return resolve({id: userId});
+			});
+		});
+	},
+	createFBRecord: (fbId, username) => {
+        let queryString = "INSERT INTO FBUser (id, fbId, username, lastLogin) VALUES ('" +
+            shortid.generate() + "', '" + fbId + "', '" + username + "', NOW());";
+        return query(queryString);
+    },
+	createFBUser: (userId, fbId, username) => {
+        let queryString = "INSERT INTO FBUser (id, fbId, username, lastLogin, userId) VALUES ('" +
+            shortid.generate() + "', '" + fbId + "', '" + username + "', NOW(), '" + userId + "');";
+        return query(queryString);
+    },
+	getFbId: (fbId) => {
+        let queryString = "SELECT * FROM FBUser WHERE fbId='" + fbId + "'";
+		return queryOne(queryString);
+    },
 	getUserByFbId: (fbId) => {
-		var queryString = "SELECT * FROM User WHERE fbId='" + fbId + "'";
+		let queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.id=fbu.userId";
 		return query(queryString);
 	},
-	updateUserOnLogin: (fbId, username) => {
-		//INSERT INTO User (userId, fbId, username, lastLogin) VALUES ('test', '1199019910116181', 'Tanopwan', NOW()) ON DUPLICATE KEY UPDATE userId=VALUES(userId), fbID=VALUES(fbId), username=VALUES(username), lastLogin=VALUES(lastLogin)
-		var queryString = "INSERT INTO User (userId, fbId, username, lastLogin) VALUES ('" +
-			shortid.generate() + "', '" +
-			fbId + "', '" +
-			username +
-			"', NOW()) ON DUPLICATE KEY UPDATE userId=userId, fbId=VALUES(fbId), username=VALUES(username), lastLogin=VALUES(lastLogin)";
-
+	deleteFBRecord: (userId) => {
+        let queryString = "DELETE FROM FBUser WHERE userId='" + userId + "'";
+        return query(queryString);
+    },
+	deleteUser: (userId) => {
+        let queryString = "DELETE FROM User WHERE id='" + userId + "'";
+        return query(queryString);
+    },
+	updateFBUserOnLogin: (fbId) => {
+		var queryString = "UPDATE FBUser SET lastLogin=NOW() where fbId='" + fbId + "'";
+		return query(queryString);
+	},
+	updateUserOnLogin: (userId) => {
+		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.id SET f.lastLogin=NOW() where userId='" + userId + "'";
 		return query(queryString);
 	},
 	updateUserOnLogout: (userId) => {
-		var queryString = "UPDATE User SET lastLogin=NULL where userId='" + userId + "'";
+		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.id SET f.lastLogin=NULL where userId='" + userId + "'";
 		return query(queryString);
 	},
 	validateFBUserSession: (fbId) => {
 		return new Promise(function (resolve, reject) {
-			var queryString = "SELECT * FROM User WHERE fbId='" + fbId + "'";
+			var queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.id=fbu.userId";
 			conn.query(queryString, function(err, result){
 				if(err)
 					return reject(err);

@@ -26697,13 +26697,11 @@
 
 	var _ModalLogin2 = _interopRequireDefault(_ModalLogin);
 
-	var _MainMenu = __webpack_require__(490);
+	var _MainMenu = __webpack_require__(491);
 
 	var _MainMenu2 = _interopRequireDefault(_MainMenu);
 
 	var _store = __webpack_require__(487);
-
-	var _facebookInit = __webpack_require__(492);
 
 	var _actions = __webpack_require__(479);
 
@@ -26711,15 +26709,15 @@
 
 	var _userServices = __webpack_require__(481);
 
+	var _facebookModuleEs = __webpack_require__(490);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	_facebookInit.fbModule.subscribe(function (FB) {
-	    FB.getLoginStatus(function (res) {
-	        _store.store.dispatch(Actions.onFBInit());
-	        _store.store.dispatch((0, _userServices.onGetFBLoginStatus)(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
-	    });
+	_facebookModuleEs.fbModule.init('1669516483298849');
+	_facebookModuleEs.fbModule.getLoginStatus(function (res) {
+	    _store.store.dispatch((0, _userServices.onGetFBLoginStatus)(res, _userServices.checkLoginStatus));
 	});
 
 	var AppConnect = function AppConnect(_ref) {
@@ -26810,10 +26808,6 @@
 	    );
 	};
 
-	var mapStateToProps = function mapStateToProps(state) {
-	    return {};
-	};
-
 	function connectWithStore(store, WrappedComponent) {
 	    for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
 	        args[_key - 2] = arguments[_key];
@@ -26825,7 +26819,7 @@
 	    };
 	}
 
-	var App = connectWithStore(_store.store, AppConnect, mapStateToProps);
+	var App = connectWithStore(_store.store, AppConnect, null);
 
 	exports.default = App;
 
@@ -45721,7 +45715,6 @@
 	var ON_LOGOUT = exports.ON_LOGOUT = 'ON_LOGOUT';
 	var ON_UNAUTH = exports.ON_UNAUTH = 'ON_UNAUTH';
 	var ON_AUTH = exports.ON_AUTH = 'ON_AUTH';
-	var ON_FB_INIT = exports.ON_FB_INIT = 'ON_FB_INIT';
 	var ON_UPDATE_USER = exports.ON_UPDATE_USER = 'ON_UPDATE_USER';
 	var VIEW_CASE = exports.VIEW_CASE = 'VIEW_CASE';
 	var ON_VIEW_CASE = exports.ON_VIEW_CASE = 'ON_VIEW_CASE';
@@ -45783,16 +45776,12 @@
 		return { type: ON_LOGOUT };
 	};
 
-	var onAuth = exports.onAuth = function onAuth(fbId, accessToken) {
-		return { type: ON_AUTH, fbId: fbId, accessToken: accessToken };
+	var onAuth = exports.onAuth = function onAuth(fbId, accessToken, username) {
+		return { type: ON_AUTH, fbId: fbId, accessToken: accessToken, username: username };
 	};
 
 	var onUnAuth = exports.onUnAuth = function onUnAuth() {
 		return { type: ON_UNAUTH };
-	};
-
-	var onFBInit = exports.onFBInit = function onFBInit() {
-		return { type: ON_FB_INIT };
 	};
 
 	var onUpdateUser = exports.onUpdateUser = function onUpdateUser(user) {
@@ -45867,7 +45856,7 @@
 					_react2.default.createElement(
 						'a',
 						{ className: 'btn btn-block btn-social btn-facebook', onClick: function onClick() {
-								_userServices2.default.facebookLogin(dispatch);dispatch((0, _actions.hideLogin)());
+								dispatch(_userServices2.default.facebookLogin(dispatch));dispatch((0, _actions.hideLogin)());
 							} },
 						_react2.default.createElement('span', { className: 'fa fa-facebook' }),
 						' Sign in with Facebook'
@@ -45937,6 +45926,8 @@
 
 	var _store = __webpack_require__(487);
 
+	var _facebookModuleEs = __webpack_require__(490);
+
 	function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -45948,57 +45939,102 @@
 	// - NONE : init & or has not asked for permission
 	// - AUTH : FB is authorized but not log in (fbId, accessToken)
 	// - LOGGED_IN : FB Graph to get username & Server already verify Token (username, lastLogin)
-	// - UNAUTH : User not authorized WebAnimal App
+	// - UNAUTH : User not authorized WebAnimal App or not login to FB
 
-	var onGetFBLoginStatus = function onGetFBLoginStatus(res, onAuth, onUnAuth, onLogin, showLogin, showWarningModal) {
+	var doServerLogin = function doServerLogin() {
+	    return function (dispatch, getState) {
+	        var userObject = {
+	            fbId: getState().userObject.fbId,
+	            username: getState().userObject.username
+	        };
+	        userLogin(userObject, getState().userObject.accessToken).then(function (res) {
+	            console.log("doServerLogin - Received WebAnimal login status... - " + JSON.stringify(res));
+	            //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
+	            if (res.code == 0 && res.object) {
+	                // Log in
+	                var userId = res.object.userId;
+	                var lastLogin = res.object.lastLogin;
+	                dispatch(Actions.onLogin(res.object));
+	            } else {
+	                dispatch(Actions.onLogout());
+	                dispatch(Actions.setError(res));
+	                dispatch(Actions.showWarningModal("Server Error", "ไม่สามารถ Log in กับ server ได้"));
+	            }
+	        }, function (res) {
+	            if (res.status == 401) {
+	                // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+	                dispatch(Actions.onUnAuth());
+	                dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+	            } else if (res.status == 400) {
+	                //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
+	                dispatch(Actions.onUnAuth());
+	                dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
+	            } else {
+	                // 500
+	                dispatch(Actions.setError(res));
+	                dispatch(Actions.showWarningModal("Unauthorized", res));
+	            }
+	        });
+	    };
+	};
+
+	var checkLoginStatus = function checkLoginStatus() {
+	    return function (dispatch, getState) {
+	        var userObject = {
+	            fbId: getState().userObject.fbId,
+	            username: getState().userObject.username
+	        };
+	        userLoginStatus(userObject, getState().userObject.accessToken).then(function (res) {
+	            console.log("checkLoginStatus - Received WebAnimal login status... - " + JSON.stringify(res));
+	            //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
+	            if (res.code == 0 && res.object) {
+	                // Log in
+	                var userId = res.object.userId;
+	                var lastLogin = res.object.lastLogin;
+	                dispatch(Actions.onLogin(res.object));
+	            } else {
+	                // Not Log in
+	                dispatch(Actions.onLogout());
+	            }
+	        }, function (res) {
+	            if (res.status == 401) {
+	                // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
+	                dispatch(Actions.onUnAuth());
+	                dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
+	            } else if (res.status == 400) {
+	                //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
+	                dispatch(Actions.onUnAuth());
+	                dispatch(Actions.showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
+	            } else {
+	                // 500
+	                dispatch(Actions.setError(res));
+	                dispatch(Actions.showWarningModal("Unauthorized", res));
+	            }
+	        });
+	    };
+	};
+
+	var onGetFBLoginStatus = function onGetFBLoginStatus(res, onFBAuthSuccess) {
 	    return function (dispatch) {
 	        if (res.status === "connected") {
-	            //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
-	            var accessToken = res.authResponse.accessToken;
-	            dispatch(onAuth(res.authResponse.userID, accessToken));
-
-	            FB.api('/me', function (response) {
-	                console.log("Received FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response));
-	                var userObject = {
-	                    fbId: response.id,
-	                    username: response.name
-	                };
-	                console.log("Receiving WebAnimal login status...");
-	                userLogin(userObject, accessToken).then(function (res) {
-	                    console.log("Received WebAnimal login status... - " + JSON.stringify(res));
-	                    //res: {code: 0, message: "user.js - updateUserOnLogin success", object: {fbId, username, userId, lastLogin}}
-	                    if (res.code == 0 && res.object) {
-	                        // Log in
-	                        var userId = res.object.userId;
-	                        var lastLogin = res.object.lastLogin;
-	                        dispatch(onLogin(Object.assign({}, res.object, { accessToken: accessToken, userId: userId, lastLogin: lastLogin })));
-	                    } else {
-	                        dispatch(Actions.onLogout());
-	                        dispatch(Actions.setError(res));
-	                        dispatch(Actions.showWarningModal("Server Error", "ไม่สามารถ Log in กับ server ได้ไม่พบ user ในฐานข้อมูล"));
-	                    }
-	                }, function (res) {
-	                    // {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-	                    if (res.status == 401) {
-	                        // Unauthorized
-	                        // res {readyState: 4, responseText: "Unauthorized", status: 401, statusText: "Unauthorized"}
-	                        dispatch(onUnAuth());
-	                        dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้ AccessToken ไม่ถูกต้อง"));
-	                    }
-	                    //{readyState: 4, responseText: "{"code":1001,"message":"Invalid parameters"}", responseJSON: Object, status: 400, statusText: "Bad Request"}
-	                    else if (res.status == 400) {
-	                            dispatch(onUnAuth());
-	                            dispatch(showWarningModal("Unauthorized", "ไม่สามารถ Log in กับ server ได้, " + res.responseText));
-	                        }
+	            (function () {
+	                //res.authResponse{accessToken: "...", userID: "1199019910116181", expiresIn: 6744, signedRequest: "..."
+	                var accessToken = res.authResponse.accessToken;
+	                FB.api('/me', function (response) {
+	                    console.log("Received FB login status...Logged in - Retrieved FB Profile from /me API: " + JSON.stringify(response));
+	                    dispatch(Actions.onAuth(res.authResponse.userID, accessToken, response.name));
+	                    dispatch(onFBAuthSuccess());
 	                });
-	            });
+	            })();
 	        } else if (res.status === 'not_authorized') {
-	            console.log('User is not authorized to WebAnimal App');
-	            dispatch(showLogin());
+	            console.log('User is not authorized our WebAnimal App');
+	            dispatch(Actions.onUnAuth());
+	            dispatch(Actions.showLogin());
 	        } else {
 	            // 'unknown'
 	            console.log('User is not logged into Facebook');
-	            dispatch(showLogin());
+	            dispatch(Actions.onUnAuth());
+	            dispatch(Actions.showLogin());
 	        }
 	    };
 	};
@@ -46074,12 +46110,20 @@
 
 	module.exports = {
 	    facebookLogin: function facebookLogin(dispatch) {
-	        FB.login(function (res) {
-	            _store.store.dispatch(onGetFBLoginStatus(res, Actions.onAuth, Actions.onUnAuth, Actions.onLogin, Actions.showLogin, Actions.showWarningModal));
-	        }, { scope: 'email' });
-	        // TODO: what to do when failed
+	        return function (dispatch, getState) {
+	            if (getState().userObject.accessToken != null) {
+	                dispatch(doServerLogin());
+	            } else {
+	                _facebookModuleEs.fbModule.login(function (res) {
+	                    _store.store.dispatch(onGetFBLoginStatus(res, doServerLogin));
+	                }, { scope: 'email' });
+	                // TODO: what to do when failed
+	            }
+	        };
 	    },
 	    onGetFBLoginStatus: onGetFBLoginStatus,
+	    doServerLogin: doServerLogin,
+	    checkLoginStatus: checkLoginStatus,
 	    userLoginStatus: userLoginStatus,
 	    userLogin: userLogin,
 	    userLogout: userLogout,
@@ -57021,12 +57065,10 @@
 		var action = arguments[1];
 
 		switch (action.type) {
-			case 'ON_FB_INIT':
-				return Object.assign({}, { status: 'INIT' });
 			case 'ON_LOGIN':
 				return Object.assign({}, state, action.user, { status: 'LOGGED_IN' });
 			case 'ON_LOGOUT':
-				return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'AUTH' });
+				return Object.assign({}, { fbId: state.fbId, username: state.username, accessToken: state.accessToken }, { status: 'LOGGED_OUT' });
 			case 'ON_UNAUTH':
 				return Object.assign({}, { status: 'UNAUTH' });
 			case 'ON_AUTH':
@@ -57128,6 +57170,91 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.fbModule = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _es6Promise = __webpack_require__(483);
+
+	var _es6Promise2 = _interopRequireDefault(_es6Promise);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Promise = _es6Promise2.default.Promise;
+
+	var FBModule = function () {
+	    function FBModule() {
+	        _classCallCheck(this, FBModule);
+
+	        this.FB = null;
+	    }
+
+	    _createClass(FBModule, [{
+	        key: 'init',
+	        value: function init(appId) {
+	            if (typeof window != 'undefined') {
+	                this.promise = new Promise(function (resolve) {
+	                    window.fbAsyncInit = function () {
+	                        FB.init({
+	                            appId: appId,
+	                            status: true,
+	                            cookie: true,
+	                            xfbml: true,
+	                            version: 'v2.6'
+	                        });
+
+	                        return resolve(FB);
+	                    };
+	                });
+
+	                (function (d, s, id) {
+	                    var js,
+	                        fjs = d.getElementsByTagName(s)[0];
+	                    if (d.getElementById(id)) {
+	                        return;
+	                    }
+	                    js = d.createElement(s);js.id = id;
+	                    js.src = "//connect.facebook.net/en_US/sdk.js";
+	                    fjs.parentNode.insertBefore(js, fjs);
+	                })(document, 'script', 'facebook-jssdk');
+	            }
+	        }
+	    }, {
+	        key: 'getLoginStatus',
+	        value: function getLoginStatus(callback) {
+	            if (this.promise) {
+	                this.promise.then(function (FB) {
+	                    FB.getLoginStatus(callback);
+	                });
+	            }
+	        }
+	    }, {
+	        key: 'login',
+	        value: function login(callback) {
+	            if (this.promise) {
+	                this.promise.then(function (FB) {
+	                    FB.login(callback);
+	                });
+	            }
+	        }
+	    }]);
+
+	    return FBModule;
+	}();
+
+	var fbModule = exports.fbModule = new FBModule();
+
+/***/ },
+/* 491 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
 
 	var _react = __webpack_require__(1);
 
@@ -57135,7 +57262,7 @@
 
 	var _reactRouter = __webpack_require__(172);
 
-	var _AccountMenu = __webpack_require__(491);
+	var _AccountMenu = __webpack_require__(492);
 
 	var _AccountMenu2 = _interopRequireDefault(_AccountMenu);
 
@@ -57167,7 +57294,7 @@
 	exports.default = MainMenu;
 
 /***/ },
-/* 491 */
+/* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -57182,8 +57309,6 @@
 
 	var _reactRedux = __webpack_require__(235);
 
-	var _reactBootstrap = __webpack_require__(264);
-
 	var _reactRouter = __webpack_require__(172);
 
 	var _actions = __webpack_require__(479);
@@ -57194,12 +57319,18 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var handleLogout = function handleLogout(userId, accessToken, dispatch) {
-	    _userServices2.default.userLogout({ userId: userId }, accessToken).then(function (resolve) {
-	        dispatch((0, _actions.onLogout)());
-	    }, function (reject) {
-	        dispatch((0, _actions.showWarningModal)("ไม่สามารถออกจากระบบได้", reject.responseText));
-	    });
+	var handleLogout = function handleLogout(event) {
+	    event.preventDefault();
+	    return function (dispatch, getState) {
+	        var userId = getState().userObject.userId;
+	        var accessToken = getState().userObject.accessToken;
+	        _userServices2.default.userLogout({ userId: userId }, accessToken).then(function (resolve) {
+	            dispatch((0, _actions.onLogout)());
+	            _reactRouter.browserHistory.push('/');
+	        }, function (reject) {
+	            dispatch((0, _actions.showWarningModal)("ไม่สามารถออกจากระบบได้", reject.responseText));
+	        });
+	    };
 	};
 
 	var LoginButton = function LoginButton(_ref) {
@@ -57226,8 +57357,6 @@
 	var DropdownButton = function DropdownButton(_ref2) {
 	    var fbId = _ref2.fbId;
 	    var username = _ref2.username;
-	    var userId = _ref2.userId;
-	    var accessToken = _ref2.accessToken;
 	    var dispatch = _ref2.dispatch;
 	    return _react2.default.createElement(
 	        'div',
@@ -57275,9 +57404,9 @@
 	                'li',
 	                null,
 	                _react2.default.createElement(
-	                    _reactRouter.Link,
-	                    { to: '/', onClick: function onClick() {
-	                            return handleLogout(userId, accessToken, dispatch);
+	                    'a',
+	                    { href: '#', onClick: function onClick(event) {
+	                            return dispatch(handleLogout(event));
 	                        } },
 	                    'ออกจากระบบ'
 	                )
@@ -57289,9 +57418,7 @@
 	var mapStateToProps = function mapStateToProps(state) {
 	    return {
 	        fbId: state.userObject.fbId,
-	        username: state.userObject.username,
-	        userId: state.userObject.userId,
-	        accessToken: state.userObject.accessToken
+	        username: state.userObject.username
 	    };
 	};
 
@@ -57306,118 +57433,20 @@
 	var AccountMenu = function AccountMenu(_ref3) {
 	    var status = _ref3.status;
 
-	    if (status == 'NONE') {
-	        return null;
+	    if (status == 'LOGGED_IN') {
+	        return _react2.default.createElement(DropdownButtonContainer, null);
 	    }
-	    if (status != 'LOGGED_IN') {
+
+	    if (status == 'LOGGED_OUT' || status == 'UNAUTH') {
 	        return _react2.default.createElement(LoginButtonContainer, null); // after React v15 you can return null here
 	    }
 
-	    return _react2.default.createElement(DropdownButtonContainer, null);
+	    return null;
 	};
 
 	exports.default = (0, _reactRedux.connect)(function (state) {
 	    return state.userObject;
 	})(AccountMenu);
-
-/***/ },
-/* 492 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var debug = true;
-
-	var getParameterByName = function getParameterByName(name, url) {
-	    if (!url) url = window.location.href;
-	    name = name.replace(/[\[\]]/g, "\\$&");
-	    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-	        results = regex.exec(url);
-	    if (!results) return null;
-	    if (!results[2]) return '';
-	    return decodeURIComponent(results[2].replace(/\+/g, " "));
-	};
-
-	var appLog = function appLog(message) {
-	    if (debug) {
-	        console.log(message);
-	    }
-	};
-
-	var FBModule = function () {
-	    function FBModule() {
-	        _classCallCheck(this, FBModule);
-
-	        this.FB = null;
-	        this.targets = [];
-	    }
-
-	    _createClass(FBModule, [{
-	        key: "setFB",
-	        value: function setFB(FB) {
-	            this.FB = FB;
-	            this.publish();
-	        }
-	    }, {
-	        key: "subscribe",
-	        value: function subscribe(target) {
-	            this.targets.push(target);
-
-	            if (this.FB) {
-	                target(FB);
-	            }
-	        }
-	    }, {
-	        key: "publish",
-	        value: function publish() {
-	            var _this = this;
-
-	            this.targets.map(function (value) {
-	                value(_this.FB);
-	            });
-	        }
-	    }]);
-
-	    return FBModule;
-	}();
-
-	var fbModule = exports.fbModule = new FBModule();
-
-	if (typeof window != 'undefined') {
-	    console.log("facebook-init.js - client init");
-	    window.fbAsyncInit = function () {
-	        FB.init({
-	            appId: '1669516483298849',
-	            status: true,
-	            cookie: true,
-	            xfbml: true,
-	            version: 'v2.6'
-	        });
-
-	        appLog("facebook-init.js - FB SDK Loaded");
-	        fbModule.setFB(FB);
-	    };
-
-	    (function (d, s, id) {
-	        appLog("facebook-init.js - FB SDK Loading...");
-	        var js,
-	            fjs = d.getElementsByTagName(s)[0];
-	        if (d.getElementById(id)) {
-	            return;
-	        }
-	        js = d.createElement(s);js.id = id;
-	        js.src = "//connect.facebook.net/en_US/sdk.js";
-	        fjs.parentNode.insertBefore(js, fjs);
-	    })(document, 'script', 'facebook-jssdk');
-	}
 
 /***/ },
 /* 493 */
