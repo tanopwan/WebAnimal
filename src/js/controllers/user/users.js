@@ -1,5 +1,5 @@
 import express from 'express';
-import passport from './auth.js'
+import passport from './passport.js'
 
 import User from './userDBController.js'
 
@@ -117,7 +117,7 @@ function userLogout(req, res) {
 	User.updateUserOnLogout(userId).then( function(resolve) {
 		res.send({ code:0, message: "success" });
 	}, function(reject) {
-		res.status(500).send({ code: 1100, message: "Cannot get userId" });
+		res.status(500).send({ code: 1100, message: reject });
 	});
 }
 

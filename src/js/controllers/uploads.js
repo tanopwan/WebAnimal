@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import sharp from 'sharp';
-import passport from './auth.js'
+import passport from './common/auth.js'
 
 import Upload from './uploadDBController.js'
 

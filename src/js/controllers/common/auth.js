@@ -2,7 +2,7 @@ import passport from 'passport';
 import FacebookTokenStrategy from 'passport-facebook-token';
 
 //import {User} from './database';
-import User from './userDBController.js'
+import User from '../user/userDBController.js'
 
 var FACEBOOK_APP_ID = '1669516483298849';
 var FACEBOOK_APP_SECRET = '2c979757d7bba3051bbdaa81f0b3073d';
@@ -38,23 +38,6 @@ passport.use('facebook-token', new FacebookTokenStrategy({
 	    	console.log("auth.js - Validate user session error: " + JSON.stringify(error));
 	    	return done(err, null);
 	    });
-	}
-));
-
-passport.use('facebook-token-login', new FacebookTokenStrategy({
-		clientID        : FACEBOOK_APP_ID,
-		clientSecret    : FACEBOOK_APP_SECRET
-	}, function(accessToken, refreshToken, profile, done) {
-
-		//console.log("auth.js - facebook-token-login");
-	    var user = {
-	        'email': profile.emails[0].value,
-	        'name' : profile.name.givenName + ' ' + profile.name.familyName,
-	        'id'   : profile.id,
-	        'token': accessToken
-	    }
-
-	    return done(null, user);
 	}
 ));
 

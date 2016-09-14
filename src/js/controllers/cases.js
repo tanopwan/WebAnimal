@@ -1,5 +1,5 @@
 import express from 'express';
-import passport from './auth.js'
+import passport from './common/auth.js'
 
 import Case from './caseDBController.js'
 

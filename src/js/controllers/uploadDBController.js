@@ -1,4 +1,4 @@
-import conn from './mysql.js'
+import conn from './common/mysql.js'
 import shortid from 'shortid'
 import promise from 'es6-promise';
 

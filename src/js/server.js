@@ -8,12 +8,16 @@ import ReactDOMServer from 'react-dom/server';
 import App from './components/App.jsx';
 
 import bodyParser from 'body-parser';
-import passport from './controllers/auth.js'
+import passport from './controllers/common/auth.js'
+import fbPassport from './controllers/user/fbPassport.js'
 
 import router from './router.jsx';
-import user_router from './controllers/users.js'
+import user_router from './controllers/user/users.js'
 import case_router from './controllers/cases.js'
 import upload_router from './controllers/uploads.js'
+
+var FACEBOOK_APP_ID = '1669516483298849';
+var FACEBOOK_APP_SECRET = '2c979757d7bba3051bbdaa81f0b3073d';
 
 var app = express();
 
@@ -22,6 +26,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
+app.use(fbPassport.create(FACEBOOK_APP_ID, FACEBOOK_APP_SECRET).initialize());
 
 app.use('/api/user', user_router);
 app.use('/api/case', case_router);

@@ -1,4 +1,4 @@
-import conn from './mysql.js'
+import conn from '../common/mysql.js'
 import shortid from 'shortid'
 import promise from 'es6-promise';
 
@@ -55,7 +55,7 @@ const User = {
 		return queryOne(queryString);
     },
 	getUserByFbId: (fbId) => {
-		let queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.id=fbu.userId";
+		let queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.userId=fbu.userId";
 		return query(queryString);
 	},
 	deleteFBRecord: (userId) => {
@@ -71,16 +71,16 @@ const User = {
 		return query(queryString);
 	},
 	updateUserOnLogin: (userId) => {
-		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.id SET f.lastLogin=NOW() where userId='" + userId + "'";
+		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.userId SET f.lastLogin=NOW() where u.userId='" + userId + "'";
 		return query(queryString);
 	},
 	updateUserOnLogout: (userId) => {
-		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.id SET f.lastLogin=NULL where userId='" + userId + "'";
+		var queryString = "UPDATE FBUser f JOIN User u ON f.userId=u.userId SET f.lastLogin=NULL where u.userId='" + userId + "'";
 		return query(queryString);
 	},
 	validateFBUserSession: (fbId) => {
 		return new Promise(function (resolve, reject) {
-			var queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.id=fbu.userId";
+			var queryString = "SELECT * FROM User u, FBUser fbu WHERE fbu.fbId='" + fbId + "' AND u.userId=fbu.userId";
 			conn.query(queryString, function(err, result){
 				if(err)
 					return reject(err);
@@ -99,7 +99,7 @@ const User = {
 	},
 	updateUserByUserId: (userId, email, mobile, lineId) => {
 		//UPDATE `webanimal`.`User` SET `email`='tanopwan@gmail.com1', `mobile`='08011111111', `lineId`='tanopwan1' WHERE `userId`='rkrn0-0D';
-		var queryString = "UPDATE User SET email='" + email + "', lineId='" + lineId + "', mobile='" + mobile + "' WHERE id='" + userId + "'";
+		var queryString = "UPDATE User SET email='" + email + "', lineId='" + lineId + "', mobile='" + mobile + "' WHERE userId='" + userId + "'";
 		return query(queryString);
 	}
 }

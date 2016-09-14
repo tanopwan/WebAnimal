@@ -1,4 +1,4 @@
-import conn from './mysql.js'
+import conn from './common/mysql.js'
 import shortid from 'shortid'
 import promise from 'es6-promise';
 
@@ -29,11 +29,11 @@ const queryOne = (queryString) => {
 
 const Case = {
 	getCases: (limit) => {
-		let queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.userId=u.userId limit " + limit;
+		let queryString = "SELECT c.*, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.userId=u.userId limit " + limit;
 		return query(queryString);
 	},
 	getCase: (caseId) => {
-		let queryString = "SELECT c.*, u.username, u.fbId, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.caseId='" + caseId + "' and c.userId=u.userId";
+		let queryString = "SELECT c.*, u.email, u.mobile, u.lineId, u.verifyId FROM webanimal.Case c, webanimal.User u where c.caseId='" + caseId + "' and c.userId=u.userId";
 		return queryOne(queryString);
 	},
 	getComments: (caseId, limit) => {
