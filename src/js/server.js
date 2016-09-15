@@ -9,7 +9,8 @@ import App from './components/App.jsx';
 
 import bodyParser from 'body-parser';
 import passport from './controllers/common/auth.js'
-import fbPassport from './controllers/user/fbPassport.js'
+//import fbPassport from './controllers/user/fbPassport.js'
+import {fbPassport} from 'facebook-module-server-auth'
 
 import router from './router.jsx';
 import user_router from './controllers/user/users.js'

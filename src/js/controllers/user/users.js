@@ -1,5 +1,6 @@
 import express from 'express';
-import passport from './passport.js'
+//import passport from './passport.js'
+import {passport} from 'facebook-module-server-auth'
 
 import User from './userDBController.js'
 
